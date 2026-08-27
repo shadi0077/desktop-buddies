@@ -112,81 +112,89 @@ enum Banter {
     /// an exchange is the joke, and that has to be built in the language it's
     /// spoken in.
     static let arabicExchanges: [[BanterLine]] = [
-        [BanterLine("peedy", "أنت ساكن جدًا.", "point"),
-         BanterLine("bonzi", "شكرًا."),
-         BanterLine("peedy", "لم يكن مديحًا."),
-         BanterLine("bonzi", "سآخذها كمديح.", "shrug")],
+        [BanterLine("peedy", "أنت ساكن مرة.", "point"),
+         BanterLine("bonzi", "مشكور."),
+         BanterLine("peedy", "ما كان مدح."),
+         BanterLine("bonzi", "بآخذها مدح.", "shrug")],
 
-        [BanterLine("bonzi", "هل تتوقف عن الحركة أبدًا؟", "handsOnHips"),
+        [BanterLine("bonzi", "أنت ما تهدأ أبد؟", "handsOnHips"),
          BanterLine("peedy", "لا."),
-         BanterLine("bonzi", "فهمت.")],
+         BanterLine("bonzi", "زين، فهمت.")],
 
-        [BanterLine("peedy", "بماذا تفكر؟"),
-         BanterLine("bonzi", "بالموز."),
-         BanterLine("peedy", "قلت هذا آخر مرة.", "shrug"),
-         BanterLine("bonzi", "وما زال صحيحًا.")],
+        [BanterLine("peedy", "وش تفكر فيه؟"),
+         BanterLine("bonzi", "في الموز."),
+         BanterLine("peedy", "قلت كذا آخر مرة.", "shrug"),
+         BanterLine("bonzi", "ولا زال صحيح.")],
 
-        [BanterLine("bonzi", "تستطيع الوقوف على كتفي، تعرف ذلك.", "point"),
-         BanterLine("peedy", "أستطيع. لن أفعل. لكنني أستطيع.")],
+        [BanterLine("bonzi", "تقدر تقعد على كتفي، تدري؟", "point"),
+         BanterLine("peedy", "أقدر. بس ما بسوي. لكن أقدر.")],
 
-        [BanterLine("peedy", "أنا مستيقظ منذ الفجر.", "cheer"),
-         BanterLine("bonzi", "أعرف. سمعتك.", "scratchHead")],
+        [BanterLine("peedy", "أنا صاحي من الفجر.", "cheer"),
+         BanterLine("bonzi", "أدري. سمعتك.", "scratchHead")],
 
-        [BanterLine("bonzi", "أجنحة جميلة."),
-         BanterLine("peedy", "و... أذرع جميلة."),
-         BanterLine("bonzi", "شكرًا.")],
+        [BanterLine("bonzi", "أجنحتك حلوة."),
+         BanterLine("peedy", "و... ذراعينك حلوة."),
+         BanterLine("bonzi", "مشكور.")],
 
-        [BanterLine("peedy", "أسابقك إلى الطرف الآخر.", "flourish"),
+        [BanterLine("peedy", "نتسابق للطرف الثاني؟", "flourish"),
          BanterLine("bonzi", "لا."),
-         BanterLine("peedy", "منطقي.")],
+         BanterLine("peedy", "معك حق.")],
 
-        [BanterLine("bonzi", "هل رأسك صاخب هكذا دائمًا؟"),
-         BanterLine("peedy", "نعم! لماذا، هل هذا غريب؟", "cheer")],
+        [BanterLine("bonzi", "راسك دايم بهالصخب؟"),
+         BanterLine("peedy", "إي! ليه، هذا شي غريب؟", "cheer")],
 
-        [BanterLine("peedy", "أتظن أنهم يراقبوننا؟", "lookAround"),
-         BanterLine("bonzi", "باستمرار."),
-         BanterLine("peedy", "جيد. تظاهر بالانشغال.", "flourish")],
+        [BanterLine("peedy", "تتوقع يراقبوننا؟", "lookAround"),
+         BanterLine("bonzi", "على طول."),
+         BanterLine("peedy", "زين. تظاهر إنك مشغول.", "flourish")],
 
-        [BanterLine("bonzi", "أنت صغير الحجم."),
-         BanterLine("peedy", "أنا بحجم عملي تمامًا.", "announce")],
+        [BanterLine("bonzi", "أنت صغير."),
+         BanterLine("peedy", "أنا على قد شغلي بالضبط.", "announce")],
 
-        [BanterLine("peedy", "ما الخطة؟"),
-         BanterLine("bonzi", "لا توجد خطة."),
+        [BanterLine("peedy", "وش الخطة؟"),
+         BanterLine("bonzi", "ما فيه خطة."),
          BanterLine("peedy", "ممتاز.", "cheer")],
 
-        [BanterLine("bonzi", "احترس هناك في الأعلى."),
-         BanterLine("peedy", "أنا حذر دائمًا."),
-         BanterLine("bonzi", "أنت لست حذرًا أبدًا.", "handsOnHips")],
+        [BanterLine("bonzi", "دير بالك فوق."),
+         BanterLine("peedy", "أنا حريص دايم."),
+         BanterLine("bonzi", "أنت ما حرصت مرة.", "handsOnHips")],
 
-        [BanterLine("peedy", "خطرت لي فكرة.", "gestureUp"),
-         BanterLine("bonzi", "تفضل."),
-         BanterLine("peedy", "...ذهبت.", "shrug")],
+        [BanterLine("peedy", "جتني فكرة.", "gestureUp"),
+         BanterLine("bonzi", "قل."),
+         BanterLine("peedy", "...راحت.", "shrug")],
 
-        [BanterLine("bonzi", "اللون البنفسجي جميل."),
-         BanterLine("peedy", "الأخضر أفضل."),
-         BanterLine("bonzi", "لا بأس.")],
+        [BanterLine("bonzi", "البنفسجي لون حلو."),
+         BanterLine("peedy", "الأخضر أحلى."),
+         BanterLine("bonzi", "ولا يهمك.")],
 
-        [BanterLine("peedy", "هل تغني؟"),
-         BanterLine("bonzi", "ببطء."),
-         BanterLine("peedy", "هذه ليست إجابة بالنفي.", "point")],
+        [BanterLine("peedy", "تغنّي؟"),
+         BanterLine("bonzi", "على مهلي."),
+         BanterLine("peedy", "يعني ما قلت لا.", "point")],
 
-        [BanterLine("bonzi", "سطح المكتب يزدحم.", "lookAround"),
-         BanterLine("peedy", "كان مزدحمًا منذ وصلت أنت.")],
+        [BanterLine("bonzi", "الشاشة بدت تزحم.", "lookAround"),
+         BanterLine("peedy", "كانت زحمة من يوم جيت.")],
 
-        [BanterLine("peedy", "قل شيئًا ذكيًا.", "point"),
+        [BanterLine("peedy", "قل شي ذكي.", "point"),
          BanterLine("bonzi", "لا."),
          BanterLine("peedy", "يكفي.")],
 
-        [BanterLine("bonzi", "تريد موزة؟"),
-         BanterLine("peedy", "أريد بسكويتة."),
-         BanterLine("bonzi", "ليست عندي.", "shrug")],
+        [BanterLine("bonzi", "تبي موزة؟"),
+         BanterLine("peedy", "أبغى بسكوتة."),
+         BanterLine("bonzi", "ما عندي.", "shrug")],
 
-        [BanterLine("bonzi", "كيف تبقى لامعًا هكذا؟"),
-         BanterLine("peedy", "تنظيف متواصل للريش. وظيفة بدوام كامل.", "flourish")],
+        [BanterLine("bonzi", "كيف تضل لامع كذا؟"),
+         BanterLine("peedy", "تنظيف ريش على طول. دوام كامل.", "flourish")],
 
-        [BanterLine("peedy", "بيننا أجنحة وأذرع."),
+        [BanterLine("peedy", "بيني وبينك أجنحة وذراعين."),
          BanterLine("bonzi", "وبلا خطة."),
          BanterLine("peedy", "وبلا خطة.", "shrug")],
+
+        [BanterLine("peedy", "تعال نتقهوى.", "point"),
+         BanterLine("bonzi", "أنا ما أشرب قهوة."),
+         BanterLine("peedy", "إذًا تعال بس اقعد.")],
+
+        [BanterLine("bonzi", "الجو حار اليوم."),
+         BanterLine("peedy", "أنا عندي ريش، أنت وش عذرك؟"),
+         BanterLine("bonzi", "أنا عندي فرو. نفس المشكلة.", "shrug")],
     ]
 
     static func all(in language: Language) -> [[BanterLine]] {

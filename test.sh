@@ -92,6 +92,13 @@ for who in peedy bonzi; do
 done
 
 echo
+echo "== Arabic reads cleanly =="
+swiftc -O -framework AVFoundation -framework AppKit \
+  app/Sources/SpriteStore.swift $CONTENT app/Sources/Voice.swift \
+  tools/arabictest/main.swift -o build/arabictest
+./build/arabictest
+
+echo
 echo "== audio device churn =="
 swiftc -O -framework AVFoundation -framework AppKit \
   app/Sources/Language.swift app/Sources/Repertoire.swift app/Sources/Voice.swift \

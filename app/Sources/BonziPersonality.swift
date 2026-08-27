@@ -43,6 +43,7 @@ extension Personality {
         voiceOrder: ["com.apple.speech.synthesis.voice.Ralph",
                      "com.apple.eloquence.en-US.Grandpa",
                      "com.apple.speech.synthesis.voice.Fred"],
+        preferredLocales: ["en-US", "en-GB"],
         pitch: .deep,
         rate: 0.44,                 // noticeably slower than Peedy's 0.52
         singingRoot: 123,           // B2 — most of an octave below Peedy

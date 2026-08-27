@@ -62,6 +62,15 @@ final class Voice {
         languageCode(of: identifier) == language.rawValue
     }
 
+    /// The best installed voice for an exact locale like "ar-SA", preferring
+    /// higher-quality variants where several exist.
+    static func bestVoice(forLocale locale: String) -> String? {
+        AVSpeechSynthesisVoice.speechVoices()
+            .filter { $0.language.caseInsensitiveCompare(locale) == .orderedSame }
+            .max { $0.quality.rawValue < $1.quality.rawValue }?
+            .identifier
+    }
+
     /// Installed voices worth offering for a language. For English that's the
     /// curated MS-Sam-alike list; for anything else, whatever the system has.
     static func options(for language: Language) -> [Option] {

@@ -118,21 +118,23 @@ They are windows that draw an animal. Quit them from the menu bar and they're go
   <figcaption>Bonzi's entrance, frame by frame.</figcaption>
 </figure>
 
-<h2>يتكلمان العربية</h2>
-<p>Both characters speak Arabic as well as English, switchable from the menu —
+<h2>يتكلمون سعودي</h2>
+<p>Both characters speak <strong>Najdi Arabic</strong>, switchable from the menu —
 which localises with them. Speech balloons lay out right to left.</p>
 <figure>
   <img src="img/arabic.png" alt="Speech balloons showing Arabic lines from Peedy and Bonzi, laid out right to left">
-  <figcaption>Written, not translated. English puns don't survive the crossing.</figcaption>
+  <figcaption>Dialect, not textbook. The jokes are local too.</figcaption>
 </figure>
-<p>The Arabic jokes are Arabic jokes, the riddles are the classics everyone grew
-up on, and the songs are original — almost every Arabic song anyone would
-recognise is firmly in copyright. Only the facts carry across, because facts are
-facts.</p>
-<p>macOS ships exactly one Arabic voice, so the two share it and are told apart
-by pitch and pace instead: Peedy around 284&nbsp;Hz against Bonzi's 128. The lip
-sync follows loudness, so it's language-agnostic, and the singing holds pitch in
-Arabic exactly as it does in English.</p>
+<div class="dialogue" dir="rtl">
+  <p><b class="p">بيدي:</b> قال لي بجي بعد خمس دقايق... صار لي ساعة وأنا أعدّ.</p>
+  <p><b class="b">بونزي:</b> ليش ما أستعجل؟ الشجرة ما بتروح.</p>
+</div>
+<p>macOS exposes one Arabic voice, and its phonetics are Modern Standard — it
+says <em>qahwa</em>, not <em>gahwa</em>. So the dialect is Saudi and the
+pronunciation is fus·ḥā. What is controllable gets used: vocabulary and syntax,
+which cost the synthesiser nothing; pauses, which are the one handle on cadence;
+and pitch and pace, which is all that separates two characters sharing one
+voice.</p>
 
 <h2>Getting it running</h2>
 <p>macOS 11 Big Sur or later, on Apple Silicon, plus the Xcode command line

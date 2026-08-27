@@ -75,36 +75,54 @@ first if they've drifted apart. Two rules make it read as conversation rather
 than two monologues: nobody starts a line while somebody else is mid-sentence,
 and arrivals are staggered so they don't greet in unison.
 
-## Arabic
+## Arabic — Saudi
 
-Both characters speak Arabic as well as English, switchable from **Language** in
-the menu. The menu itself localises with them, and speech balloons lay out
-right-to-left.
+Both characters speak **Najdi Arabic**, switchable from **Language** in the
+menu. The menu localises with them and speech balloons lay out right-to-left.
 
 ![Arabic speech balloons](docs/img/arabic.png)
 
-It is written, not translated. English puns don't survive the crossing, so the
-Arabic jokes are Arabic jokes — Peedy's best one is *"يقولون إن الكلام من فضة
-والسكوت من ذهب... إذًا أنا مفلس تمامًا"* — and the riddles are the classics
-everyone grew up on. Only the facts carry across, because facts are facts. The
-songs are original: almost every Arabic song anyone would recognise is firmly in
-copyright, and a desktop toy is no place to find out where the line sits.
+Dialect, not textbook. `وش لونك` rather than `كيف حالك`, `أبغى` rather than
+`أريد`, and the riddles are asked the way people actually ask them — `وش الشي
+اللي...`. The jokes are local: coffee and dates, the heat, the five minutes that
+turn into an hour, the last five minutes of the working day.
 
-Modern Standard Arabic with a light Gulf warmth. Majed, the voice macOS ships,
-reads MSA cleanly; heavy dialect spelling makes him stumble.
+> **بيدي:** قال لي بجي بعد خمس دقايق... صار لي ساعة وأنا أعدّ.
+>
+> **بونزي:** ليش ما أستعجل؟ الشجرة ما بتروح.
 
-**One constraint worth knowing:** macOS ships exactly one Arabic voice, so both
-characters share it. They're told apart by pitch and pace instead — Peedy at
-about 284 Hz against Bonzi's 128, and Bonzi a good deal slower. Installing more
-Arabic voices under System Settings → Accessibility → Spoken Content gives them
-more to work with. If no Arabic voice is installed at all, the language simply
-isn't offered rather than being offered and mumbling in English.
+Only the facts carry across from English, because facts are facts — and even
+those are phrased in the same register. The songs are original: almost every
+Arabic song anyone would recognise is firmly in copyright.
 
-Everything else works unchanged: the lip sync follows the audio's loudness, so
-it's language-agnostic, and the singing holds pitch in Arabic exactly as it does
-in English (measured — every note locks to its target, zero wrong octaves).
+### What the voice can and can't do
 
-## Using them
+macOS exposes exactly one Arabic voice, **Majed** (`ar-001`), and its phonetics
+are Modern Standard. It says *qahwa*, not *gahwa*. Nothing in software changes
+that — so the **dialect is Saudi and the pronunciation is fusḥa**, which is a
+perfectly ordinary way to read dialect aloud, but it is not a Saudi accent.
+
+If a Saudi voice is ever installed, the app picks it up with no code change:
+`preferredLocales` asks for `ar-SA` first and only falls back to `ar-001`.
+
+What *is* controllable, and used:
+
+- **Vocabulary and syntax**, which is most of what makes speech sound local, and
+  costs nothing — measured, Majed reads dialect spelling at 104–119 ms/char
+  against MSA's 110–119. (I had assumed dialect would make it stumble; it
+  doesn't. Worth measuring before believing.)
+- **Pauses.** Commas and ellipses are the one handle on cadence: `يا هلا والله
+  حياك` runs 2.13 s, `يا هلا... والله... حياك` runs 2.54 s. Najdi speech leans
+  on pauses, so the lines are punctuated for it.
+- **Pitch and pace.** Both characters share the one voice, so this is all that
+  separates them: Peedy near 284 Hz, Bonzi near 128, and Bonzi much slower.
+
+`test.sh` renders all 356 Arabic lines and checks each reads at a normal rate —
+a line the voice can't handle shows up as a spike in ms/char, the signature of
+it spelling something out. It also checks the text is dialect rather than MSA,
+and that no Latin characters have crept in.
+
+## Using them## Using them
 
 | | |
 |---|---|

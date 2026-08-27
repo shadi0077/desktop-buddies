@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2
+
+- Arabic is now **Saudi (Najdi)** rather than Modern Standard: dialect
+  vocabulary and syntax throughout, local jokes, and riddles asked the way
+  people ask them. Measured — dialect spelling costs the synthesiser nothing.
+- The app prefers an `ar-SA` voice automatically if one is ever installed.
+- Fixed a crash when the audio device disappeared and came back mid-session.
+
 ## 1.1
 
 - **Arabic.** Both characters speak Modern Standard Arabic with a Gulf warmth,

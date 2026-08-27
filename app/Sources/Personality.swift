@@ -10,6 +10,8 @@ struct SpeechPack {
     let name: String
     /// Preferred voice identifiers, best first.
     let voiceOrder: [String]
+    /// Regional variants to fall back to, best first — "ar-SA" before "ar-001".
+    let preferredLocales: [String]
     let pitch: Voice.Pitch
     let rate: Float
     /// Sung tonic in Hz.
@@ -32,14 +34,22 @@ struct SpeechPack {
     let twisters: [String]
     let songs: [Song]
 
-    /// The voice this pack would like, falling back to whatever exists. An
-    /// Arabic pack that can't find an Arabic voice is better off silent than
-    /// reciting Arabic through an English synthesiser, which is unintelligible.
+    /// The voice this pack would like.
+    ///
+    /// A named voice wins if it's installed; otherwise the best regional match.
+    /// That ordering means the app upgrades itself: macOS exposes only the
+    /// world-Arabic voice today, but install a Saudi one and it gets picked up
+    /// with no code change.
+    ///
+    /// A pack that can find no voice for its language returns nil, and the
+    /// language isn't offered — reciting Arabic through an English synthesiser
+    /// doesn't fail, it spells it out, unintelligibly.
     var preferredVoice: String? {
-        for id in voiceOrder where Voice.options.contains(where: { $0.identifier == id }) {
-            return id
+        for id in voiceOrder where Voice.installed(id) { return id }
+        for locale in preferredLocales {
+            if let match = Voice.bestVoice(forLocale: locale) { return match }
         }
-        return voiceOrder.first { AVSpeechVoiceExists($0) }
+        return nil
     }
 }
 

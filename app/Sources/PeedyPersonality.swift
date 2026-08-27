@@ -36,6 +36,7 @@ extension Personality {
         name: "Peedy",
         voiceOrder: ["com.apple.speech.synthesis.voice.Fred",
                      "com.apple.speech.synthesis.voice.Junior"],
+        preferredLocales: ["en-US", "en-GB"],
         pitch: .high,
         rate: 0.52,
         singingRoot: 196,          // G3 — a bright little voice
