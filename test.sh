@@ -92,6 +92,13 @@ for who in peedy bonzi; do
 done
 
 echo
+echo "== audio device churn =="
+swiftc -O -framework AVFoundation -framework AppKit \
+  app/Sources/Language.swift app/Sources/Repertoire.swift app/Sources/Voice.swift \
+  tools/iotest/main.swift -o build/iotest
+./build/iotest
+
+echo
 echo "== right-to-left text =="
 swiftc -O -framework AppKit app/Sources/SpeechBubble.swift tools/rtltest/main.swift \
   -o build/rtltest

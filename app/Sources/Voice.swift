@@ -136,15 +136,19 @@ final class Voice {
     private let node = AVAudioPlayerNode()
     private var connectedFormat: AVAudioFormat?
 
-    /// Proof that the engine's IO thread is actually cycling.
+    /// When the engine's IO thread last rendered anything.
     ///
-    /// `engine.isRunning` is not that proof: with no usable output device it
-    /// returns true while nothing ever renders, and `node.play()` then raises
-    /// an ObjC exception that Swift cannot catch — a hard crash on any machine
-    /// whose audio is unavailable. A tap on the mixer fires once per render
-    /// cycle, so its first callback is the only trustworthy signal.
-    private var ioLive = false
-    private var ioTapped = false
+    /// `engine.isRunning` is no proof that it is: with no usable output device
+    /// it returns true while nothing ever renders, and `node.play()` then
+    /// raises an ObjC exception Swift cannot catch — a hard crash.
+    ///
+    /// This used to be a one-shot "IO has started" flag, which crashed anyway
+    /// when a machine's audio recovered mid-session: a device that comes and
+    /// goes leaves a sticky flag saying yes while the truth is no. A timestamp
+    /// refreshed by a permanent tap answers the only question that matters —
+    /// is it rendering *now* — and closes that window.
+    private var lastRenderAt: TimeInterval = 0
+    private var ioIsLive: Bool { CACurrentMediaTime() - lastRenderAt < 0.5 }
 
     /// Held for the lifetime of a render; dropping it mid-flight cancels it.
     private var writer: AVSpeechSynthesizer?
@@ -172,7 +176,7 @@ final class Voice {
             forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main
         ) { [weak self] _ in
             guard let self else { return }
-            self.ioLive = false
+            self.lastRenderAt = 0
             self.connectedFormat = nil
             self.connect(to: AVAudioFormat(standardFormatWithSampleRate: 22050, channels: 1))
             self.watchForIO()
@@ -180,17 +184,14 @@ final class Voice {
         }
     }
 
+    /// Reconnecting the graph can drop an existing tap, so always remove and
+    /// reinstall rather than assuming the previous one survived.
     private func watchForIO() {
-        guard !ioTapped else { return }
-        ioTapped = true
-        engine.mainMixerNode.installTap(onBus: 0, bufferSize: 1024, format: nil) { [weak self] _, _ in
-            guard let self, !self.ioLive else { return }
-            DispatchQueue.main.async {
-                guard !self.ioLive else { return }
-                self.ioLive = true
-                self.ioTapped = false
-                self.engine.mainMixerNode.removeTap(onBus: 0)
-            }
+        engine.mainMixerNode.removeTap(onBus: 0)
+        engine.mainMixerNode.installTap(onBus: 0, bufferSize: 1024,
+                                        format: nil) { [weak self] _, _ in
+            // Audio thread: a plain store, deliberately unsynchronised.
+            self?.lastRenderAt = CACurrentMediaTime()
         }
     }
 
@@ -671,7 +672,7 @@ final class Voice {
         connect(to: clip.buffer.format)
         if !engine.isRunning { try? engine.start() }
 
-        guard ioLive else {
+        guard ioIsLive else {
             // Give a just-started engine a moment to spin up, then give up and
             // mime rather than risk the exception.
             if waited < 0.75, engine.isRunning {
