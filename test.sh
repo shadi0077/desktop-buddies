@@ -7,8 +7,10 @@ mkdir -p build shots
 
 APPKIT="-framework AppKit -framework ServiceManagement -framework AVFoundation"
 CORE="app/Sources/SpriteStore.swift app/Sources/BuddyView.swift app/Sources/SpeechBubble.swift"
-CONTENT="app/Sources/Chatter.swift app/Sources/Repertoire.swift app/Sources/Personality.swift
-         app/Sources/PeedyPersonality.swift app/Sources/BonziPersonality.swift"
+CONTENT="app/Sources/Language.swift app/Sources/Chatter.swift app/Sources/Repertoire.swift
+         app/Sources/Personality.swift
+         app/Sources/PeedyPersonality.swift app/Sources/PeedyArabic.swift
+         app/Sources/BonziPersonality.swift app/Sources/BonziArabic.swift"
 ENGINE="app/Sources/Animator.swift app/Sources/BuddyWindow.swift app/Sources/Voice.swift
         app/Sources/Brain.swift"
 
@@ -31,7 +33,7 @@ python3 tools/lint_content.py
 echo
 echo "== pitch resynthesis =="
 swiftc -O -framework AVFoundation -framework AppKit \
-  app/Sources/Repertoire.swift app/Sources/Voice.swift \
+  app/Sources/Language.swift app/Sources/Repertoire.swift app/Sources/Voice.swift \
   tools/dsptest/main.swift -o build/dsptest
 ./build/dsptest
 
@@ -74,6 +76,9 @@ echo
 echo "== voice, visemes and icons =="
 swiftc -O -framework AppKit -framework AVFoundation \
   app/Sources/SpriteStore.swift app/Sources/Repertoire.swift app/Sources/Voice.swift \
+  app/Sources/Language.swift app/Sources/Personality.swift \
+  app/Sources/PeedyPersonality.swift app/Sources/PeedyArabic.swift \
+  app/Sources/BonziPersonality.swift app/Sources/BonziArabic.swift \
   tools/voicetest/main.swift -o build/voicetest
 for who in peedy bonzi; do echo "-- $who"; ./build/voicetest "$who"; done
 
@@ -82,7 +87,15 @@ echo "== repertoire and singing =="
 swiftc -O -framework AppKit -framework AVFoundation \
   app/Sources/SpriteStore.swift $CONTENT app/Sources/Voice.swift \
   tools/songtest/main.swift -o build/songtest
-for who in peedy bonzi; do echo "-- $who"; ./build/songtest "$who"; done
+for who in peedy bonzi; do
+  for lang in en ar; do echo "-- $who/$lang"; ./build/songtest "$who" "$lang"; done
+done
+
+echo
+echo "== right-to-left text =="
+swiftc -O -framework AppKit app/Sources/SpeechBubble.swift tools/rtltest/main.swift \
+  -o build/rtltest
+./build/rtltest
 
 echo
 echo "== volume slider =="

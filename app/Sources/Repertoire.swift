@@ -1,6 +1,6 @@
 import Foundation
 
-// Everything he performs, as opposed to the small talk in Chatter.
+// Shared material both characters can draw on, and the songs as note data.
 // All of it ships in the bundle: he has no network access and never will.
 
 struct Joke {
@@ -83,7 +83,7 @@ enum Repertoire {
     ]
 
     /// Riddles work in either voice, so they're shared.
-    static let riddles: [Riddle] = [
+    static let englishRiddles: [Riddle] = [
         Riddle(question: "What has keys but opens no locks?", answer: "A piano."),
         Riddle(question: "What gets wetter the more it dries?", answer: "A towel."),
         Riddle(question: "I speak without a mouth and hear without ears. What am I?",
@@ -99,6 +99,44 @@ enum Repertoire {
         Riddle(question: "What has one eye but cannot see?", answer: "A needle."),
         Riddle(question: "What can you catch but never throw?", answer: "A cold."),
         Riddle(question: "What has a neck but no head?", answer: "A bottle."),
+    ]
+
+    /// The same facts in Arabic. Facts are the one thing that does translate.
+    static let arabicSharedFacts: [String] = [
+        "العسل لا يفسد. عثر علماء الآثار على جِرار عسل عمرها آلاف السنين وما زالت صالحة.",
+        "للأخطبوط ثلاثة قلوب ودم أزرق.",
+        "الموز ثمرة عنبية. أما الفراولة فليست كذلك. علم النبات فوضى.",
+        "فضلات حيوان الومبات مكعبة الشكل، ولم يفسّر أحد السبب تفسيرًا كاملًا.",
+        "عدد مباريات الشطرنج الممكنة أكبر من عدد الذرات في الكون المرئي.",
+        "اليوم على كوكب الزهرة أطول من السنة عليه.",
+        "الزهرة يدور حول نفسه بعكس اتجاه معظم الكواكب الأخرى.",
+        "أسماك القرش أقدم من الأشجار بنحو مئة مليون سنة.",
+        "عاشت كليوباترا أقرب زمنيًا إلى الهبوط على القمر منها إلى بناء الهرم الأكبر.",
+        "برج إيفل أطول في الصيف، لأن الحديد يتمدد بالحرارة.",
+        "ثعالب الماء تمسك أيدي بعضها أثناء النوم حتى لا يبتعد بعضها عن بعض.",
+        "الحيوان الوطني لاسكتلندا هو وحيد القرن الأسطوري.",
+        "أقصر حرب مسجّلة في التاريخ انتهت في نحو أربعين دقيقة.",
+        "بطانة معدتك تتجدد كل بضعة أيام، وإلا لهضمت نفسها.",
+        "الصوت ينتقل في الماء أسرع نحو أربع مرات منه في الهواء.",
+        "عدد الأشجار على الأرض أكبر من عدد النجوم في مجرة درب التبانة.",
+        "أول حاسوب يغنّي كان آي بي إم ٧٠٤ عام ألف وتسعمئة وواحد وستين.",
+        "كلمة بِت اختصار للرقم الثنائي، وقد صاغها الإحصائي جون توكي.",
+        "اختار راي توملينسون رمز آت للبريد الإلكتروني عام ألف وتسعمئة وواحد وسبعين، لأن أحدًا لم يكن يستخدم ذلك الزر.",
+        "الغوغول هو واحد يتبعه مئة صفر، وقد سمّاه طفل في التاسعة من عمره.",
+    ]
+
+    /// Classic Arabic riddles, the kind everyone grew up on.
+    static let arabicRiddles: [Riddle] = [
+        Riddle(question: "ما هو الشيء الذي كلما أخذت منه كبر؟", answer: "الحفرة."),
+        Riddle(question: "ما هو الشيء الذي له أسنان ولا يعض؟", answer: "المشط."),
+        Riddle(question: "ما هو الشيء الذي يمشي بلا أرجل ويبكي بلا عيون؟", answer: "السحاب."),
+        Riddle(question: "ما هو الشيء الذي يرتفع ولا ينزل أبدًا؟", answer: "العمر."),
+        Riddle(question: "ما هو الشيء الذي يتكلم بلا لسان ويسمع بلا أذن؟", answer: "الصدى."),
+        Riddle(question: "ما هو الشيء الذي كلما جفّف ازداد بللًا؟", answer: "المنشفة."),
+        Riddle(question: "ما هو الشيء الذي له عين واحدة ولا يرى؟", answer: "الإبرة."),
+        Riddle(question: "ما هو البيت الذي ليس له باب ولا نافذة؟", answer: "بيت الشِّعر."),
+        Riddle(question: "ما هو الشيء الذي له رأس ولا عين له؟", answer: "الدبوس."),
+        Riddle(question: "ما هو الشيء الذي يدور حول البيت ولا يتحرك؟", answer: "السور."),
     ]
 
     // MARK: - Songs
@@ -209,6 +247,63 @@ enum Repertoire {
                 ]),
                 SongPhrase(lyric: "hallelujah.", notes: [
                     Note("hal", 4), Note("le", 2), Note("lu", 0), Note("jah", 0, 2),
+                ]),
+             ]),
+    ]
+
+    /// Written for this, rather than borrowed. Almost every Arabic song anyone
+    /// would recognise is firmly in copyright, and a desktop toy is no place to
+    /// find out where the line is — so these are simple original ditties, built
+    /// from whole short words the synthesiser pronounces cleanly on their own.
+    static let peedyArabicSongs: [Song] = [
+        Song(title: "يا هلا",
+             intro: "أغنية قصيرة. ألّفتها بنفسي، فلا تنتقدها كثيرًا.",
+             secondsPerBeat: 0.46,
+             phrases: [
+                SongPhrase(lyric: "يا هلا، يا هلا", notes: [
+                    Note("يا", 0), Note("هلا", 4), Note("يا", 7), Note("هلا", 4),
+                ]),
+                SongPhrase(lyric: "يا هلا بالضيف", notes: [
+                    Note("يا", 7), Note("هلا", 9), Note("بالضيف", 7, 2),
+                ]),
+             ]),
+
+        Song(title: "أين البسكويت",
+             intro: "هذه أغنية احتجاج.",
+             secondsPerBeat: 0.44,
+             phrases: [
+                SongPhrase(lyric: "أين البسكويت؟", notes: [
+                    Note("أين", 7), Note("البسكويت", 4, 2),
+                ]),
+                SongPhrase(lyric: "لا أحد يدري", notes: [
+                    Note("لا", 4), Note("أحد", 2), Note("يدري", 0, 2),
+                ]),
+             ]),
+    ]
+
+    /// Slower and lower, like everything else he does.
+    static let bonziArabicSongs: [Song] = [
+        Song(title: "على مهلي",
+             intro: "أغنية بطيئة. تناسبني.",
+             secondsPerBeat: 0.58,
+             phrases: [
+                SongPhrase(lyric: "على مهلي، على مهلي", notes: [
+                    Note("على", 0), Note("مهلي", 4, 2), Note("على", 0), Note("مهلي", 2, 2),
+                ]),
+                SongPhrase(lyric: "لا أستعجل أبدًا", notes: [
+                    Note("لا", 4), Note("أستعجل", 2, 2), Note("أبدًا", 0, 2),
+                ]),
+             ]),
+
+        Song(title: "الموز",
+             intro: "هذه عن الموز. معظم أغانيّ عن الموز.",
+             secondsPerBeat: 0.54,
+             phrases: [
+                SongPhrase(lyric: "موز، موز، موز طيب", notes: [
+                    Note("موز", 0), Note("موز", 4), Note("موز", 7), Note("طيب", 4, 2),
+                ]),
+                SongPhrase(lyric: "كل يوم آكل موز", notes: [
+                    Note("كل", 7), Note("يوم", 9), Note("آكل", 7), Note("موز", 0, 2),
                 ]),
              ]),
     ]

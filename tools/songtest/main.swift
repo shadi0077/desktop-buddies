@@ -5,7 +5,10 @@ import AVFoundation
 // landing on the right beats — or just talk at one pitch?
 _ = NSApplication.shared
 let id = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "peedy"
-let who = Personality.named(id)
+let lang = Language(rawValue: CommandLine.arguments.count > 2
+                    ? CommandLine.arguments[2] : "en") ?? .english
+let who = Personality.named(id).pack(lang)
+print("— \(who.name) (\(lang.rawValue))")
 var failures = 0
 func check(_ label: String, _ ok: Bool, _ detail: String = "") {
     if ok { print("  ok   \(label)") } else { print("  FAIL \(label) \(detail)"); failures += 1 }
@@ -25,13 +28,13 @@ check("no duplicate jokes",
 check("no duplicate facts",
       Set(who.facts).count == who.facts.count)
 check("riddles all have answers",
-      Repertoire.riddles.allSatisfy { !$0.answer.isEmpty })
+      who.riddles.allSatisfy { !$0.answer.isEmpty })
 check("everything is short enough for a bubble",
       (who.facts + who.twisters
         + who.jokes.map(\.setup) + who.jokes.map(\.punchline))
           .allSatisfy { $0.count < 130 })
 print("        \(who.jokes.count) jokes, \(who.facts.count) facts, "
-      + "\(Repertoire.riddles.count) riddles, \(who.twisters.count) twisters, "
+      + "\(who.riddles.count) riddles, \(who.twisters.count) twisters, "
       + "\(who.songs.count) songs")
 
 print("\nsongs are well formed:")

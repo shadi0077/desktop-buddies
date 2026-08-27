@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1
+
+- **Arabic.** Both characters speak Modern Standard Arabic with a Gulf warmth,
+  switchable from the menu. Written rather than translated: Arabic jokes,
+  classic Arabic riddles, original songs. The menu localises too, and speech
+  balloons lay out right-to-left.
+- macOS ships one Arabic voice, so the two are told apart by pitch and pace.
+  A language with no installed voice isn't offered.
+
 ## 1.0
 
 First release.

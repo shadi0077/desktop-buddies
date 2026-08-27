@@ -22,21 +22,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var chattiness: Chattiness = .occasional
     /// This app's own level, nothing to do with the system volume.
     private var volume: Float = 0.8
+    private var language: Language = .english
+
+    /// Shorthand for a menu string in the current language.
+    private func t(_ key: String) -> String { UI.t(key, language) }
 
     func applicationDidFinishLaunching(_ note: Notification) {
         size = BuddySize(rawValue: CGFloat(defaults.double(forKey: "size"))) ?? .medium
         chattiness = Chattiness(rawValue: defaults.object(forKey: "chattiness") as? Int ?? 1)
             ?? .occasional
         volume = Float(defaults.object(forKey: "volume") as? Double ?? 0.8)
+        // Default to Arabic only if the Mac is already Arabic and a voice for
+        // it exists; otherwise English, which every character always has.
+        let systemPrefersArabic = Locale.preferredLanguages.first?.hasPrefix("ar") ?? false
+        language = Language(rawValue: defaults.string(forKey: "language") ?? "")
+            ?? (systemPrefersArabic ? .arabic : .english)
 
-        cast = Cast(scale: size.rawValue)
+        cast = Cast(language: language, scale: size.rawValue)
         guard !cast.buddies.isEmpty else {
             let alert = NSAlert()
-            alert.messageText = "Nobody could be found."
-            alert.informativeText = "The character resources are missing from the app bundle."
+            alert.messageText = t("Nobody could be found.")
+            alert.informativeText = t("Missing resources")
             alert.runModal()
             NSApp.terminate(nil)
             return
+        }
+        // Fall back if the chosen language has no installed voice.
+        if !cast.availableLanguages.contains(language) {
+            language = cast.availableLanguages.first ?? .english
+            cast.speak(language)
         }
         cast.chattiness = chattiness
 
@@ -62,6 +76,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Debugging hook: PEEDY_TURN=song|joke|fact|riddle|twister|banter runs
         // that on launch, rather than waiting for the idle rotation.
+        if let raw = ProcessInfo.processInfo.environment["PEEDY_LANG"],
+           let forced = Language(rawValue: raw), forced != language {
+            language = forced
+            cast.speak(forced)
+            for buddy in cast.buddies { restoreVoice(for: buddy) }
+        }
+
         if let name = ProcessInfo.processInfo.environment["PEEDY_TURN"] {
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
                 guard let self else { return }
@@ -88,15 +109,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func screensChanged() { cast.clampAll() }
 
+    /// Voice and pitch overrides are saved per character *and* per language.
+    ///
+    /// They used to be saved per character only, which meant a voice chosen
+    /// while speaking English was reapplied over the Arabic pack — and an
+    /// English synthesiser handed Arabic spells it out at ten times the length,
+    /// unintelligibly. A saved voice that can't speak the current language is
+    /// now ignored outright.
     private func restoreVoice(for buddy: Buddy) {
         let voice = buddy.brain.voice
         voice.isEnabled = defaults.object(forKey: "voice") as? Bool ?? true
         voice.volume = volume
-        if let saved = defaults.string(forKey: "voiceIdentifier.\(buddy.id)"),
-           Voice.options.contains(where: { $0.identifier == saved }) {
+
+        let suffix = "\(buddy.id).\(language.rawValue)"
+        if let saved = defaults.string(forKey: "voiceIdentifier.\(suffix)"),
+           Voice.installed(saved), Voice.canSpeak(saved, language) {
             voice.identifier = saved
         }
-        if let raw = defaults.object(forKey: "voicePitch.\(buddy.id)") as? Double,
+        if let raw = defaults.object(forKey: "voicePitch.\(suffix)") as? Double,
            let pitch = Voice.Pitch(rawValue: Float(raw)) {
             voice.pitch = pitch
         }
@@ -146,29 +176,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.autoenablesItems = false
         let present = cast.onScreen
 
-        menu.addItem(item("Say Hello", #selector(sayHello)))
-        menu.addItem(item("Tell a Joke", #selector(tellJoke)))
-        menu.addItem(item("Tell Me Something", #selector(tellFact)))
-        menu.addItem(item("Sing a Song", #selector(singSong)))
+        menu.addItem(item(t("Say Hello"), #selector(sayHello)))
+        menu.addItem(item(t("Tell a Joke"), #selector(tellJoke)))
+        menu.addItem(item(t("Tell Me Something"), #selector(tellFact)))
+        menu.addItem(item(t("Sing a Song"), #selector(singSong)))
 
         if present.count > 1 {
-            menu.addItem(item("Let Them Chat", #selector(haveThemChat)))
+            menu.addItem(item(t("Let Them Chat"), #selector(haveThemChat)))
         }
 
-        let more = NSMenuItem(title: "More", action: nil, keyEquivalent: "")
+        let more = NSMenuItem(title: t("More"), action: nil, keyEquivalent: "")
         let moreMenu = NSMenu()
-        moreMenu.addItem(item("Do a Trick", #selector(doTrick)))
-        moreMenu.addItem(item("Ask Me a Riddle", #selector(tellRiddle)))
-        moreMenu.addItem(item("Tongue Twister", #selector(tellTwister)))
+        moreMenu.addItem(item(t("Do a Trick"), #selector(doTrick)))
+        moreMenu.addItem(item(t("Ask Me a Riddle"), #selector(tellRiddle)))
+        moreMenu.addItem(item(t("Tongue Twister"), #selector(tellTwister)))
         more.submenu = moreMenu
         menu.addItem(more)
         menu.addItem(.separator())
 
         // Who's out.
-        let who = NSMenuItem(title: "Who's Here", action: nil, keyEquivalent: "")
+        let who = NSMenuItem(title: t("Who's Here"), action: nil, keyEquivalent: "")
         let whoMenu = NSMenu()
         for buddy in cast.buddies {
-            let mi = item(buddy.personality.name, #selector(toggleCharacter(_:)))
+            let mi = item(buddy.brain.displayName, #selector(toggleCharacter(_:)))
             mi.representedObject = buddy.id
             mi.state = buddy.isVisible ? .on : .off
             whoMenu.addItem(mi)
@@ -182,10 +212,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         menu.addItem(.separator())
 
-        let chat = NSMenuItem(title: "Chattiness", action: nil, keyEquivalent: "")
+        // Language, when there's more than one to choose from.
+        let usable = cast.availableLanguages
+        if usable.count > 1 {
+            let langItem = NSMenuItem(title: t("Language"), action: nil, keyEquivalent: "")
+            let langMenu = NSMenu()
+            for l in usable {
+                let mi = item(l.title, #selector(setLanguage(_:)))
+                mi.representedObject = l.rawValue
+                mi.state = l == language ? .on : .off
+                langMenu.addItem(mi)
+            }
+            langItem.submenu = langMenu
+            menu.addItem(langItem)
+        }
+
+        let chat = NSMenuItem(title: t("Chattiness"), action: nil, keyEquivalent: "")
         let chatMenu = NSMenu()
         for level in Chattiness.allCases {
-            let mi = item(level.title, #selector(setChattiness(_:)))
+            let mi = item(t(level.title), #selector(setChattiness(_:)))
             mi.representedObject = level.rawValue
             mi.state = level == chattiness ? .on : .off
             chatMenu.addItem(mi)
@@ -193,10 +238,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         chat.submenu = chatMenu
         menu.addItem(chat)
 
-        let sizeItem = NSMenuItem(title: "Size", action: nil, keyEquivalent: "")
+        let sizeItem = NSMenuItem(title: t("Size"), action: nil, keyEquivalent: "")
         let sizeMenu = NSMenu()
         for s in BuddySize.allCases {
-            let mi = item(s.title, #selector(setSize(_:)))
+            let mi = item(t(s.title), #selector(setSize(_:)))
             mi.representedObject = s.rawValue
             mi.state = s == size ? .on : .off
             sizeMenu.addItem(mi)
@@ -205,7 +250,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(sizeItem)
 
         let voiceOn = cast.buddies.first?.brain.voice.isEnabled ?? true
-        menu.addItem(item(voiceOn ? "Mute Voices" : "Unmute Voices", #selector(toggleVoice)))
+        menu.addItem(item(t(voiceOn ? "Mute Voices" : "Unmute Voices"),
+                          #selector(toggleVoice)))
 
         // Their own level, not the system's.
         let volumeItem = NSMenuItem()
@@ -215,33 +261,34 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         volumeItem.isEnabled = voiceOn
         menu.addItem(volumeItem)
 
-        let login = item("Open at Login", #selector(toggleLoginItem))
+        let login = item(t("Open at Login"), #selector(toggleLoginItem))
         login.state = loginEnabled ? .on : .off
         menu.addItem(login)
 
         menu.addItem(.separator())
-        menu.addItem(item("About", #selector(showAbout)))
-        menu.addItem(item("Quit", #selector(quit), key: "q"))
+        menu.addItem(item(t("About"), #selector(showAbout)))
+        menu.addItem(item(t("Quit"), #selector(quit), key: "q"))
         return menu
     }
 
     private func characterMenu(for buddy: Buddy) -> NSMenuItem {
-        let root = NSMenuItem(title: buddy.personality.name, action: nil, keyEquivalent: "")
+        let root = NSMenuItem(title: buddy.brain.displayName, action: nil, keyEquivalent: "")
         let sub = NSMenu()
 
-        let come = item("Come Here", #selector(comeHere(_:)))
+        let come = item(t("Come Here"), #selector(comeHere(_:)))
         come.representedObject = buddy.id
         sub.addItem(come)
 
-        let away = item("Send Away", #selector(sendAway(_:)))
+        let away = item(t("Send Away"), #selector(sendAway(_:)))
         away.representedObject = buddy.id
         sub.addItem(away)
         sub.addItem(.separator())
 
-        if !Voice.options.isEmpty {
-            let voiceItem = NSMenuItem(title: "Voice", action: nil, keyEquivalent: "")
+        let voices = Voice.options(for: language)
+        if !voices.isEmpty {
+            let voiceItem = NSMenuItem(title: t("Voice"), action: nil, keyEquivalent: "")
             let voiceMenu = NSMenu()
-            for option in Voice.options {
+            for option in voices {
                 let title = option.note.map { "\(option.title) — \($0)" } ?? option.title
                 let mi = item(title, #selector(setVoice(_:)))
                 mi.representedObject = [buddy.id, option.identifier]
@@ -251,10 +298,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             voiceItem.submenu = voiceMenu
             sub.addItem(voiceItem)
 
-            let pitchItem = NSMenuItem(title: "Pitch", action: nil, keyEquivalent: "")
+            let pitchItem = NSMenuItem(title: t("Pitch"), action: nil, keyEquivalent: "")
             let pitchMenu = NSMenu()
             for p in Voice.Pitch.allCases {
-                let mi = item(p.title, #selector(setPitch(_:)))
+                let mi = item(t(p.title), #selector(setPitch(_:)))
                 mi.representedObject = [buddy.id, "\(p.rawValue)"]
                 mi.state = p == buddy.brain.voice.pitch ? .on : .off
                 pitchMenu.addItem(mi)
@@ -341,6 +388,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         } ? point : nil
     }
 
+    @objc private func setLanguage(_ sender: NSMenuItem) {
+        guard let raw = sender.representedObject as? String,
+              let chosen = Language(rawValue: raw), chosen != language else { return }
+        language = chosen
+        cast.speak(chosen)
+        for buddy in cast.buddies { restoreVoice(for: buddy) }
+        defaults.set(raw, forKey: "language")
+        refreshMenu()
+        // Say something immediately, so the change is audible rather than
+        // just visible in a menu.
+        cast.onScreen.randomElement()?.brain.greet()
+    }
+
     @objc private func setChattiness(_ sender: NSMenuItem) {
         guard let raw = sender.representedObject as? Int,
               let level = Chattiness(rawValue: raw) else { return }
@@ -382,9 +442,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard let pair = sender.representedObject as? [String], pair.count == 2,
               let buddy = cast.buddy(pair[0]) else { return }
         buddy.brain.voice.identifier = pair[1]
-        defaults.set(pair[1], forKey: "voiceIdentifier.\(buddy.id)")
+        defaults.set(pair[1], forKey: "voiceIdentifier.\(buddy.id).\(language.rawValue)")
         refreshMenu()
-        buddy.brain.say("Hello. My name is \(buddy.personality.name).")
+        buddy.brain.say(language == .arabic
+                        ? "\(t("voice preview")) \(buddy.brain.displayName)."
+                        : "Hello. My name is \(buddy.brain.displayName).")
     }
 
     @objc private func setPitch(_ sender: NSMenuItem) {
@@ -392,9 +454,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
               let buddy = cast.buddy(pair[0]),
               let raw = Float(pair[1]), let pitch = Voice.Pitch(rawValue: raw) else { return }
         buddy.brain.voice.pitch = pitch
-        defaults.set(Double(raw), forKey: "voicePitch.\(buddy.id)")
+        defaults.set(Double(raw), forKey: "voicePitch.\(buddy.id).\(language.rawValue)")
         refreshMenu()
-        buddy.brain.say("How does this sound?")
+        buddy.brain.say(t("pitch preview"))
     }
 
     // MARK: - Login item
@@ -409,13 +471,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // helper bundle, so hand the user off to System Preferences instead.
         guard #available(macOS 13.0, *) else {
             let alert = NSAlert()
-            alert.messageText = "Add them under Login Items"
-            alert.informativeText = """
+            alert.messageText = t("Add them under Login Items")
+            alert.informativeText = language == .arabic ? t("Login items body") : """
                 On macOS 12 and earlier this is set in System Preferences → \
                 Users & Groups → Login Items.
                 """
-            alert.addButton(withTitle: "Open Login Items")
-            alert.addButton(withTitle: "Cancel")
+            alert.addButton(withTitle: t("Open Login Items"))
+            alert.addButton(withTitle: t("Cancel"))
             NSApp.activate(ignoringOtherApps: true)
             if alert.runModal() == .alertFirstButtonReturn {
                 NSWorkspace.shared.open(
@@ -431,10 +493,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
         } catch {
             let alert = NSAlert()
-            alert.messageText = "Couldn't change the login setting."
-            alert.informativeText =
-                "\(error.localizedDescription)\n\nThis usually needs the app to live in "
-                + "/Applications and be signed."
+            alert.messageText = t("Couldn't change the login setting.")
+            alert.informativeText = "\(error.localizedDescription)\n\n"
+                + (language == .arabic ? t("Login error hint")
+                   : "This usually needs the app to live in /Applications and be signed.")
             alert.runModal()
         }
         refreshMenu()
@@ -442,8 +504,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func showAbout() {
         let alert = NSAlert()
-        alert.messageText = "Desktop Buddies"
-        alert.informativeText = """
+        alert.messageText = t("Desktop Buddies")
+        alert.informativeText = language == .arabic ? t("About body") : """
             Peedy is a parrot. Bonzi is a gorilla. They walk around, do bits, \
             and occasionally argue. Have one, or both.
 
@@ -454,7 +516,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
             Sprites from the Microsoft Agent character set.
             """
-        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: t("OK"))
         NSApp.activate(ignoringOtherApps: true)
         alert.runModal()
     }

@@ -41,6 +41,9 @@ enum Chattiness: Int, CaseIterable {
 /// through here so only one thing is ever in flight at a time.
 final class Brain {
     let personality: Personality
+    /// What he says and how he sounds, in the language currently selected.
+    private(set) var pack: SpeechPack
+    private(set) var language: Language = .english
 
     /// Trace lines carry the character's name, so a two-hander is readable.
     private func plog(_ message: @autoclosure () -> String) {
@@ -105,9 +108,11 @@ final class Brain {
 
     var isVisible: Bool { mode != .away }
 
-    init(personality: Personality, store: SpriteStore,
+    init(personality: Personality, language: Language, store: SpriteStore,
          animator: Animator, window: BuddyWindow) {
         self.personality = personality
+        self.language = language
+        self.pack = personality.pack(language)
         self.store = store
         self.animator = animator
         self.window = window
@@ -118,11 +123,46 @@ final class Brain {
             guard let self, self.voice.isSpeaking, self.voice.isEnabled else { return nil }
             return self.voice.level
         }
-        voice.identifier = personality.preferredVoice
-        voice.pitch = personality.pitch
-        voice.rate = personality.rate
-        voice.personalityRoot = personality.singingRoot
+        applyPack()
         wireWindow()
+    }
+
+    /// Switch language. Anything mid-sentence is dropped rather than finished
+    /// in a language he's no longer speaking.
+    func speak(_ language: Language) {
+        guard language != self.language else { return }
+        self.language = language
+        pack = personality.pack(language)
+        stopSpeaking()
+        applyPack()
+        // The pools all changed, so what he said a moment ago is no guide.
+        recentLines = RecentPicks(limit: 8)
+        recentJokes = RecentPicks(limit: 10)
+        recentFacts = RecentPicks(limit: 14)
+        recentSongs = RecentPicks(limit: 2)
+        plog("language -> \(language.rawValue)")
+    }
+
+    private func applyPack() {
+        if let id = pack.preferredVoice { voice.identifier = id }
+        voice.pitch = pack.pitch
+        voice.rate = pack.rate
+        voice.personalityRoot = pack.singingRoot
+    }
+
+    /// The name he goes by in the language he's speaking.
+    var displayName: String { pack.name }
+
+    /// One line for this hour of the day, in his own language.
+    private func timeOfDayPool(_ hour: Int) -> [String] {
+        let slot: Int
+        switch hour {
+        case 5..<12: slot = 0
+        case 12..<18: slot = 1
+        case 18..<23: slot = 2
+        default: slot = 3           // 23 and 0..<5
+        }
+        return pack.timeOfDay.count > slot ? [pack.timeOfDay[slot]] : pack.greetings
     }
 
     // MARK: - Liveliness
@@ -198,7 +238,7 @@ final class Brain {
         scheduleBeat()
         perform(recentMoves.pick(from: ["greet", "cheer", "announce"])) { [weak self] in
             guard let self, self.chattiness != .quiet else { return }
-            self.say(self.recentLines.pick(from: personality.welcomeBack))
+            self.say(self.recentLines.pick(from: pack.welcomeBack))
         }
     }
 
@@ -266,7 +306,7 @@ final class Brain {
                 guard let self else { return }
                 self.animator.mirrored = false
                 if self.chattiness == .chatty, Double.random(in: 0...1) < 0.3 {
-                    self.say(self.recentLines.pick(from: personality.noticed))
+                    self.say(self.recentLines.pick(from: pack.noticed))
                 }
             }
         }
@@ -284,7 +324,7 @@ final class Brain {
             self.goIdle()                     // must precede say(): goIdle
             // Half the time he notices what time of day it is.        // plays "rest" over the hold
             let hour = Calendar.current.component(.hour, from: Date())
-            let pool = Bool.random() ? Chatter.greeting(atHour: hour) : personality.greetings
+            let pool = Bool.random() ? self.timeOfDayPool(hour) : self.pack.greetings
             self.say(self.recentLines.pick(from: pool))
         }
     }
@@ -297,7 +337,7 @@ final class Brain {
         lastOrigin = window.frame.origin
         cancelTravel()
         mode = .busy
-        say(recentLines.pick(from: personality.leaving), pose: nil, duration: 1.6)
+        say(recentLines.pick(from: pack.leaving), pose: nil, duration: 1.6)
         animator.play("depart") { [weak self] in
             self?.hideNow()
             completion?()
@@ -410,7 +450,7 @@ final class Brain {
             if Double.random(in: 0...1) < chattiness.speakChance * (0.55 + energy * 0.45) {
                 perform(name) { [weak self] in
                     guard let self else { return }
-                    self.say(self.recentLines.pick(from: personality.idle))
+                    self.say(self.recentLines.pick(from: pack.idle))
                 }
             } else {
                 perform(name)
@@ -446,7 +486,7 @@ final class Brain {
         mode = .busy
         plog("bit \(bit.intro)")
         let token = bump()
-        let line = personality.byBit[bit.talk].map { recentLines.pick(from: $0) }
+        let line = pack.byBit[bit.talk].map { recentLines.pick(from: $0) }
         animator.play(bit.intro) { [weak self] in
             guard let self, self.current(token) else { return }
             let finishBit = {
@@ -537,7 +577,8 @@ final class Brain {
 
     fileprivate func showBubble(_ text: String, duration: TimeInterval) {
         guard let screen = currentScreen() else { return }
-        bubble.present(text, pointingAt: headAnchor(), on: screen)
+        bubble.present(text, rightToLeft: language.isRightToLeft,
+                       pointingAt: headAnchor(), on: screen)
         bubbleUntil = clock + duration
     }
 
@@ -711,9 +752,9 @@ final class Brain {
     private func tellJoke() {
         // Pick once: pick() mutates, so calling it inside first(where:) would
         // re-roll for every element and compare against a moving target.
-        let setup = recentJokes.pick(from: personality.jokes.map(\.setup))
+        let setup = recentJokes.pick(from: pack.jokes.map(\.setup))
         guard mode == .idle,
-              let joke = personality.jokes.first(where: { $0.setup == setup }) else { return }
+              let joke = pack.jokes.first(where: { $0.setup == setup }) else { return }
         say(joke.setup)
         afterSpeaking(0.7) { [weak self] in
             guard let self, self.mode == .idle else { return }
@@ -730,7 +771,7 @@ final class Brain {
     /// Same shape, but a longer pause — you're meant to have a go.
     private func tellRiddle() {
         guard mode == .idle,
-              let riddle = Repertoire.riddles.randomElement() else { return }
+              let riddle = pack.riddles.randomElement() else { return }
         say(riddle.question)
         afterSpeaking(2.6) { [weak self] in
             guard let self, self.mode == .idle else { return }
@@ -740,7 +781,7 @@ final class Brain {
 
     private func tellFact() {
         guard mode == .idle else { return }
-        let fact = recentFacts.pick(from: personality.facts)
+        let fact = recentFacts.pick(from: pack.facts)
         let move = firstAvailable(["idea", "announce", "cheer"])
         let pose = store.talkPoses["idea"] != nil ? "idea" : "neutral"
         perform(move) { [weak self] in
@@ -750,7 +791,7 @@ final class Brain {
 
     private func tellTwister() {
         guard mode == .idle else { return }
-        say(recentLines.pick(from: personality.twisters))
+        say(recentLines.pick(from: pack.twisters))
     }
 
     private func sing() {
@@ -759,8 +800,8 @@ final class Brain {
             perform(recentMoves.pick(from: ["cheer", "flourish"]))
             return
         }
-        let title = recentSongs.pick(from: personality.songs.map(\.title))
-        guard let song = personality.songs.first(where: { $0.title == title }) else { return }
+        let title = recentSongs.pick(from: pack.songs.map(\.title))
+        guard let song = pack.songs.first(where: { $0.title == title }) else { return }
 
         mode = .busy
         let token = bump()
@@ -883,7 +924,7 @@ final class Brain {
         stopSpeaking()
         stir(0.2)
         let hour = Calendar.current.component(.hour, from: Date())
-        let pool = Bool.random() ? Chatter.greeting(atHour: hour) : personality.greetings
+        let pool = Bool.random() ? self.timeOfDayPool(hour) : self.pack.greetings
         perform(recentMoves.pick(from: ["greet", "cheer"])) { [weak self] in
             guard let self else { return }
             self.say(self.recentLines.pick(from: pool))
@@ -903,9 +944,9 @@ final class Brain {
         let move: String
         let pool: [String]?
         switch reaction {
-        case .startled: move = recentMoves.pick(from: ["surprised", "greet"]); pool = personality.poked
-        case .playful:  move = recentMoves.pick(from: ["cheer", "greet", "point", "shrug"]); pool = personality.poked
-        case .tiring:   move = recentMoves.pick(from: ["shrug", "lookAround"]); pool = personality.pokedAgain
+        case .startled: move = recentMoves.pick(from: ["surprised", "greet"]); pool = pack.poked
+        case .playful:  move = recentMoves.pick(from: ["cheer", "greet", "point", "shrug"]); pool = pack.poked
+        case .tiring:   move = recentMoves.pick(from: ["shrug", "lookAround"]); pool = pack.pokedAgain
         case .hadEnough:
             // He has stopped finding it interesting. A blink and nothing else.
             nextBlink = clock
@@ -970,7 +1011,7 @@ final class Brain {
             let settle = {
                 self.goIdle()
                 if self.chattiness != .quiet {
-                    self.say(self.recentLines.pick(from: self.personality.dropped))
+                    self.say(self.recentLines.pick(from: self.pack.dropped))
                 }
             }
             if case .flies(_, _, let land) = self.personality.travel {

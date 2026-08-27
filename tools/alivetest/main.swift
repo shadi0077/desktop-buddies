@@ -104,15 +104,14 @@ for point in [faraway, onHim, onHim, onHim, faraway, faraway, onHim] {
 }
 check("notices once per approach, not per frame", notices == 2, "\(notices)")
 
-print("\ntime of day:")
-let pools: [(Int, [String])] = [(7, Chatter.morning), (14, Chatter.afternoon),
-                                (20, Chatter.evening), (2, Chatter.lateNight),
-                                (23, Chatter.lateNight)]
-for (hour, expected) in pools {
-    check("\(hour):00 picks the right pool", Chatter.greeting(atHour: hour) == expected)
+print("\ntime of day, per character and language:")
+for p in Personality.all {
+    for lang in Language.allCases {
+        let pack = p.pack(lang)
+        check("\(p.id)/\(lang.rawValue): a line for each part of the day",
+              pack.timeOfDay.count == 4 && pack.timeOfDay.allSatisfy { !$0.isEmpty })
+    }
 }
-check("every hour of the day returns something",
-      (0..<24).allSatisfy { !Chatter.greeting(atHour: $0).isEmpty })
 
 print("\nno immediate repeats:")
 var picks = RecentPicks(limit: 4)

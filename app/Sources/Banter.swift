@@ -108,9 +108,94 @@ enum Banter {
          BanterLine("peedy", "And no plan.", "shrug")],
     ]
 
+    /// The Arabic double act. Written rather than translated — the rhythm of
+    /// an exchange is the joke, and that has to be built in the language it's
+    /// spoken in.
+    static let arabicExchanges: [[BanterLine]] = [
+        [BanterLine("peedy", "أنت ساكن جدًا.", "point"),
+         BanterLine("bonzi", "شكرًا."),
+         BanterLine("peedy", "لم يكن مديحًا."),
+         BanterLine("bonzi", "سآخذها كمديح.", "shrug")],
+
+        [BanterLine("bonzi", "هل تتوقف عن الحركة أبدًا؟", "handsOnHips"),
+         BanterLine("peedy", "لا."),
+         BanterLine("bonzi", "فهمت.")],
+
+        [BanterLine("peedy", "بماذا تفكر؟"),
+         BanterLine("bonzi", "بالموز."),
+         BanterLine("peedy", "قلت هذا آخر مرة.", "shrug"),
+         BanterLine("bonzi", "وما زال صحيحًا.")],
+
+        [BanterLine("bonzi", "تستطيع الوقوف على كتفي، تعرف ذلك.", "point"),
+         BanterLine("peedy", "أستطيع. لن أفعل. لكنني أستطيع.")],
+
+        [BanterLine("peedy", "أنا مستيقظ منذ الفجر.", "cheer"),
+         BanterLine("bonzi", "أعرف. سمعتك.", "scratchHead")],
+
+        [BanterLine("bonzi", "أجنحة جميلة."),
+         BanterLine("peedy", "و... أذرع جميلة."),
+         BanterLine("bonzi", "شكرًا.")],
+
+        [BanterLine("peedy", "أسابقك إلى الطرف الآخر.", "flourish"),
+         BanterLine("bonzi", "لا."),
+         BanterLine("peedy", "منطقي.")],
+
+        [BanterLine("bonzi", "هل رأسك صاخب هكذا دائمًا؟"),
+         BanterLine("peedy", "نعم! لماذا، هل هذا غريب؟", "cheer")],
+
+        [BanterLine("peedy", "أتظن أنهم يراقبوننا؟", "lookAround"),
+         BanterLine("bonzi", "باستمرار."),
+         BanterLine("peedy", "جيد. تظاهر بالانشغال.", "flourish")],
+
+        [BanterLine("bonzi", "أنت صغير الحجم."),
+         BanterLine("peedy", "أنا بحجم عملي تمامًا.", "announce")],
+
+        [BanterLine("peedy", "ما الخطة؟"),
+         BanterLine("bonzi", "لا توجد خطة."),
+         BanterLine("peedy", "ممتاز.", "cheer")],
+
+        [BanterLine("bonzi", "احترس هناك في الأعلى."),
+         BanterLine("peedy", "أنا حذر دائمًا."),
+         BanterLine("bonzi", "أنت لست حذرًا أبدًا.", "handsOnHips")],
+
+        [BanterLine("peedy", "خطرت لي فكرة.", "gestureUp"),
+         BanterLine("bonzi", "تفضل."),
+         BanterLine("peedy", "...ذهبت.", "shrug")],
+
+        [BanterLine("bonzi", "اللون البنفسجي جميل."),
+         BanterLine("peedy", "الأخضر أفضل."),
+         BanterLine("bonzi", "لا بأس.")],
+
+        [BanterLine("peedy", "هل تغني؟"),
+         BanterLine("bonzi", "ببطء."),
+         BanterLine("peedy", "هذه ليست إجابة بالنفي.", "point")],
+
+        [BanterLine("bonzi", "سطح المكتب يزدحم.", "lookAround"),
+         BanterLine("peedy", "كان مزدحمًا منذ وصلت أنت.")],
+
+        [BanterLine("peedy", "قل شيئًا ذكيًا.", "point"),
+         BanterLine("bonzi", "لا."),
+         BanterLine("peedy", "يكفي.")],
+
+        [BanterLine("bonzi", "تريد موزة؟"),
+         BanterLine("peedy", "أريد بسكويتة."),
+         BanterLine("bonzi", "ليست عندي.", "shrug")],
+
+        [BanterLine("bonzi", "كيف تبقى لامعًا هكذا؟"),
+         BanterLine("peedy", "تنظيف متواصل للريش. وظيفة بدوام كامل.", "flourish")],
+
+        [BanterLine("peedy", "بيننا أجنحة وأذرع."),
+         BanterLine("bonzi", "وبلا خطة."),
+         BanterLine("peedy", "وبلا خطة.", "shrug")],
+    ]
+
+    static func all(in language: Language) -> [[BanterLine]] {
+        language == .arabic ? arabicExchanges : exchanges
+    }
+
     /// Exchanges that only involve characters currently on screen.
-    static func available(for cast: Set<String>) -> [[BanterLine]] {
-        exchanges.filter { exchange in
+    static func available(for cast: Set<String>, in language: Language) -> [[BanterLine]] {
+        all(in: language).filter { exchange in
             Set(exchange.map(\.who)).isSubset(of: cast) && Set(exchange.map(\.who)).count > 1
         }
     }

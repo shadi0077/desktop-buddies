@@ -75,6 +75,35 @@ first if they've drifted apart. Two rules make it read as conversation rather
 than two monologues: nobody starts a line while somebody else is mid-sentence,
 and arrivals are staggered so they don't greet in unison.
 
+## Arabic
+
+Both characters speak Arabic as well as English, switchable from **Language** in
+the menu. The menu itself localises with them, and speech balloons lay out
+right-to-left.
+
+![Arabic speech balloons](docs/img/arabic.png)
+
+It is written, not translated. English puns don't survive the crossing, so the
+Arabic jokes are Arabic jokes — Peedy's best one is *"يقولون إن الكلام من فضة
+والسكوت من ذهب... إذًا أنا مفلس تمامًا"* — and the riddles are the classics
+everyone grew up on. Only the facts carry across, because facts are facts. The
+songs are original: almost every Arabic song anyone would recognise is firmly in
+copyright, and a desktop toy is no place to find out where the line sits.
+
+Modern Standard Arabic with a light Gulf warmth. Majed, the voice macOS ships,
+reads MSA cleanly; heavy dialect spelling makes him stumble.
+
+**One constraint worth knowing:** macOS ships exactly one Arabic voice, so both
+characters share it. They're told apart by pitch and pace instead — Peedy at
+about 284 Hz against Bonzi's 128, and Bonzi a good deal slower. Installing more
+Arabic voices under System Settings → Accessibility → Spoken Content gives them
+more to work with. If no Arabic voice is installed at all, the language simply
+isn't offered rather than being offered and mumbling in English.
+
+Everything else works unchanged: the lip sync follows the audio's loudness, so
+it's language-agnostic, and the singing holds pitch in Arabic exactly as it does
+in English (measured — every note locks to its target, zero wrong octaves).
+
 ## Using them
 
 | | |

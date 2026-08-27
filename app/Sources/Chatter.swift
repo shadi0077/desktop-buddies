@@ -2,25 +2,6 @@ import Foundation
 
 /// The few lines that read the same in either mouth. Everything with a voice
 /// to it lives in Personality.
-enum Chatter {
-    static let morning = ["Morning.", "Good morning.", "Morning, then."]
-    static let afternoon = ["Afternoon.", "Good afternoon.", "Afternoon, is it."]
-    static let evening = ["Evening.", "Good evening.", "Evening already."]
-    static let lateNight = ["It's very late, you know.",
-                            "Still up?",
-                            "Nothing good gets written at this hour."]
-
-    /// Greeting pool for the hour of the day, 0–23.
-    static func greeting(atHour hour: Int) -> [String] {
-        switch hour {
-        case 5..<12: return morning
-        case 12..<18: return afternoon
-        case 18..<23: return evening
-        default: return lateNight          // 23 and 0..<5
-        }
-    }
-}
-
 /// Remembers the last few picks so he doesn't say the same thing twice running.
 ///
 /// Without this he repeats himself constantly — a short pool plus uniform

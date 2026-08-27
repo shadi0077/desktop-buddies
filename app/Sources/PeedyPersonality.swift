@@ -5,12 +5,6 @@ extension Personality {
     /// has opinions about crackers.
     static let peedy = Personality(
         id: "peedy",
-        name: "Peedy",
-        voiceOrder: ["com.apple.speech.synthesis.voice.Fred",
-                     "com.apple.speech.synthesis.voice.Junior"],
-        pitch: .high,
-        rate: 0.52,
-        singingRoot: 196,      // G3 — a bright little voice
         scale: 1.15,
         beatRange: 9...22,
         travel: .flies(takeoff: "takeoff", cruise: "fly", land: "land"),
@@ -34,6 +28,17 @@ extension Personality {
             .init(intro: "proud", loop: nil, outro: nil,
                   hold: 0...0, talk: "proud", pose: "proud"),
         ],
+
+        packs: [.english: peedyEnglish, .arabic: peedyArabic]
+    )
+
+    static let peedyEnglish = SpeechPack(
+        name: "Peedy",
+        voiceOrder: ["com.apple.speech.synthesis.voice.Fred",
+                     "com.apple.speech.synthesis.voice.Junior"],
+        pitch: .high,
+        rate: 0.52,
+        singingRoot: 196,          // G3 — a bright little voice
 
         greetings: [
             "Well hello there!",
@@ -133,6 +138,8 @@ extension Personality {
             "Ooh, movement.",
         ],
 
+        timeOfDay: ["Morning.", "Afternoon.", "Evening.", "It's very late, you know."],
+
         byBit: [
             "reading": ["Anything good in here? No. Never is.",
                         "The crossword defeats me every time.",
@@ -216,6 +223,8 @@ extension Personality {
             "An ostrich's eye is larger than its brain.",
             "A woodpecker can strike a tree about twenty times a second.",
         ],
+
+        riddles: Repertoire.englishRiddles,
 
         twisters: [
             "She sells sea shells by the sea shore.",

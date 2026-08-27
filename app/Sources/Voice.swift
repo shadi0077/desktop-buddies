@@ -40,6 +40,37 @@ final class Voice {
             ?? ""
     }
 
+    /// Whether the system has this voice, including ones not in `options` —
+    /// the Arabic voices aren't on the MS-Sam-alike list but are perfectly
+    /// installed.
+    static func installed(_ identifier: String) -> Bool {
+        AVSpeechSynthesisVoice(identifier: identifier) != nil
+    }
+
+    /// The language a voice speaks, as a bare code like "en" or "ar".
+    static func languageCode(of identifier: String) -> String? {
+        AVSpeechSynthesisVoice(identifier: identifier)?.language
+            .split(separator: "-").first.map(String.init)
+    }
+
+    /// Whether a voice is a sensible choice for this language.
+    ///
+    /// Handing Arabic text to an English synthesiser doesn't fail — it spells
+    /// it out, at roughly ten times the length and entirely unintelligible.
+    /// So a saved voice from another language must never be reapplied.
+    static func canSpeak(_ identifier: String, _ language: Language) -> Bool {
+        languageCode(of: identifier) == language.rawValue
+    }
+
+    /// Installed voices worth offering for a language. For English that's the
+    /// curated MS-Sam-alike list; for anything else, whatever the system has.
+    static func options(for language: Language) -> [Option] {
+        if language == .english { return options }
+        return AVSpeechSynthesisVoice.speechVoices()
+            .filter { $0.language.hasPrefix(language.rawValue) }
+            .map { Option(title: $0.name, identifier: $0.identifier, note: nil) }
+    }
+
     static func title(for identifier: String) -> String {
         options.first { $0.identifier == identifier }?.title ?? "System voice"
     }

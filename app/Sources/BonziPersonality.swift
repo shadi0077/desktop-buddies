@@ -2,19 +2,10 @@ import Foundation
 
 extension Personality {
     /// Slow, heavy, unbothered. Where Peedy fires off ten short remarks a
-    /// minute, Bonzi says one long one and then sits down. Low voice, unhurried
-    /// rate, long gaps between beats. He likes bananas, gravity, and not
-    /// rushing.
+    /// minute, Bonzi says one long one and then sits down. He likes bananas,
+    /// gravity, and not rushing.
     static let bonzi = Personality(
         id: "bonzi",
-        name: "Bonzi",
-        // A different voice from Peedy's Fred, so they're never confusable.
-        voiceOrder: ["com.apple.speech.synthesis.voice.Ralph",
-                     "com.apple.eloquence.en-US.Grandpa",
-                     "com.apple.speech.synthesis.voice.Fred"],
-        pitch: .deep,
-        rate: 0.44,
-        singingRoot: 123,      // B2 — most of an octave below Peedy                 // noticeably slower than Peedy's 0.52
         scale: 1.0,                 // his canvas is already bigger than Peedy's
         beatRange: 14...32,         // and he does far less, far less often
         travel: .hops(cruise: "vineSwing"),
@@ -42,6 +33,19 @@ extension Personality {
             .init(intro: "paper", loop: nil, outro: nil,
                   hold: 0...0, talk: "paper", pose: "paper"),
         ],
+
+        packs: [.english: bonziEnglish, .arabic: bonziArabic]
+    )
+
+    static let bonziEnglish = SpeechPack(
+        name: "Bonzi",
+        // A different voice from Peedy's Fred, so they're never confusable.
+        voiceOrder: ["com.apple.speech.synthesis.voice.Ralph",
+                     "com.apple.eloquence.en-US.Grandpa",
+                     "com.apple.speech.synthesis.voice.Fred"],
+        pitch: .deep,
+        rate: 0.44,                 // noticeably slower than Peedy's 0.52
+        singingRoot: 123,           // B2 — most of an octave below Peedy
 
         greetings: [
             "Oh. Hello.",
@@ -128,6 +132,8 @@ extension Personality {
             "Hello, pointer.",
         ],
 
+        timeOfDay: ["Morning.", "Afternoon.", "Evening.", "It's very late."],
+
         byBit: [
             "reading": ["It's a long one. I'm on page four.",
                         "Books are heavy. That's the main thing about books.",
@@ -205,6 +211,8 @@ extension Personality {
             "Chest-beating isn't aggression so much as an announcement of size. It's honest advertising.",
             "Bananas grow pointing upwards, not hanging down. Nobody believes me about this.",
         ],
+
+        riddles: Repertoire.englishRiddles,
 
         twisters: [
             "How much wood would a woodchuck chuck if a woodchuck could chuck wood.",

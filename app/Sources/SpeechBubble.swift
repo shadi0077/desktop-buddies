@@ -6,6 +6,10 @@ final class BubbleView: NSView {
     enum TailSide { case bottom, top }
 
     var text: String = "" { didSet { needsDisplay = true } }
+    /// Arabic reads right to left. CoreText shapes and joins the glyphs on its
+    /// own, but the paragraph's base direction has to be set explicitly or
+    /// punctuation and any embedded Latin land on the wrong end of the line.
+    var rightToLeft = false { didSet { needsDisplay = true } }
     var tail: TailSide = .bottom { didSet { needsDisplay = true } }
     /// Horizontal position of the tail, in view coordinates.
     var tailX: CGFloat = 0 { didSet { needsDisplay = true } }
@@ -17,20 +21,24 @@ final class BubbleView: NSView {
 
     override var isOpaque: Bool { false }
 
-    static func attributed(_ s: String) -> NSAttributedString {
+    static func attributed(_ s: String, rightToLeft: Bool = false) -> NSAttributedString {
         let para = NSMutableParagraphStyle()
         para.alignment = .center
         para.lineBreakMode = .byWordWrapping
+        para.baseWritingDirection = rightToLeft ? .rightToLeft : .leftToRight
+        // Arabic sits smaller than Latin at the same point size, so give it a
+        // little more room to stay comfortably readable in a small balloon.
+        let size: CGFloat = rightToLeft ? 15 : 13
         return NSAttributedString(string: s, attributes: [
-            .font: NSFont.systemFont(ofSize: 13, weight: .medium),
+            .font: NSFont.systemFont(ofSize: size, weight: .medium),
             .foregroundColor: NSColor.black,
             .paragraphStyle: para,
         ])
     }
 
     /// Total window size needed for a line of text.
-    static func size(for text: String) -> NSSize {
-        let a = attributed(text)
+    static func size(for text: String, rightToLeft: Bool = false) -> NSSize {
+        let a = attributed(text, rightToLeft: rightToLeft)
         let bounds = a.boundingRect(with: NSSize(width: maxTextWidth, height: 400),
                                     options: [.usesLineFragmentOrigin, .usesFontLeading])
         return NSSize(width: ceil(bounds.width) + inset.left + inset.right,
@@ -102,8 +110,8 @@ final class BubbleView: NSView {
         textRect.origin.y += Self.inset.bottom
         textRect.size.width -= Self.inset.left + Self.inset.right
         textRect.size.height -= Self.inset.top + Self.inset.bottom
-        Self.attributed(text).draw(with: textRect,
-                                   options: [.usesLineFragmentOrigin, .usesFontLeading])
+        Self.attributed(text, rightToLeft: rightToLeft).draw(
+            with: textRect, options: [.usesLineFragmentOrigin, .usesFontLeading])
     }
 
     // Clicks belong to whatever is underneath.
@@ -131,8 +139,9 @@ final class SpeechBubbleWindow: NSPanel {
     override var canBecomeMain: Bool { false }
 
     /// Show `text` pointing at `anchor` (a screen point at the bird's head).
-    func present(_ text: String, pointingAt anchor: NSPoint, on screen: NSScreen) {
-        let size = BubbleView.size(for: text)
+    func present(_ text: String, rightToLeft: Bool = false,
+                 pointingAt anchor: NSPoint, on screen: NSScreen) {
+        let size = BubbleView.size(for: text, rightToLeft: rightToLeft)
         let vf = screen.visibleFrame
 
         var origin = NSPoint(x: anchor.x - size.width / 2, y: anchor.y)
@@ -145,6 +154,7 @@ final class SpeechBubbleWindow: NSPanel {
         origin.y = min(max(origin.y, vf.minY + 6), vf.maxY - size.height - 6)
 
         bubble.text = text
+        bubble.rightToLeft = rightToLeft
         bubble.tail = side
         setFrame(NSRect(origin: origin, size: size), display: true)
         bubble.tailX = anchor.x - origin.x

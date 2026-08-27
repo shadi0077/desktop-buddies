@@ -8,13 +8,13 @@ final class Buddy {
     let animator: Animator
     let brain: Brain
 
-    init?(personality: Personality, scale: CGFloat) {
+    init?(personality: Personality, language: Language, scale: CGFloat) {
         guard let store = SpriteStore(character: personality.id) else { return nil }
         self.personality = personality
         self.store = store
         window = BuddyWindow(store: store, scale: scale * personality.scale)
         animator = Animator(store: store, view: window.buddyView)
-        brain = Brain(personality: personality, store: store,
+        brain = Brain(personality: personality, language: language, store: store,
                       animator: animator, window: window)
         store.warm(["rest", "arrive", personality.travel.cruise, "greet", "blink"])
     }
@@ -40,9 +40,12 @@ final class Cast {
         didSet { buddies.forEach { $0.brain.chattiness = chattiness } }
     }
 
-    init(scale: CGFloat) {
+    private(set) var language: Language
+
+    init(language: Language, scale: CGFloat) {
+        self.language = language
         for personality in Personality.all {
-            if let buddy = Buddy(personality: personality, scale: scale) {
+            if let buddy = Buddy(personality: personality, language: language, scale: scale) {
                 buddies.append(buddy)
             }
         }
@@ -68,6 +71,22 @@ final class Cast {
     }
 
     func buddy(_ id: String) -> Buddy? { buddies.first { $0.id == id } }
+
+    /// Switch everyone over at once — a bilingual pair would be odd.
+    func speak(_ language: Language) {
+        guard language != self.language else { return }
+        self.language = language
+        talking = false
+        buddies.forEach { $0.brain.speak(language) }
+    }
+
+    /// Languages every character on screen can actually speak. A language with
+    /// no installed voice isn't offered at all.
+    var availableLanguages: [Language] {
+        Language.allCases.filter { language in
+            buddies.allSatisfy { $0.personality.packs[language]?.preferredVoice != nil }
+        }
+    }
     var onScreen: [Buddy] { buddies.filter(\.isVisible) }
     var activeIDs: Set<String> { Set(onScreen.map(\.id)) }
 
@@ -133,7 +152,7 @@ final class Cast {
         let present = onScreen
         guard present.count > 1, present.allSatisfy({ $0.brain.isAvailable }) else { return false }
 
-        let options = Banter.available(for: activeIDs)
+        let options = Banter.available(for: activeIDs, in: language)
         guard !options.isEmpty else { return false }
 
         // Pick by opening line so the no-repeat memory has something stable to
