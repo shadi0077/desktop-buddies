@@ -1,0 +1,31 @@
+name: Bug report
+description: Something isn't behaving
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: And what you expected instead.
+    validations: {required: true}
+  - type: textarea
+    id: trace
+    attributes:
+      label: Debug trace
+      description: |
+        Run them with tracing on and paste the relevant lines. This shows what
+        they decided to do and when, which is usually the whole answer.
+      placeholder: PEEDY_DEBUG=1 ./build/Peedy.app/Contents/MacOS/Peedy
+      render: shell
+  - type: input
+    id: version
+    attributes:
+      label: macOS version and Mac model
+    validations: {required: true}
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before filing
+      options:
+        - label: "`./test.sh` passes on my machine"
+        - label: I'm not reporting missing sprites (see docs/SPRITES.md)

@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Desktop Buddies — a parrot and a gorilla for your Mac</title>
+<meta name="description" content="Two animated characters who live on your macOS desktop, do bits, sing in tune, and argue with each other. No network, no analytics, no upsell.">
+<meta property="og:title" content="Desktop Buddies">
+<meta property="og:description" content="A parrot and a gorilla for your Mac. They walk around, tell jokes, sing in tune, and talk to each other.">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #fbfaf7; --panel: #ffffff; --ink: #1b1b1f; --muted: #5c5c68;
+  --line: #e4e2dc; --accent: #2f7d43; --accent2: #6b4b9a; --code: #f4f2ee;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --panel: #1e1e24; --ink: #eceaf0; --muted: #a2a0ad;
+    --line: #2e2e38; --accent: #5fbd77; --accent2: #a98bdc; --code: #24242c;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 860px; margin: 0 auto; padding: 0 22px; }
+header { padding: 72px 0 40px; text-align: center; }
+h1 { font-size: clamp(2.2rem, 6vw, 3.2rem); margin: 0 0 .3em; letter-spacing: -.02em; }
+h1 .p { color: var(--accent); } h1 .b { color: var(--accent2); }
+.tag { font-size: 1.15rem; color: var(--muted); max-width: 34em; margin: 0 auto 1.8em; }
+.btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn {
+  display: inline-block; padding: 11px 22px; border-radius: 9px;
+  text-decoration: none; font-weight: 600; border: 1px solid var(--line);
+  color: var(--ink); background: var(--panel);
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+h2 { font-size: 1.5rem; margin: 2.6em 0 .6em; letter-spacing: -.01em; }
+h3 { font-size: 1.1rem; margin: 1.8em 0 .4em; }
+p { margin: 0 0 1em; }
+img { max-width: 100%; height: auto; display: block; border-radius: 10px; border: 1px solid var(--line); }
+figure { margin: 1.4em 0; }
+figcaption { font-size: .88rem; color: var(--muted); margin-top: .6em; text-align: center; }
+.cards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); margin: 1.4em 0; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 11px; padding: 16px 18px; }
+.card h4 { margin: 0 0 .35em; font-size: 1rem; }
+.card p { margin: 0; color: var(--muted); font-size: .93rem; }
+pre {
+  background: var(--code); border: 1px solid var(--line); border-radius: 9px;
+  padding: 14px 16px; overflow-x: auto; font-size: .9rem;
+}
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+p code, li code { background: var(--code); padding: .12em .38em; border-radius: 5px; font-size: .9em; }
+table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: .94rem; display: block; overflow-x: auto; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; }
+.note {
+  background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--accent2);
+  border-radius: 8px; padding: 14px 18px; margin: 1.4em 0; font-size: .95rem;
+}
+.dialogue { background: var(--panel); border: 1px solid var(--line); border-radius: 11px; padding: 18px 22px; margin: 1.2em 0; }
+.dialogue p { margin: 0 0 .5em; }
+.dialogue p:last-child { margin: 0; }
+.dialogue b.p { color: var(--accent); } .dialogue b.b { color: var(--accent2); }
+footer { margin: 4em 0 3em; padding-top: 1.6em; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1><span class="p">Peedy</span> &amp; <span class="b">Bonzi</span></h1>
+  <p class="tag">A parrot and a gorilla who live on your Mac's desktop. They walk
+  around, do bits, sing in tune, and argue with each other.</p>
+  <div class="btns">
+    <a class="btn primary" href="https://github.com/shadi0077/desktop-buddies">View on GitHub</a>
+    <a class="btn" href="https://github.com/shadi0077/desktop-buddies#build-and-run">Build it</a>
+  </div>
+</header>
+
+<figure>
+  <img src="img/cast.png" alt="Peedy the green parrot and Bonzi the purple gorilla, each shown idle, greeting, moving, and doing a bit of business">
+  <figcaption>Two characters, deliberately opposed. Have either, or both.</figcaption>
+</figure>
+
+<h2>The idea</h2>
+<p>The Bonzi idea, minus the part everyone remembers it for: <strong>no network
+access, no analytics, no bundled anything, no browser changes, no upsell.</strong>
+They are windows that draw an animal. Quit them from the menu bar and they're gone.</p>
+
+<div class="cards">
+  <div class="card"><h4>Alive, not looping</h4><p>Energy that rises with attention and decays without it. They notice your cursor, blink on their own clock, get bored of being poked, and settle down when you leave the keyboard.</p></div>
+  <div class="card"><h4>They actually sing</h4><p>Real melodies, in tune, by imposing pitch on the synthesised voice rather than asking it to sing — which does not work.</p></div>
+  <div class="card"><h4>They talk to each other</h4><p>23 exchanges between a fussy parrot and an unbothered gorilla. Neither wins.</p></div>
+  <div class="card"><h4>Their own volume</h4><p>A slider that's theirs alone, independent of the system volume — and it doesn't change how their mouths move.</p></div>
+</div>
+
+<h2>The double act</h2>
+<div class="dialogue">
+  <p><b class="p">Peedy:</b> You're very still.</p>
+  <p><b class="b">Bonzi:</b> Thank you.</p>
+  <p><b class="p">Peedy:</b> It wasn't a compliment.</p>
+  <p><b class="b">Bonzi:</b> I'm taking it as one.</p>
+</div>
+<table>
+<tr><th></th><th>Peedy</th><th>Bonzi</th></tr>
+<tr><td>Register</td><td>quick, fussy, theatrical</td><td>slow, heavy, unbothered</td></tr>
+<tr><td>Voice</td><td>Fred, pitched up</td><td>Ralph, pitched down</td></tr>
+<tr><td>Entrance</td><td>flies in from the distance</td><td>swings in on a vine</td></tr>
+<tr><td>Bits</td><td>newspaper, notepad, telescope, ribbon</td><td>banana, coconuts, globe, a puff of smoke</td></tr>
+</table>
+
+<figure>
+  <img src="img/arrive.png" alt="Frame-by-frame: Bonzi swings in on a vine from the distance and lands">
+  <figcaption>Bonzi's entrance, frame by frame.</figcaption>
+</figure>
+
+<h2>Getting it running</h2>
+<p>macOS 11 Big Sur or later, on Apple Silicon. You need the Xcode command line
+tools and your own copy of the sprite dumps — see below.</p>
+<pre><code>git clone https://github.com/shadi0077/desktop-buddies.git
+cd desktop-buddies
+./build.sh &amp;&amp; open build/Peedy.app</code></pre>
+<p>There's no Xcode project. <code>build.sh</code> compiles the sources with
+<code>swiftc</code> and assembles the <code>.app</code> itself.</p>
+
+<div class="note">
+  <strong>On the artwork.</strong> Peedy and Bonzi are Microsoft Agent
+  characters. The sprites are included so this runs from a clone, but they are
+  not covered by the MIT licence and are not mine to license. See
+  <a href="https://github.com/shadi0077/desktop-buddies/blob/main/docs/SPRITES.md">docs/SPRITES.md</a>.
+</div>
+
+<h2>A couple of things I'm pleased with</h2>
+
+<h3>The mouth follows the audio, not a timer</h3>
+<p>Each line is rendered to PCM before anything plays, which gives its exact
+duration and a loudness envelope. The envelope picks a mouth shape every frame.
+Linear loudness turned out to be bimodal for speech — the beak just slammed
+between shut and wide — so it's mapped to dB over a 30&nbsp;dB window, which
+spreads the seven shapes evenly.</p>
+<figure>
+  <img src="img/lipsync.png" alt="A spoken line rendered frame by frame, with the beak opening in step with a plot of the audio's loudness">
+  <figcaption>A spoken line, against its own loudness envelope.</figcaption>
+</figure>
+
+<h3>Singing needed the pitch taken away from the synthesiser</h3>
+<p>Letting <code>pitchMultiplier</code> carry a melody gives every note a 5–31
+semitone swoop, because the synthesiser applies sentence intonation to each
+isolated word. Interval errors reached 3.4 semitones and the tune was
+unrecognisable. Time-domain PSOLA — cutting one grain per glottal pulse and
+laying them down again at exactly the target period — brings that to
+<strong>0.05 semitones</strong>.</p>
+
+<h3>Their volume is their own</h3>
+<figure style="max-width:480px">
+  <img src="img/volume.png" alt="The volume slider at 0, 35, 80 and 100 percent">
+</figure>
+<p>Applied as gain on the player node rather than baked into the render, so it
+takes effect mid-sentence — and the lip sync is unchanged by it. The beak moves
+identically at 5% and 100%.</p>
+
+<footer>
+  <p>MIT licensed — the code, at least. The characters belong to their
+  respective owners; the MIT grant does not extend to them.</p>
+  <p><a href="https://github.com/shadi0077/desktop-buddies">github.com/shadi0077/desktop-buddies</a></p>
+</footer>
+
+</div>
+</body>
+</html>

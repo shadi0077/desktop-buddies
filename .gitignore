@@ -1,0 +1,15 @@
+# Build output
+build/
+
+# Working images from the sprite pipeline — regenerate with tools/
+sheets/
+shots/
+tools/out/
+
+# Raw sprite dumps and the keyed intermediates — 35 MB, and regenerable from
+# the source zips with ./setup.sh. The packed asset pack under
+# app/Resources/characters/ is committed, so a clone runs without them.
+assets/
+
+.DS_Store
+*.swp
