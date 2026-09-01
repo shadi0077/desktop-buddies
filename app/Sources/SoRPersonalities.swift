@@ -75,7 +75,7 @@ extension Personality {
     private static func brawler(
         _ id: String, scale: CGFloat, beats: ClosedRange<Double>,
         speed: CGFloat, distance: ClosedRange<CGFloat>, restlessness: Double,
-        flourishes: [String], bits: [Bit]
+        flourishes: [String], bits: [Bit], title: String? = nil
     ) -> Personality {
         Personality(
             id: id,
@@ -89,7 +89,8 @@ extension Personality {
             travel: .hops(cruise: "walk"),
             flourishes: flourishes,
             bits: bits,
-            packs: [:]
+            packs: [:],
+            title: title
         )
     }
 
@@ -105,12 +106,14 @@ extension Personality {
     static let axel1 = brawler("axel1", scale: 1.7, beats: 10...22, speed: 130,
                                distance: 300...900, restlessness: 0.8,
                                flourishes: ["punch", "kick", "flip"],
-                               bits: [hit("flip", "flip"), hit("knockdown", "down")])
+                               bits: [hit("flip", "flip"), hit("knockdown", "down")],
+                               title: "Axel (1991)")
 
     static let blaze1 = brawler("blaze1", scale: 1.7, beats: 10...22, speed: 130,
                                 distance: 300...900, restlessness: 0.8,
                                 flourishes: ["punch", "kick", "flip"],
-                                bits: [hit("flip", "flip"), hit("knockdown", "down")])
+                                bits: [hit("flip", "flip"), hit("knockdown", "down")],
+                                title: "Blaze (1991)")
 
     static let galsia = brawler("galsia", scale: 1.7, beats: 10...22, speed: 150,
                                 distance: 400...1400, restlessness: 2.0,

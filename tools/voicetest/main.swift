@@ -6,7 +6,7 @@ import AVFoundation
 _ = NSApplication.shared
 let who = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "peedy"
 
-guard let store = SpriteStore(character: who, bundle: Bundle(path: "build/Peedy.app")!) else {
+guard let store = SpriteStore(character: who, bundle: Bundle(path: ProcessInfo.processInfo.environment["BUDDY_APP"] ?? "build/Desktop Buddies.app")!) else {
     print("cannot load sprites"); exit(1)
 }
 var failures = 0

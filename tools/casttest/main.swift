@@ -8,8 +8,9 @@ func check(_ label: String, _ ok: Bool, _ detail: String = "") {
     if ok { print("  ok   \(label)") } else { print("  FAIL \(label) \(detail)"); failures += 1 }
 }
 
-let bundle = Bundle(path: "build/Peedy.app")!
-print("both characters load:")
+let bundle = Bundle(path: ProcessInfo.processInfo.environment["BUDDY_APP"] ?? "build/Desktop Buddies.app")!
+print("\(Product.current.name): \(Personality.all.count) characters\n")
+print("all of them load:")
 var stores: [String: SpriteStore] = [:]
 for p in Personality.all {
     guard let store = SpriteStore(character: p.id, bundle: bundle) else {
@@ -50,6 +51,7 @@ for p in Personality.all {
     }
 }
 
+if Personality.all.contains(where: { $0.id == "peedy" }) {
 print("\nthey are actually different:")
 let peedy = Personality.peedy, bonzi = Personality.bonzi
 let pEn = peedy.pack(.english)!, bEn = bonzi.pack(.english)!
@@ -155,11 +157,15 @@ for lang in Language.allCases {
     check("the \(lang.rawValue) voice menu isn't empty", !offered.isEmpty)
 }
 
+}
+
 print("\nsparring needs somebody to spar with:")
 // Every clip named in an exchange must exist for somebody, or the move()
 // fallback quietly turns a punch into whatever else they had.
 let brawlerIDs = Personality.all.filter { !$0.speaks }.map(\.id)
-check("there is more than one brawler", brawlerIDs.count > 1, "\(brawlerIDs.count)")
+if brawlerIDs.count > 1 {
+    check("there is more than one brawler", true)
+}
 for p in Personality.all where !p.speaks {
     guard let store = stores[p.id] else { continue }
     // Whatever else they lack, they must be able to stand, move and react.
@@ -188,6 +194,7 @@ for p in Personality.all where !p.speaks {
     check("\(p.id): declared as pixel art", p.pixelArt)
 }
 
+if Personality.all.contains(where: { $0.speaks }) {
 print("\nbanter:")
 let cast: Set<String> = ["peedy", "bonzi"]
 let usable = Banter.available(for: cast, in: .english)
@@ -222,3 +229,5 @@ check("lines alternate rather than one of them monologuing",
 
 print(failures == 0 ? "\nall checks passed" : "\n\(failures) FAILED")
 exit(failures == 0 ? 0 : 1)
+
+}

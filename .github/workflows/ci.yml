@@ -16,6 +16,7 @@ jobs:
       - name: Show toolchain
         run: swift --version
 
+      # No argument builds every product in products/.
       - name: Build
         run: ./build.sh
 
@@ -24,7 +25,11 @@ jobs:
       - name: Test
         run: SKIP_AUDIO=1 ./test.sh
 
-      - name: Deployment target is macOS 11 (first Apple Silicon release)
+      - name: Both apps target macOS 11 (first Apple Silicon release)
         run: |
-          otool -l build/Peedy.app/Contents/MacOS/Peedy \
-            | awk '/LC_BUILD_VERSION/{f=1} f&&/minos/{print "minos", $2; exit}'
+          for app in build/*.app; do
+            name=$(basename "$app" .app)
+            echo -n "$name: "
+            otool -l "$app/Contents/MacOS/$name" \
+              | awk '/LC_BUILD_VERSION/{f=1} f&&/minos/{print "minos", $2; exit}'
+          done

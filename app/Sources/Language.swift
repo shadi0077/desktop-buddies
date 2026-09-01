@@ -31,6 +31,7 @@ enum UI {
     private static let arabic: [String: String] = [
         // Actions
         "Say Hello": "قل مرحبًا",
+        "Do Something": "اعمل شيئًا",
         "Tell a Joke": "احكِ نكتة",
         "Tell Me Something": "معلومة من فضلك",
         "Sing a Song": "غنِّ أغنية",
@@ -51,6 +52,8 @@ enum UI {
         "Size": "الحجم",
         "Language": "اللغة",
         "Mute Voices": "كتم الأصوات",
+        "Mute Sounds": "كتم المؤثرات",
+        "Unmute Sounds": "إلغاء كتم المؤثرات",
         "Unmute Voices": "إلغاء كتم الأصوات",
         "Open at Login": "التشغيل عند بدء الجلسة",
         "About": "عن التطبيق",

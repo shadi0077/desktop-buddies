@@ -101,6 +101,11 @@ struct Personality {
     /// What they say, per language. Empty for characters who don't talk.
     let packs: [Language: SpeechPack]
 
+    /// Shown in the menu, when the id isn't presentable on its own. Speaking
+    /// characters take their name from their speech pack; the rest fall back to
+    /// the id, which is fine for `axel` and not for `axel1`.
+    var title: String? = nil
+
     enum Travel {
         /// Takeoff, a looping cruise, then a landing.
         case flies(takeoff: String, cruise: String, land: String)
@@ -172,14 +177,23 @@ struct Personality {
         return Language.allCases.filter { packs[$0]?.preferredVoice != nil }
     }
 
-    var name: String { pack(.english)?.name ?? id.capitalized }
+    var name: String { title ?? pack(.english)?.name ?? id.capitalized }
 
-    static let all: [Personality] = [
+    /// Everyone this build ships. The full roster lives in `everyone`; a
+    /// product manifest picks from it.
+    static let everyone: [Personality] = [
         .peedy, .bonzi,
         .axel, .blaze, .max, .skate,          // Streets of Rage 2
         .adam, .axel1, .blaze1,               // Streets of Rage 1
         .galsia, .donovan, .eagle, .slum,     // enemies
     ]
+
+    static let all: [Personality] = {
+        let wanted = Product.current.cast
+        guard !wanted.isEmpty else { return everyone }
+        // Manifest order, so the menu lists them the way the product intends.
+        return wanted.compactMap { id in everyone.first { $0.id == id } }
+    }()
 
     static func named(_ id: String) -> Personality {
         all.first { $0.id == id } ?? .peedy

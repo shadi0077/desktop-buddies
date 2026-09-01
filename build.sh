@@ -1,24 +1,77 @@
 #!/bin/bash
-# Builds Peedy.app. No Xcode project needed - just the Swift toolchain.
+# Builds one product, or both.
+#
+#   ./build.sh                     both
+#   ./build.sh desktop-buddies     just that one
+#
+# One codebase, two apps: they share the whole engine and differ only in who
+# ships with them and what the app is called. Each gets its own bundle
+# identifier, so both can run at once and keep their own settings.
 set -euo pipefail
 cd "$(dirname "$0")"
 
-APP="build/Peedy.app"
-rm -rf "$APP"
-mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
+build_one() {
+    local manifest="products/$1.json"
+    [ -f "$manifest" ] || { echo "no such product: $1"; exit 1; }
 
-swiftc -O \
-  -target arm64-apple-macos11.0 \
-  -framework AppKit -framework ServiceManagement -framework AVFoundation \
-  app/Sources/*.swift \
-  -o "$APP/Contents/MacOS/Peedy"
+    local name bundle
+    name=$(python3 -c "import json;print(json.load(open('$manifest'))['name'])")
+    bundle=$(python3 -c "import json;print(json.load(open('$manifest'))['bundleID'])")
 
-cp app/Info.plist "$APP/Contents/Info.plist"
-cp -R app/Resources/characters "$APP/Contents/Resources/characters"
-[ -f app/Resources/AppIcon.icns ] && cp app/Resources/AppIcon.icns "$APP/Contents/Resources/"
+    local app="build/$name.app"
+    rm -rf "$app"
+    mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
 
-# Ad-hoc sign so macOS is happy to run it locally.
-codesign --force --deep --sign - "$APP" >/dev/null 2>&1 || \
-  echo "note: ad-hoc codesign skipped"
+    swiftc -O \
+      -target arm64-apple-macos11.0 \
+      -framework AppKit -framework ServiceManagement -framework AVFoundation \
+      app/Sources/*.swift \
+      -o "$app/Contents/MacOS/$name"
 
-echo "built $APP"
+    python3 - "$manifest" "$app" <<'PY'
+import json, plistlib, shutil, sys
+from pathlib import Path
+
+manifest, app = json.load(open(sys.argv[1])), Path(sys.argv[2])
+name = manifest["name"]
+
+plist = plistlib.load(open("app/Info.plist", "rb"))
+plist.update({
+    "CFBundleName": name,
+    "CFBundleDisplayName": name,
+    "CFBundleExecutable": name,
+    "CFBundleIdentifier": manifest["bundleID"],
+})
+plistlib.dump(plist, open(app / "Contents/Info.plist", "wb"))
+json.dump(manifest, open(app / "Contents/Resources/product.json", "w"))
+
+# Only this product's characters, plus whatever they share.
+dest = app / "Contents/Resources/characters"
+dest.mkdir(parents=True, exist_ok=True)
+for who in manifest["cast"] + manifest.get("sharedResources", []):
+    src = Path("app/Resources/characters") / who
+    if src.is_dir():
+        shutil.copytree(src, dest / who)
+    else:
+        print(f"  warning: {who} has no resources")
+
+icon = Path(f"app/Resources/{manifest['id']}.icns")
+if icon.exists():
+    shutil.copy(icon, app / "Contents/Resources/AppIcon.icns")
+PY
+
+    codesign --force --deep --sign - "$app" >/dev/null 2>&1 || \
+      echo "note: ad-hoc codesign skipped"
+
+    local size
+    size=$(du -sh "$app" | cut -f1 | tr -d ' ')
+    echo "built $app  ($size)"
+}
+
+if [ $# -ge 1 ]; then
+    build_one "$1"
+else
+    for m in products/*.json; do
+        build_one "$(basename "$m" .json)"
+    done
+fi

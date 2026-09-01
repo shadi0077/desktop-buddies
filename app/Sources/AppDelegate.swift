@@ -185,10 +185,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.autoenablesItems = false
         let present = cast.onScreen
 
-        menu.addItem(item(t("Say Hello"), #selector(sayHello)))
-        menu.addItem(item(t("Tell a Joke"), #selector(tellJoke)))
-        menu.addItem(item(t("Tell Me Something"), #selector(tellFact)))
-        menu.addItem(item(t("Sing a Song"), #selector(singSong)))
+        let silent = Product.current.isSilent
+        menu.addItem(item(t(silent ? "Do Something" : "Say Hello"), #selector(sayHello)))
+        if !silent {
+            menu.addItem(item(t("Tell a Joke"), #selector(tellJoke)))
+            menu.addItem(item(t("Tell Me Something"), #selector(tellFact)))
+            menu.addItem(item(t("Sing a Song"), #selector(singSong)))
+        }
 
         if present.count > 1 {
             let brawlers = present.filter { !$0.personality.speaks }.count
@@ -196,13 +199,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                               #selector(haveThemChat)))
         }
 
-        let more = NSMenuItem(title: t("More"), action: nil, keyEquivalent: "")
-        let moreMenu = NSMenu()
-        moreMenu.addItem(item(t("Do a Trick"), #selector(doTrick)))
-        moreMenu.addItem(item(t("Ask Me a Riddle"), #selector(tellRiddle)))
-        moreMenu.addItem(item(t("Tongue Twister"), #selector(tellTwister)))
-        more.submenu = moreMenu
-        menu.addItem(more)
+        if silent {
+            menu.addItem(item(t("Do a Trick"), #selector(doTrick)))
+        } else {
+            let more = NSMenuItem(title: t("More"), action: nil, keyEquivalent: "")
+            let moreMenu = NSMenu()
+            moreMenu.addItem(item(t("Do a Trick"), #selector(doTrick)))
+            moreMenu.addItem(item(t("Ask Me a Riddle"), #selector(tellRiddle)))
+            moreMenu.addItem(item(t("Tongue Twister"), #selector(tellTwister)))
+            more.submenu = moreMenu
+            menu.addItem(more)
+        }
         menu.addItem(.separator())
 
         // Who's out.
@@ -225,7 +232,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Language, when there's more than one to choose from.
         let usable = cast.availableLanguages
-        if usable.count > 1 {
+        if usable.count > 1, !silent {
             let langItem = NSMenuItem(title: t("Language"), action: nil, keyEquivalent: "")
             let langMenu = NSMenu()
             for l in usable {
@@ -261,7 +268,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(sizeItem)
 
         let voiceOn = cast.buddies.first?.brain.voice.isEnabled ?? true
-        menu.addItem(item(t(voiceOn ? "Mute Voices" : "Unmute Voices"),
+        menu.addItem(item(t(voiceOn ? (silent ? "Mute Sounds" : "Mute Voices")
+                                    : (silent ? "Unmute Sounds" : "Unmute Voices")),
                           #selector(toggleVoice)))
 
         // Their own level, not the system's.
@@ -525,7 +533,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func showAbout() {
         let alert = NSAlert()
-        alert.messageText = t("Desktop Buddies")
+        alert.messageText = Product.current.name
+        if Product.current.isSilent {
+            alert.informativeText = """
+                \(Product.current.tagline)
+
+                They walk about, throw punches, and square up when two of them \
+                end up near each other. No internet, no analytics, nothing to \
+                sell you — mute or quit them from this menu any time.
+
+                \(Product.current.credit)
+                """
+            alert.addButton(withTitle: t("OK"))
+            NSApp.activate(ignoringOtherApps: true)
+            alert.runModal()
+            return
+        }
         alert.informativeText = language == .arabic ? t("About body") : """
             Peedy is a parrot. Bonzi is a gorilla. They walk around, do bits, \
             and occasionally argue. Have one, or both.

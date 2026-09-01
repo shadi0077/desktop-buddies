@@ -2,7 +2,7 @@ import AppKit
 _ = NSApplication.shared
 let who = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "peedy"
 let hero = who == "bonzi" ? 1159 : (who == "axel" ? 157 : 380)
-guard let store = SpriteStore(character: who, bundle: Bundle(path: "build/Peedy.app")!) else { exit(1) }
+guard let store = SpriteStore(character: who, bundle: Bundle(path: ProcessInfo.processInfo.environment["BUDDY_APP"] ?? "build/Desktop Buddies.app")!) else { exit(1) }
 
 // The shipped menu-bar glyph, at real size and blown up, on light and dark bars.
 let HEIGHT: CGFloat = 18

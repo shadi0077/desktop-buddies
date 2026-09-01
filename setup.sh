@@ -66,6 +66,6 @@ cat <<'DONE'
 
 Done. Run it with:
 
-    open build/Peedy.app
+    open "build/Desktop Buddies.app"
 
 DONE

@@ -4,10 +4,18 @@
 [![License: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/macOS-11%2B%20(Apple%20Silicon)-lightgrey)
 
-Two characters who live on your macOS desktop. **Peedy** is a parrot: quick,
-fussy, theatrical, opinions about crackers. **Bonzi** is a gorilla: slow, heavy,
-unbothered, arrives on a vine. Have one, or both — and when both are out, they
-talk to each other.
+Characters who live on your macOS desktop. One codebase, **two apps**:
+
+**Desktop Buddies.** **Peedy** is a parrot: quick, fussy, theatrical, opinions
+about crackers. **Bonzi** is a gorilla: slow, heavy, unbothered, arrives on a
+vine. They talk, sing, and when both are out they talk to each other.
+
+**MegaDrive Buddies.** Eleven Streets of Rage sprites who walk the length of the
+screen and square up when two of them get close. They have no words — they
+grunt, and they hit each other. See [docs/MEGADRIVE.md](docs/MEGADRIVE.md).
+
+They ship as separate apps with separate bundle identifiers, so you can install
+either or both, run them at the same time, and they keep separate settings.
 
 The Bonzi idea, minus the part everyone remembers it for: **no network access,
 no analytics, no bundled anything, no browser changes, no upsell.** They are
@@ -31,19 +39,53 @@ macOS 11 or later on Apple Silicon, plus the Xcode command line tools.
 ```bash
 git clone https://github.com/shadi0077/desktop-buddies.git
 cd desktop-buddies
-./build.sh && open build/Peedy.app
+./build.sh
+open "build/Desktop Buddies.app"
+open "build/MegaDrive Buddies.app"
 ```
 
-> **On the artwork.** Peedy and Bonzi are Microsoft Agent characters. The
-> sprites are included so this runs from a clone, but they are **not** covered
-> by the MIT licence and are not mine to license — see
-> [docs/SPRITES.md](docs/SPRITES.md). Rights holders: open an issue and it comes
-> down.
+`./build.sh` with no argument builds both. Name one to build just that one:
+
+```bash
+./build.sh megadrive-buddies
+```
+
+> **On the artwork.** Peedy and Bonzi are Microsoft Agent characters; the
+> Streets of Rage sprites are Sega's. They are included so this runs from a
+> clone, but they are **not** covered by the MIT licence and are not mine to
+> license — see [docs/SPRITES.md](docs/SPRITES.md). Rights holders: open an
+> issue and it comes down.
 
 There is no Xcode project. `build.sh` compiles the sources with `swiftc`,
-assembles `build/Peedy.app`, and ad-hoc signs it.
+assembles the `.app`, and ad-hoc signs it.
 
-## The cast
+### Two apps, one codebase
+
+A product is a JSON manifest in `products/` — a name, a bundle identifier, and
+the cast that ships with it:
+
+```json
+{
+  "id": "megadrive-buddies",
+  "name": "MegaDrive Buddies",
+  "bundleID": "com.shadi.megadrivebuddies",
+  "cast": ["axel", "blaze", "max", "skate", "..."],
+  "iconCharacter": "axel",
+  "iconFrame": 157
+}
+```
+
+`build.sh` reads it, writes the `Info.plist`, and copies **only** that product's
+sprite folders — which is why Desktop Buddies is 18 MB and MegaDrive Buddies is
+7 MB rather than both being the sum. At runtime `Product.swift` loads the
+bundled copy of the manifest and `Personality.all` filters the full roster down
+to that cast; everything downstream reads off it, so the menu drops speech items
+in a product where nobody speaks. Set `BUDDY_PRODUCT=<id>` to run the tools
+against a product without rebuilding.
+
+Adding a third app is a manifest and an icon frame, not a target.
+
+## The cast — Desktop Buddies
 
 | | Peedy | Bonzi |
 |---|---|---|
@@ -74,6 +116,21 @@ comedy is all in the contrast; neither wins:
 first if they've drifted apart. Two rules make it read as conversation rather
 than two monologues: nobody starts a line while somebody else is mid-sentence,
 and arrivals are staggered so they don't greet in unison.
+
+## The cast — MegaDrive Buddies
+
+![The MegaDrive cast, mid-walk](docs/img/megadrive-buddies.png)
+
+Axel, Blaze, Max and Skate from Streets of Rage 2; Adam, Axel and Blaze from the
+first game; and Galsia, Donovan, Eagle and Slum, who are enemies and behave like
+it. Both games have an Axel and a Blaze, so the 1991 pair are labelled as such.
+
+They work differently enough from the parrot and the gorilla to have their own
+page: one sprite sheet rather than numbered frames, sound effects rather than
+speech, walking rather than flying, and fighting rather than banter. Two of them
+within 420 points of each other stop wandering and square up.
+**[docs/MEGADRIVE.md](docs/MEGADRIVE.md)** covers the sheet cutting, the sound
+inference, and the two traps in the source art.
 
 ## Arabic — Saudi
 
@@ -122,7 +179,7 @@ a line the voice can't handle shows up as a spike in ms/char, the signature of
 it spelling something out. It also checks the text is dialect rather than MSA,
 and that no Latin characters have crept in.
 
-## Using them## Using them
+## Using them
 
 | | |
 |---|---|
@@ -130,6 +187,11 @@ and that no Latin characters have crept in.
 | Drag | Pick one up and put it somewhere else |
 | Right-click | Same menu as the menu bar |
 | Menu bar icon | Jokes, facts, songs, Let Them Chat, Who's Here, volume, per-character voice and pitch |
+
+The menu follows the cast. In MegaDrive Buddies, where nobody speaks, the items
+that need a voice aren't there at all: **Do Something** instead of Say Hello,
+**Let Them Fight** instead of Let Them Chat, **Mute Sounds** instead of Mute
+Voices, and no Language submenu.
 
 **Volume** is theirs alone — a slider in the menu, independent of the system
 volume. Turning them down doesn't quieten anything else, and turning the Mac up
@@ -378,7 +440,8 @@ eye blinks. The tooling in `tools/` reverse-engineers that structure:
 | `pack.py` | Trims each frame to its opaque bounds, records the offset |
 | `catalog.py` | Emits the animation catalog (clip ranges, fps, loop flags) |
 | `strips.py`, `detail.py` | Labelled contact sheets used to identify the clips |
-| `icon.py` | Builds `AppIcon.icns` from a hero frame |
+| `icon.py` | Builds `<product>.icns` from a hero frame — `python3 tools/icon.py megadrive-buddies` |
+| `sheet.py` | Cuts a single game sprite sheet into frames (the MegaDrive characters) |
 
 Rerun the whole pipeline with:
 
@@ -405,6 +468,8 @@ backwards to undo it — which is what the original did too.
 | `VolumeSlider.swift` | The app's own volume control, in the menu |
 | `Cast.swift` | Assembles each character; runs the two-hander dialogue |
 | `Personality.swift` | What makes one of them not the other — voice, pacing, clips, lines |
+| `Product.swift` | Which app this is: reads the bundled manifest, filters the roster |
+| `SoundBank.swift` | Game sound effects for the characters who don't speak |
 | `Banter.swift` | The exchanges between them |
 | `Chatter.swift` | The few lines that read the same in either mouth, and the no-repeat picker |
 | `Repertoire.swift` | Shared facts and riddles, and the songs as note data |
@@ -413,7 +478,7 @@ backwards to undo it — which is what the original did too.
 Set `PEEDY_DEBUG=1` to trace behaviour decisions on stderr:
 
 ```bash
-PEEDY_DEBUG=1 ./build/Peedy.app/Contents/MacOS/Peedy
+PEEDY_DEBUG=1 "./build/Desktop Buddies.app/Contents/MacOS/Desktop Buddies"
 ```
 
 ### Tests
@@ -447,7 +512,8 @@ Output lands in `shots/`.
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) — it covers getting it running, the three
-failure modes that have bitten repeatedly, and how to add a third character.
+failure modes that have bitten repeatedly, and how to add a character or a third
+app.
 
 ## Licence
 
@@ -455,6 +521,7 @@ MIT, for the code. See [LICENSE](LICENSE).
 
 ## Sprites
 
-Peedy is a Microsoft Agent character. The frames came from the sprite dump you
-supplied; they are used here as-is and are not mine to license. Fine for
-personal use — check before shipping this anywhere.
+Peedy and Bonzi are Microsoft Agent characters; Axel, Blaze and the rest are
+Sega's, ripped from Streets of Rage. They are used here as-is and are not mine
+to license. Fine for personal use — check before shipping this anywhere. See
+[docs/SPRITES.md](docs/SPRITES.md).

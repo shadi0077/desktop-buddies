@@ -18,9 +18,11 @@ ENGINE="app/Sources/Animator.swift app/Sources/BuddyWindow.swift app/Sources/Voi
 
 echo "== deployment target =="
 ./build.sh >/dev/null
+APP="build/Desktop Buddies.app"
+MEGA="build/MegaDrive Buddies.app"
 PLIST_MIN=$(/usr/libexec/PlistBuddy -c "Print :LSMinimumSystemVersion" app/Info.plist)
-BIN_MIN=$(otool -l build/Peedy.app/Contents/MacOS/Peedy | awk '/LC_BUILD_VERSION/{f=1} f&&/minos/{print $2; exit}')
-ARCH=$(lipo -info build/Peedy.app/Contents/MacOS/Peedy | sed 's/.*: //')
+BIN_MIN=$(otool -l "$APP/Contents/MacOS/Desktop Buddies" | awk '/LC_BUILD_VERSION/{f=1} f&&/minos/{print $2; exit}')
+ARCH=$(lipo -info "$APP/Contents/MacOS/Desktop Buddies" | sed 's/.*: //')
 echo "  Info.plist $PLIST_MIN / binary $BIN_MIN / $ARCH"
 # macOS 11 is the first release that ran on Apple Silicon.
 [ "$PLIST_MIN" = "11.0" ] || { echo "  FAIL Info.plist minimum is $PLIST_MIN, expected 11.0"; exit 1; }
@@ -41,18 +43,22 @@ swiftc -O -framework AVFoundation -framework AppKit \
 
 echo
 echo "== the cast =="
-swiftc -O $APPKIT $CORE $CONTENT $ENGINE app/Sources/Banter.swift \
-  tools/casttest/main.swift -o build/casttest
-./build/casttest
+swiftc -O $APPKIT $CORE $CONTENT $ENGINE app/Sources/Product.swift \
+  app/Sources/Banter.swift tools/casttest/main.swift -o build/casttest
+for p in desktop-buddies megadrive-buddies; do
+  echo "-- $p"
+  name=$(python3 -c "import json;print(json.load(open('products/$p.json'))['name'])")
+  BUDDY_PRODUCT="products/$p.json" BUDDY_APP="build/$name.app" ./build/casttest
+done
 
 echo
 echo "== wander logic =="
-swiftc -O $APPKIT $CORE $CONTENT $ENGINE tools/wandertest/main.swift -o build/wandertest
+swiftc -O $APPKIT $CORE $CONTENT $ENGINE app/Sources/Product.swift tools/wandertest/main.swift -o build/wandertest
 ./build/wandertest
 
 echo
 echo "== liveliness =="
-swiftc -O $APPKIT $CORE $CONTENT $ENGINE tools/alivetest/main.swift -o build/alivetest
+swiftc -O $APPKIT $CORE $CONTENT $ENGINE app/Sources/Product.swift tools/alivetest/main.swift -o build/alivetest
 ./build/alivetest
 
 echo
@@ -69,8 +75,9 @@ if [ "${SKIP_AUDIO:-0}" = "1" ]; then
   echo
   echo "== headless renders =="
   swiftc -O -framework AppKit $CORE tools/render/main.swift -o build/render
-  for who in peedy bonzi axel blaze max skate adam axel1 blaze1 galsia donovan eagle slum; do
-    ./build/render build/Peedy.app "$who" >/dev/null
+  for who in peedy bonzi; do ./build/render "$APP" "$who" >/dev/null; done
+  for who in axel blaze max skate adam axel1 blaze1 galsia donovan eagle slum; do
+    ./build/render "$MEGA" "$who" >/dev/null
   done
   echo "sheets in shots/"
   exit 0
@@ -84,13 +91,13 @@ swiftc -O -framework AppKit -framework AVFoundation \
   app/Sources/PeedyPersonality.swift app/Sources/PeedyArabic.swift \
   app/Sources/BonziPersonality.swift app/Sources/BonziArabic.swift \
   app/Sources/AxelPersonality.swift app/Sources/SoRPersonalities.swift \
-  tools/voicetest/main.swift -o build/voicetest
+  app/Sources/Product.swift tools/voicetest/main.swift -o build/voicetest
 for who in peedy bonzi; do echo "-- $who"; ./build/voicetest "$who"; done
 
 echo
 echo "== repertoire and singing =="
 swiftc -O -framework AppKit -framework AVFoundation \
-  app/Sources/SpriteStore.swift $CONTENT app/Sources/Voice.swift \
+  app/Sources/SpriteStore.swift $CONTENT app/Sources/Product.swift app/Sources/Voice.swift \
   tools/songtest/main.swift -o build/songtest
 for who in peedy bonzi; do
   for lang in en ar; do echo "-- $who/$lang"; ./build/songtest "$who" "$lang"; done
@@ -99,7 +106,7 @@ done
 echo
 echo "== Arabic reads cleanly =="
 swiftc -O -framework AVFoundation -framework AppKit \
-  app/Sources/SpriteStore.swift $CONTENT app/Sources/Voice.swift \
+  app/Sources/SpriteStore.swift $CONTENT app/Sources/Product.swift app/Sources/Voice.swift \
   tools/arabictest/main.swift -o build/arabictest
 ./build/arabictest
 
@@ -124,11 +131,12 @@ swiftc -O -framework AppKit app/Sources/VolumeSlider.swift tools/uitest/main.swi
 echo
 echo "== headless renders =="
 swiftc -O -framework AppKit $CORE tools/render/main.swift -o build/render
-for who in peedy bonzi axel blaze max skate adam axel1 blaze1 galsia donovan eagle slum; do
-    ./build/render build/Peedy.app "$who" >/dev/null
+for who in peedy bonzi; do ./build/render "$APP" "$who" >/dev/null; done
+  for who in axel blaze max skate adam axel1 blaze1 galsia donovan eagle slum; do
+    ./build/render "$MEGA" "$who" >/dev/null
   done
 swiftc -O -framework AppKit -framework AVFoundation \
-  app/Sources/SpriteStore.swift $CONTENT app/Sources/Voice.swift \
+  app/Sources/SpriteStore.swift $CONTENT app/Sources/Product.swift app/Sources/Voice.swift \
   app/Sources/BuddyView.swift tools/lipsync/main.swift -o build/lipsync
 ./build/lipsync
 echo "sheets in shots/"

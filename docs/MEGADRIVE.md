@@ -1,8 +1,15 @@
-# Streets of Rage — a different kind of buddy
+# MegaDrive Buddies
 
-Branch `axel`. Adds eleven Streets of Rage characters and, in doing so,
-establishes that the app can host something other than a Microsoft Agent
-character.
+Eleven Streets of Rage characters, shipped as their own app. They live in the
+same repository and run on the same engine as Peedy and Bonzi — adding them is
+what established that the engine could host something other than a Microsoft
+Agent character.
+
+```bash
+./build.sh megadrive-buddies && open "build/MegaDrive Buddies.app"
+```
+
+![The eleven, mid-walk](img/megadrive-buddies.png)
 
 | | |
 |---|---|
@@ -10,8 +17,12 @@ character.
 | Streets of Rage 1 | Adam, Axel, Blaze |
 | Enemies | Galsia, Donovan, Eagle, Slum |
 
-They are not variations on Peedy and Bonzi. He's a beat-'em-up sprite rip, and
-almost everything that makes the other two work does not apply to him:
+Both games have an Axel and a Blaze, seven years apart, so the older pair show
+as *Axel (1991)* and *Blaze (1991)* in the menu. `python3 tools/lineup.py
+megadrive-buddies` regenerates the picture above.
+
+They are not variations on Peedy and Bonzi. These are beat-'em-up sprite rips,
+and almost everything that makes the other two work does not apply to them:
 
 | | Peedy / Bonzi | Axel |
 |---|---|---|
@@ -122,3 +133,20 @@ characters came from the same sprite set:
   offer.
 
 `tools/casttest` covers all of it, and caught the missing clips itself.
+
+## Why a separate app
+
+They could have been one app with thirteen characters and a picker. They aren't,
+because the two casts want different menus — half of Desktop Buddies' menu needs
+a voice, and nobody here has one — and because a single bundle would carry both
+sprite sets whichever pair you actually use.
+
+So `products/megadrive-buddies.json` names the cast, `build.sh` copies only
+those sprite folders, and `Product.swift` filters the roster at launch. Separate
+bundle identifiers mean both apps can be open at once, each remembering its own
+characters, positions, volume and size. The code is shared entire; the manifest
+is the only thing that differs.
+
+`test.sh` runs the cast checks once per product, with `BUDDY_PRODUCT` selecting
+which — so a clip that only Desktop Buddies' characters have can't quietly
+become a requirement for everyone.

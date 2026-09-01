@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.3
+
+- **Two apps.** The cast is split in two: **Desktop Buddies** is Peedy and
+  Bonzi, and **MegaDrive Buddies** is the eleven Streets of Rage characters.
+  Separate bundle identifiers, so both can run at once and keep their own
+  characters, positions, volume and size.
+- A product is a JSON manifest in `products/` naming a cast. The build copies
+  only that cast's sprites — 18 MB and 7 MB rather than 25 MB each — and the app
+  filters its roster and its menu to match, so a product where nobody speaks has
+  no Language submenu and offers **Let Them Fight** rather than Let Them Chat.
+- **Eleven Streets of Rage characters**: Axel, Blaze, Max and Skate from the
+  second game, Adam, Axel and Blaze from the first, and Galsia, Donovan, Eagle
+  and Slum. They walk rather than fly, use the game's own sound effects instead
+  of speech, and fight each other when two get close.
+- Characters now travel at their own pace over their own distances, so a walk
+  cycle no longer reads as moonwalking.
+- The two 1991 characters show as *Axel (1991)* and *Blaze (1991)* rather than
+  the raw ids.
+
 ## 1.2
 
 - Arabic is now **Saudi (Najdi)** rather than Modern Standard: dialect

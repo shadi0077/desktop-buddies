@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Desktop Buddies — a parrot and a gorilla for your Mac</title>
-<meta name="description" content="Two animated characters who live on your macOS desktop, do bits, sing in tune, and argue with each other. No network, no analytics, no upsell.">
+<title>Desktop Buddies — animated characters for your Mac</title>
+<meta name="description" content="Animated characters who live on your macOS desktop. A parrot and a gorilla who sing and argue, or eleven Streets of Rage sprites who walk about and fight. No network, no analytics, no upsell.">
 <meta property="og:title" content="Desktop Buddies">
-<meta property="og:description" content="A parrot and a gorilla for your Mac. They walk around, tell jokes, sing in tune, and talk to each other.">
+<meta property="og:description" content="A parrot and a gorilla for your Mac — plus a second app full of Streets of Rage sprites. They walk around, tell jokes, sing in tune, and go for each other.">
 <meta property="og:type" content="website">
 <style>
 :root {
@@ -74,7 +74,9 @@ a { color: var(--accent); }
 <header>
   <h1><span class="p">Peedy</span> &amp; <span class="b">Bonzi</span></h1>
   <p class="tag">A parrot and a gorilla who live on your Mac's desktop. They walk
-  around, do bits, sing in tune, and argue with each other.</p>
+  around, do bits, sing in tune, and argue with each other. There's a second app
+  in the same repository, <a href="#megadrive">MegaDrive Buddies</a>, with eleven
+  Streets of Rage sprites in it.</p>
   <div class="btns">
     <a class="btn primary" href="https://github.com/shadi0077/desktop-buddies">View on GitHub</a>
     <a class="btn" href="https://github.com/shadi0077/desktop-buddies#build-and-run">Build it</a>
@@ -136,19 +138,43 @@ which cost the synthesiser nothing; pauses, which are the one handle on cadence;
 and pitch and pace, which is all that separates two characters sharing one
 voice.</p>
 
+<h2 id="megadrive">MegaDrive Buddies</h2>
+<p>The same engine, a different cast, its own app. Eleven Streets of Rage
+sprites who walk the length of the screen at walking pace and square up when two
+of them get close.</p>
+<figure>
+  <img src="img/megadrive-buddies.png" alt="Eleven Streets of Rage sprites in a row: Axel, Blaze, Max, Skate, Adam, Axel (1991), Blaze (1991), Galsia, Donovan, Eagle and Slum">
+  <figcaption>Mid-walk, on a shared baseline — the size differences are the real ones.</figcaption>
+</figure>
+<p>They have no words. They grunt, thud and shout, using the game's own sound
+effects, and their exchanges are physical: one swings, the other blocks, then
+counters. Adding them is what proved the engine could host something that isn't
+a Microsoft Agent character — no visemes, no blink frames, pixel art that has to
+be scaled without smoothing, and a sprite sheet to be cut up rather than
+numbered frames to load.</p>
+<p>The two casts ship as separate apps with separate bundle identifiers, so you
+can run both at once and each keeps its own settings. A product is a JSON
+manifest naming a cast; the build copies only those sprites, and the app filters
+its roster and its menu to match.</p>
+
 <h2>Getting it running</h2>
 <p>macOS 11 Big Sur or later, on Apple Silicon, plus the Xcode command line
 tools. A clone builds and runs directly — the sprites are included.</p>
 <pre><code>git clone https://github.com/shadi0077/desktop-buddies.git
 cd desktop-buddies
-./build.sh &amp;&amp; open build/Peedy.app</code></pre>
+./build.sh
+open "build/Desktop Buddies.app"
+open "build/MegaDrive Buddies.app"</code></pre>
+<p><code>./build.sh</code> with no argument builds both; name one
+(<code>megadrive-buddies</code>) to build just that one.</p>
 <p>There's no Xcode project. <code>build.sh</code> compiles the sources with
 <code>swiftc</code> and assembles the <code>.app</code> itself.</p>
 
 <div class="note">
   <strong>On the artwork.</strong> Peedy and Bonzi are Microsoft Agent
-  characters. The sprites are included so this runs from a clone, but they are
-  not covered by the MIT licence and are not mine to license. See
+  characters; the Streets of Rage sprites are Sega's. They are included so this
+  runs from a clone, but they are not covered by the MIT licence and are not
+  mine to license. See
   <a href="https://github.com/shadi0077/desktop-buddies/blob/main/docs/SPRITES.md">docs/SPRITES.md</a>.
 </div>
 
