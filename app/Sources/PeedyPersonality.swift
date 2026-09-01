@@ -5,6 +5,8 @@ extension Personality {
     /// has opinions about crackers.
     static let peedy = Personality(
         id: "peedy",
+        expresses: .speech,
+        pixelArt: false,
         scale: 1.15,
         beatRange: 9...22,
         travel: .flies(takeoff: "takeoff", cruise: "fly", land: "land"),

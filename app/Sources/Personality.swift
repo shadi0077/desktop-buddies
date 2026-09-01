@@ -68,6 +68,22 @@ func AVSpeechVoiceExists(_ identifier: String) -> Bool {
 struct Personality {
     let id: String
 
+    /// How a character makes itself understood.
+    ///
+    /// The Agent characters have mouth patches and a synthesiser. A game sprite
+    /// rip has neither — no visemes, nothing to say — so it grunts, and the
+    /// whole speech path simply doesn't apply to it.
+    enum Expression {
+        case speech
+        case soundEffects
+    }
+
+    let expresses: Expression
+
+    /// True for sprite rips from games, which are pixel art and must be scaled
+    /// without smoothing.
+    let pixelArt: Bool
+
     /// Scale relative to the sprite canvas, so the two end up sensibly sized
     /// next to each other rather than at whatever their sheets happened to be.
     let scale: CGFloat
@@ -77,7 +93,7 @@ struct Personality {
     let flourishes: [String]
     let bits: [Bit]
 
-    /// What they say, per language.
+    /// What they say, per language. Empty for characters who don't talk.
     let packs: [Language: SpeechPack]
 
     enum Travel {
@@ -106,21 +122,27 @@ struct Personality {
         let pose: String?
     }
 
-    /// English is the fallback: every character has it, and a half-translated
-    /// character is worse than one that stays in a language it knows.
-    func pack(_ language: Language) -> SpeechPack {
-        packs[language] ?? packs[.english]!
+    /// English is the fallback: every speaking character has it, and a
+    /// half-translated character is worse than one that stays in a language it
+    /// knows. Characters who don't speak return nil.
+    func pack(_ language: Language) -> SpeechPack? {
+        packs[language] ?? packs[.english]
     }
+
+    var speaks: Bool { expresses == .speech }
 
     /// Languages this character can actually speak — a pack is only usable if
-    /// the system has a voice for it.
+    /// the system has a voice for it. A silent character speaks all of them
+    /// equally well, which is to say not at all, so it never constrains the
+    /// choice.
     func languages() -> [Language] {
-        Language.allCases.filter { packs[$0]?.preferredVoice != nil }
+        guard speaks else { return Language.allCases }
+        return Language.allCases.filter { packs[$0]?.preferredVoice != nil }
     }
 
-    var name: String { pack(.english).name }
+    var name: String { pack(.english)?.name ?? id.capitalized }
 
-    static let all: [Personality] = [.peedy, .bonzi]
+    static let all: [Personality] = [.peedy, .bonzi, .axel]
 
     static func named(_ id: String) -> Personality {
         all.first { $0.id == id } ?? .peedy

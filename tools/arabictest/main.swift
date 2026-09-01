@@ -38,8 +38,8 @@ func isPlausibleArabic(_ s: String) -> Bool {
 
 var worst = (0.0, "")
 var checked = 0
-for p in Personality.all {
-    let pack = p.pack(.arabic)
+for p in Personality.all where p.speaks {
+    guard let pack = p.pack(.arabic) else { continue }
     let lines = pack.greetings + pack.idle + pack.poked + pack.pokedAgain
         + pack.dropped + pack.leaving + pack.welcomeBack + pack.noticed
         + pack.timeOfDay + pack.byBit.values.flatMap { $0 }
@@ -64,7 +64,7 @@ for p in Personality.all {
 print(String(format: "\n        %d lines checked, slowest %.0f ms/char", checked, worst.0))
 
 // The two must stay distinguishable, since they share the one Arabic voice.
-let pa = Personality.peedy.pack(.arabic), ba = Personality.bonzi.pack(.arabic)
+let pa = Personality.peedy.pack(.arabic)!, ba = Personality.bonzi.pack(.arabic)!
 check("they share the same voice", pa.preferredVoice == ba.preferredVoice)
 check("so pitch has to separate them",
       pa.pitch.rawValue > ba.pitch.rawValue + 0.5,

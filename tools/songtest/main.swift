@@ -7,7 +7,7 @@ _ = NSApplication.shared
 let id = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "peedy"
 let lang = Language(rawValue: CommandLine.arguments.count > 2
                     ? CommandLine.arguments[2] : "en") ?? .english
-let who = Personality.named(id).pack(lang)
+guard let who = Personality.named(id).pack(lang) else { print("no pack"); exit(0) }
 print("— \(who.name) (\(lang.rawValue))")
 var failures = 0
 func check(_ label: String, _ ok: Bool, _ detail: String = "") {

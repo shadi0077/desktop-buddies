@@ -6,6 +6,8 @@ extension Personality {
     /// gravity, and not rushing.
     static let bonzi = Personality(
         id: "bonzi",
+        expresses: .speech,
+        pixelArt: false,
         scale: 1.0,                 // his canvas is already bigger than Peedy's
         beatRange: 14...32,         // and he does far less, far less often
         travel: .hops(cruise: "vineSwing"),

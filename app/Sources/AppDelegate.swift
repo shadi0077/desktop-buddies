@@ -117,9 +117,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// unintelligibly. A saved voice that can't speak the current language is
     /// now ignored outright.
     private func restoreVoice(for buddy: Buddy) {
+        buddy.brain.sounds?.volume = volume
+        buddy.brain.sounds?.isEnabled = defaults.object(forKey: "voice") as? Bool ?? true
         let voice = buddy.brain.voice
         voice.isEnabled = defaults.object(forKey: "voice") as? Bool ?? true
         voice.volume = volume
+        guard buddy.personality.speaks else { return }
 
         let suffix = "\(buddy.id).\(language.rawValue)"
         if let saved = defaults.string(forKey: "voiceIdentifier.\(suffix)"),
@@ -153,7 +156,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// to an SF Symbol so the item is never blank, which on a menu-bar-only app
     /// would mean no way in at all.
     private func statusIcon() -> NSImage? {
-        let heroes = [("peedy", 380), ("bonzi", 1159)]
+        // Axel's sheet ends with portrait art, which is a better menu-bar
+        // glyph than any of his action frames.
+        let heroes = [("peedy", 380), ("bonzi", 1159), ("axel", 157)]
         for (id, frame) in heroes where cast.buddy(id)?.isVisible == true {
             if let icon = cast.buddy(id)?.store.menuBarIcon(frame: frame, height: 18) {
                 return icon
@@ -284,7 +289,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         sub.addItem(away)
         sub.addItem(.separator())
 
-        let voices = Voice.options(for: language)
+        let voices = buddy.personality.speaks ? Voice.options(for: language) : []
         if !voices.isEmpty {
             let voiceItem = NSMenuItem(title: t("Voice"), action: nil, keyEquivalent: "")
             let voiceMenu = NSMenu()
@@ -421,7 +426,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func setVolume(_ level: Float) {
         volume = min(max(level, 0), 1)
-        for buddy in cast.buddies { buddy.brain.voice.volume = volume }
+        for buddy in cast.buddies {
+            buddy.brain.voice.volume = volume
+            buddy.brain.sounds?.volume = volume
+        }
         defaults.set(Double(volume), forKey: "volume")
         // Deliberately not rebuilding the menu: that would tear the slider out
         // from under the pointer mid-drag.
@@ -432,7 +440,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         for buddy in cast.buddies {
             buddy.brain.voice.isEnabled = on
             buddy.brain.voice.volume = volume
-            if !on { buddy.brain.voice.stop() }
+            buddy.brain.sounds?.isEnabled = on
+            if !on { buddy.brain.voice.stop(); buddy.brain.sounds?.stop() }
         }
         defaults.set(on, forKey: "voice")
         refreshMenu()

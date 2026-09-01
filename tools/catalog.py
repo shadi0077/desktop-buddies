@@ -40,6 +40,11 @@ def _spread(values):
 
 
 def measured_ramps(who, talk):
+    if not talk:
+        # Game rips have no viseme patches — nothing to order.
+        print(f"  {who}: no talk poses (sound effects instead of speech)")
+        return {}
+
     """Order every mouth set closed -> widest, using whichever metric separates
     this character's visemes more cleanly."""
     scored = {name: [_measure(who, m) for m in pose["mouths"]]
@@ -194,9 +199,37 @@ def build(name, clips, talk):
 
 import os.path
 
-for name, clips, talk in [("peedy", PEEDY, PEEDY_TALK), ("bonzi", BONZI, BONZI_TALK)]:
+# --------------------------------------------------------------------------
+# Axel - Streets of Rage 2. A beat-'em-up sprite rip: no mouth, no visemes,
+# and nothing to say. He punches, and the game's own sound effects do the
+# talking.
+# --------------------------------------------------------------------------
+AXEL = {
+    "rest":        (rng(0, 8), 8, True),          # standing guard
+    "walk":        (rng(92, 101), 12, True),
+    "stretch":     (rng(9, 12), 8, False),
+    "jumpKick":    (rng(13, 16), 10, False),
+    "punch":       (rng(102, 108), 14, False),
+    "jab":         (rng(17, 21), 14, False),
+    "kick":        (rng(109, 114), 12, False),
+    "highKick":    (rng(22, 27), 12, False),
+    "knee":        (rng(144, 149), 12, False),
+    "grandUpper":  (rng(51, 55), 12, False),      # the flaming uppercut
+    "flameArc":    (rng(76, 81), 12, False),
+    "uppercut":    (rng(129, 137), 12, False),
+    "celebrate":   (rng(120, 122), 6, False),
+    "guard":       (rng(115, 119), 10, False),
+    "knockdown":   (rng(88, 90), 8, False),
+    "getUp":       (rng(153, 156), 8, False),
+    "arrive":      (rng(115, 122), 10, False),
+    "depart":      (rng(92, 101), 12, False),
+}
+
+for name, clips, talk in [("peedy", PEEDY, PEEDY_TALK), ("bonzi", BONZI, BONZI_TALK),
+                          ("axel", AXEL, {})]:
     # Bonzi is optional; skip anyone whose sprites haven't been imported.
-    if not os.path.isdir(f"assets/{name}/rgba"):
+    if not os.path.isdir(f"assets/{name}/rgba") and not os.path.isdir(
+            f"app/Resources/characters/{name}/frames"):
         print(f"{name}: no sprites imported, skipping")
         continue
     build(name, clips, talk)

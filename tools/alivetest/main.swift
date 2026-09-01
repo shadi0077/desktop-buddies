@@ -105,9 +105,9 @@ for point in [faraway, onHim, onHim, onHim, faraway, faraway, onHim] {
 check("notices once per approach, not per frame", notices == 2, "\(notices)")
 
 print("\ntime of day, per character and language:")
-for p in Personality.all {
+for p in Personality.all where p.speaks {
     for lang in Language.allCases {
-        let pack = p.pack(lang)
+        guard let pack = p.pack(lang) else { continue }
         check("\(p.id)/\(lang.rawValue): a line for each part of the day",
               pack.timeOfDay.count == 4 && pack.timeOfDay.allSatisfy { !$0.isEmpty })
     }

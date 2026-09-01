@@ -29,10 +29,12 @@ for p in Personality.all {
         for name in [bit.intro, bit.loop, bit.outro].compactMap({ $0 })
         where store.animation(name) == nil { missing.append(name) }
     }
-    for name in ["rest", "blink", "arrive", "depart", "greet", "cheer",
-                 p.travel.cruise] where store.animation(name) == nil {
-        missing.append(name)
-    }
+    // Everyone needs these. Blinking, greeting and cheering are particular to
+    // the Agent characters, which have eye patches and a wave; a Genesis sprite
+    // rip has neither.
+    var required = ["rest", "arrive", "depart", p.travel.cruise]
+    if p.speaks { required += ["blink", "greet", "cheer"] }
+    for name in required where store.animation(name) == nil { missing.append(name) }
     if case .flies(let takeoff, _, let land) = p.travel {
         for name in [takeoff, land] where store.animation(name) == nil { missing.append(name) }
     }
@@ -43,19 +45,21 @@ for p in Personality.all {
     let badPose = p.bits.compactMap(\.pose).filter { store.talkPoses[$0] == nil }
     check("\(p.name): every named talk pose exists", badPose.isEmpty,
           badPose.joined(separator: ", "))
-    check("\(p.name): has a neutral talk pose", store.talkPoses["neutral"] != nil)
+    if p.speaks {
+        check("\(p.name): has a neutral talk pose", store.talkPoses["neutral"] != nil)
+    }
 }
 
 print("\nthey are actually different:")
 let peedy = Personality.peedy, bonzi = Personality.bonzi
-let pEn = peedy.pack(.english), bEn = bonzi.pack(.english)
+let pEn = peedy.pack(.english)!, bEn = bonzi.pack(.english)!
 check("different voices in English", pEn.preferredVoice != bEn.preferredVoice,
       "\(pEn.preferredVoice ?? "-") vs \(bEn.preferredVoice ?? "-")")
 check("different pitch", pEn.pitch != bEn.pitch)
 check("Bonzi speaks more slowly", bEn.rate < pEn.rate, "\(bEn.rate) vs \(pEn.rate)")
 // Only one Arabic voice ships with macOS, so in Arabic they have to be told
 // apart by pitch and pace instead.
-let pAr = peedy.pack(.arabic), bAr = bonzi.pack(.arabic)
+let pAr = peedy.pack(.arabic)!, bAr = bonzi.pack(.arabic)!
 check("Arabic: told apart by pitch",
       pAr.pitch.rawValue > bAr.pitch.rawValue + 0.4,
       "\(pAr.pitch.rawValue) vs \(bAr.pitch.rawValue)")
@@ -83,7 +87,7 @@ check("Peedy flies, Bonzi doesn't", {
 }())
 
 print("\nboth languages:")
-for p in Personality.all {
+for p in Personality.all where p.speaks {
     for lang in Language.allCases {
         guard let pack = p.packs[lang] else {
             check("\(p.id) has a \(lang.rawValue) pack", false); continue
@@ -112,7 +116,7 @@ for p in Personality.all {
 func isArabic(_ s: String) -> Bool {
     s.unicodeScalars.contains { (0x0600...0x06FF).contains(Int($0.value)) }
 }
-for p in Personality.all {
+for p in Personality.all where p.speaks {
     guard let ar = p.packs[.arabic] else { continue }
     let all = ar.greetings + ar.idle + ar.poked + ar.dropped + ar.leaving
         + ar.jokes.map(\.setup) + ar.jokes.map(\.punchline) + ar.facts
@@ -128,9 +132,9 @@ print("\nvoices match the language they're speaking:")
 // The bug this guards: a voice chosen in one language being reapplied in
 // another. An English synthesiser handed Arabic doesn't fail — it spells it
 // out, at roughly ten times the length and completely unintelligible.
-for p in Personality.all {
+for p in Personality.all where p.speaks {
     for lang in Language.allCases {
-        guard let id = p.pack(lang).preferredVoice else { continue }
+        guard let id = p.pack(lang)?.preferredVoice else { continue }
         check("\(p.id)/\(lang.rawValue): picks a \(lang.rawValue) voice",
               Voice.canSpeak(id, lang),
               "\(Voice.languageCode(of: id) ?? "?") voice for \(lang.rawValue)")
@@ -149,6 +153,23 @@ for lang in Language.allCases {
           offered.allSatisfy { Voice.canSpeak($0.identifier, lang) },
           offered.first { !Voice.canSpeak($0.identifier, lang) }?.title ?? "")
     check("the \(lang.rawValue) voice menu isn't empty", !offered.isEmpty)
+}
+
+print("\ncharacters who make noise instead of talking:")
+for p in Personality.all where !p.speaks {
+    guard let store = stores[p.id] else { check("\(p.id) loads", false); continue }
+    check("\(p.id): has no speech packs", p.packs.isEmpty)
+    check("\(p.id): has no talk poses", store.talkPoses.isEmpty)
+    check("\(p.id): every language is open to it", p.languages().count == Language.allCases.count)
+    guard let bank = SoundBank(character: p.id, bundle: bundle) else {
+        check("\(p.id): has a sound bank", false); continue
+    }
+    check("\(p.id): has a sound bank", true)
+    for kind in SoundBank.Kind.allCases {
+        check("\(p.id): has \(kind.rawValue) sounds", bank.has(kind))
+    }
+    // Pixel art must not be smoothed on the way up.
+    check("\(p.id): declared as pixel art", p.pixelArt)
 }
 
 print("\nbanter:")

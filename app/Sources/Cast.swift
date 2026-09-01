@@ -13,6 +13,7 @@ final class Buddy {
         self.personality = personality
         self.store = store
         window = BuddyWindow(store: store, scale: scale * personality.scale)
+        window.buddyView.pixelArt = personality.pixelArt
         animator = Animator(store: store, view: window.buddyView)
         brain = Brain(personality: personality, language: language, store: store,
                       animator: animator, window: window)
@@ -83,8 +84,12 @@ final class Cast {
     /// Languages every character on screen can actually speak. A language with
     /// no installed voice isn't offered at all.
     var availableLanguages: [Language] {
+        // A character who doesn't speak never rules a language out.
         Language.allCases.filter { language in
-            buddies.allSatisfy { $0.personality.packs[language]?.preferredVoice != nil }
+            buddies.allSatisfy {
+                !$0.personality.speaks
+                    || $0.personality.packs[language]?.preferredVoice != nil
+            }
         }
     }
     var onScreen: [Buddy] { buddies.filter(\.isVisible) }
