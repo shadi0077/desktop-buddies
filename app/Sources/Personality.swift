@@ -174,7 +174,12 @@ struct Personality {
 
     var name: String { pack(.english)?.name ?? id.capitalized }
 
-    static let all: [Personality] = [.peedy, .bonzi, .axel, .blaze, .max, .skate]
+    static let all: [Personality] = [
+        .peedy, .bonzi,
+        .axel, .blaze, .max, .skate,          // Streets of Rage 2
+        .adam, .axel1, .blaze1,               // Streets of Rage 1
+        .galsia, .donovan, .eagle, .slum,     // enemies
+    ]
 
     static func named(_ id: String) -> Personality {
         all.first { $0.id == id } ?? .peedy

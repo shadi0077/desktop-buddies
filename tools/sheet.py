@@ -17,18 +17,35 @@ import json, os, shutil, sys
 
 name = sys.argv[1]
 src = sys.argv[2]
-key = tuple(int(v) for v in (sys.argv[3].split(",") if len(sys.argv) > 3
-                             else "204,255,204".split(",")))
+key_arg = sys.argv[3] if len(sys.argv) > 3 else "204,255,204"
+# Optional "y0:y1" to take a horizontal slice, for sheets carrying more than
+# one character.
+slice_arg = sys.argv[4] if len(sys.argv) > 4 else None
 
 im = Image.open(src).convert("RGBA")
+if slice_arg:
+    y0, y1 = (int(v) for v in slice_arg.split(":"))
+    im = im.crop((0, y0, im.width, y1))
 W, H = im.size
 px = im.load()
+
+# Some rips key the background by colour, others leave it genuinely
+# transparent. Decide from the file rather than from the argument.
+transparent = sum(1 for _ in range(0, W, 7) for y in range(0, H, 7)
+                  if px[_, y][3] == 0)
+use_alpha = key_arg == "alpha" or transparent > (W // 7) * (H // 7) * 0.3
+key = None if use_alpha else tuple(int(v) for v in key_arg.split(","))
+
+
+def is_background(x, y):
+    p = px[x, y]
+    return p[3] == 0 if key is None else p[:3] == key
 
 # Bands: horizontal runs that contain any non-key pixel.
 bands = []
 run = None
 for y in range(H):
-    filled = any(px[x, y][:3] != key for x in range(W))
+    filled = any(not is_background(x, y) for x in range(W))
     if filled and run is None:
         run = y
     elif not filled and run is not None:
@@ -43,7 +60,7 @@ frames = []          # (band, x0, y0, x1, y1)
 for b, (y0, y1) in enumerate(bands):
     cols, run = [], None
     for x in range(W):
-        filled = any(px[x, y][:3] != key for y in range(y0, y1 + 1))
+        filled = any(not is_background(x, y) for y in range(y0, y1 + 1))
         if filled and run is None:
             run = x
         elif not filled and run is not None:
@@ -55,7 +72,7 @@ for b, (y0, y1) in enumerate(bands):
 
     for (x0, x1) in cols:
         ys = [y for y in range(y0, y1 + 1)
-              if any(px[x, y][:3] != key for x in range(x0, x1 + 1))]
+              if any(not is_background(x, y) for x in range(x0, x1 + 1))]
         if not ys:
             continue
         top, bottom = min(ys), max(ys)
@@ -79,7 +96,7 @@ for i, (b, x0, y0, x1, y1) in enumerate(frames):
     cp = crop.load()
     for y in range(h):
         for x in range(w):
-            if cp[x, y][:3] == key:
+            if key is not None and cp[x, y][:3] == key:
                 cp[x, y] = (0, 0, 0, 0)
     crop.save(f"{out}/frames/{i:04d}.png", optimize=True)
     manifest.append(dict(x=(cw - w) // 2, y=ch - h - 4, w=w, h=h))
@@ -91,7 +108,8 @@ os.makedirs("tools/out", exist_ok=True)
 json.dump(dict(bands=len(bands), frames=index), open(f"tools/out/{name}-sheet.json", "w"))
 
 total = sum(os.path.getsize(f"{out}/frames/{f}") for f in os.listdir(f"{out}/frames"))
-print(f"{name}: {len(frames)} frames from {len(bands)} bands, "
+print(f"{name}: {len(frames)} frames from {len(bands)} bands "
+      f"({'alpha' if key is None else 'key ' + str(key)}), "
       f"canvas {cw}x{ch}, {total/1024:.0f} KB")
 for b in range(len(bands)):
     n = sum(1 for f in index if f["band"] == b)

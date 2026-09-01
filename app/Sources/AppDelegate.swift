@@ -158,7 +158,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func statusIcon() -> NSImage? {
         // Axel's sheet ends with portrait art, which is a better menu-bar
         // glyph than any of his action frames.
-        let heroes = [("peedy", 380), ("bonzi", 1159), ("axel", 157)]
+        // A recognisable frame for each: portraits where the sheet has them.
+        let heroes = [("peedy", 380), ("bonzi", 1159), ("axel", 157),
+                      ("blaze", 181), ("max", 145), ("skate", 88),
+                      ("adam", 0), ("axel1", 0), ("blaze1", 0),
+                      ("galsia", 0), ("donovan", 0), ("eagle", 0), ("slum", 12)]
         for (id, frame) in heroes where cast.buddy(id)?.isVisible == true {
             if let icon = cast.buddy(id)?.store.menuBarIcon(frame: frame, height: 18) {
                 return icon
@@ -187,7 +191,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(item(t("Sing a Song"), #selector(singSong)))
 
         if present.count > 1 {
-            menu.addItem(item(t("Let Them Chat"), #selector(haveThemChat)))
+            let brawlers = present.filter { !$0.personality.speaks }.count
+            menu.addItem(item(t(brawlers > 1 ? "Let Them Fight" : "Let Them Chat"),
+                              #selector(haveThemChat)))
         }
 
         let more = NSMenuItem(title: t("More"), action: nil, keyEquivalent: "")
@@ -354,7 +360,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func tellTwister() { speaker()?.perform(.twister, userAsked: true) }
     @objc private func singSong() { speaker()?.perform(.song, userAsked: true) }
     @objc private func doTrick() { speaker()?.doATrick() }
-    @objc private func haveThemChat() { cast.gatherAndBanter() }
+    @objc private func haveThemChat() {
+        if cast.onScreen.filter({ !$0.personality.speaks }).count > 1 {
+            cast.gatherAndSpar()
+        } else {
+            cast.gatherAndBanter()
+        }
+    }
 
     @objc private func comeHere(_ sender: NSMenuItem) {
         guard let id = sender.representedObject as? String else { return }

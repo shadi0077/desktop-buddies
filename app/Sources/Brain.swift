@@ -5,7 +5,7 @@ let peedyDebug = ProcessInfo.processInfo.environment["PEEDY_DEBUG"] == "1"
 
 func plog(_ message: @autoclosure () -> String) {
     guard peedyDebug else { return }
-    FileHandle.standardError.write("[peedy] \(message())\n".data(using: .utf8)!)
+    FileHandle.standardError.write("[cast] \(message())\n".data(using: .utf8)!)
 }
 
 enum Chattiness: Int, CaseIterable {
@@ -922,6 +922,36 @@ final class Brain {
     var isAvailable: Bool { mode == .idle && bubbleUntil == 0 }
 
     var centreX: CGFloat { window.frame.midX }
+    var frameOnScreen: NSRect { window.frame }
+
+    /// Turn to look at something. The sprite sets all face the viewer's left
+    /// when unmirrored, so facing right means mirroring.
+    func face(toward x: CGFloat) {
+        animator.mirrored = x > window.frame.midX
+    }
+
+    /// Perform one clip as part of an exchange with somebody else: turn to
+    /// them, play it, make the noise that goes with it, then call back.
+    ///
+    /// The speaking characters have `deliver` for this. Two characters who
+    /// can't talk still need a way to take turns, and taking turns is most of
+    /// what makes an exchange read as an exchange.
+    func act(_ preferred: [String], facing: CGFloat?,
+             completion: @escaping () -> Void) {
+        guard mode == .idle else { completion(); return }
+        stopSpeaking()
+        if let facing { face(toward: facing) }
+        let clip = move(preferred)
+        let token = bump()
+        mode = .busy
+        if !personality.speaks { makeNoise(noise(for: clip)) }
+        animator.play(clip) { [weak self] in
+            guard let self, self.current(token) else { completion(); return }
+            self.mode = .idle
+            self.animator.play("rest")
+            completion()
+        }
+    }
     var isSpeakingNow: Bool { bubbleUntil > 0 }
 
     /// Deliver one line of an exchange, optionally with a gesture first and

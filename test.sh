@@ -69,7 +69,9 @@ if [ "${SKIP_AUDIO:-0}" = "1" ]; then
   echo
   echo "== headless renders =="
   swiftc -O -framework AppKit $CORE tools/render/main.swift -o build/render
-  for who in peedy bonzi axel blaze max skate; do ./build/render build/Peedy.app "$who" >/dev/null; done
+  for who in peedy bonzi axel blaze max skate adam axel1 blaze1 galsia donovan eagle slum; do
+    ./build/render build/Peedy.app "$who" >/dev/null
+  done
   echo "sheets in shots/"
   exit 0
 fi
@@ -122,7 +124,9 @@ swiftc -O -framework AppKit app/Sources/VolumeSlider.swift tools/uitest/main.swi
 echo
 echo "== headless renders =="
 swiftc -O -framework AppKit $CORE tools/render/main.swift -o build/render
-for who in peedy bonzi axel blaze max skate; do ./build/render build/Peedy.app "$who" >/dev/null; done
+for who in peedy bonzi axel blaze max skate adam axel1 blaze1 galsia donovan eagle slum; do
+    ./build/render build/Peedy.app "$who" >/dev/null
+  done
 swiftc -O -framework AppKit -framework AVFoundation \
   app/Sources/SpriteStore.swift $CONTENT app/Sources/Voice.swift \
   app/Sources/BuddyView.swift tools/lipsync/main.swift -o build/lipsync

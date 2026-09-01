@@ -266,9 +266,93 @@ SKATE = {
     "depart":     (rng(96, 103), 13, False),
 }
 
+# The Streets of Rage 1 trio, sliced out of one shared sheet, and the enemies.
+# The enemy rips are small — a handful of poses each — and several carry a
+# palette swatch and a "RIPPED BY ..." caption that read as frames. Those are
+# simply not referenced.
+# The Streets of Rage 1 rips composite a walk from separate torso and leg
+# sprites, so frames 3-10 of each are disembodied legs and there is no whole-body
+# walk cycle to use. Those three glide on their idle instead, and roam less to
+# make up for it — better than animating a pair of trousers across the desktop.
+ADAM = {
+    "rest":      (rng(0, 2), 6, True),
+    "walk":      (rng(0, 2), 6, True),
+    "punch":     (rng(11, 14), 12, False),
+    "kick":      (rng(16, 19), 12, False),
+    "flip":      (rng(28, 31), 12, False),
+    "knockdown": (rng(51, 53), 8, False),
+    "arrive":    (rng(11, 14), 10, False),
+    "depart":    (rng(0, 2), 6, False),
+}
+
+AXEL1 = {
+    "rest":      (rng(0, 2), 6, True),
+    "walk":      (rng(0, 2), 6, True),
+    "punch":     (rng(11, 14), 12, False),
+    "kick":      (rng(16, 19), 12, False),
+    "flip":      (rng(28, 31), 12, False),
+    "knockdown": (rng(50, 51), 8, False),
+    "arrive":    (rng(11, 14), 10, False),
+    "depart":    (rng(0, 2), 6, False),
+}
+
+BLAZE1 = {
+    "rest":      (rng(0, 2), 6, True),
+    "walk":      (rng(0, 2), 6, True),
+    "punch":     (rng(11, 14), 12, False),
+    "kick":      (rng(15, 19), 12, False),
+    "flip":      (rng(24, 29), 12, False),
+    "knockdown": (rng(51, 53), 8, False),
+    "arrive":    (rng(11, 14), 10, False),
+    "depart":    (rng(0, 2), 6, False),
+}
+
+GALSIA = {
+    "rest":      (rng(0, 1), 5, True),
+    "walk":      (rng(5, 7), 8, True),
+    "punch":     (rng(7, 8), 9, False),
+    "knockdown": (rng(2, 3), 6, False),
+    "arrive":    (rng(5, 8), 8, False),
+    "depart":    (rng(5, 7), 8, False),
+}
+
+DONOVAN = {
+    "rest":      (rng(0, 4), 6, True),
+    "walk":      (rng(13, 16), 9, True),
+    "punch":     (rng(10, 11), 9, False),
+    "flex":      (rng(12, 13), 6, False),
+    "knockdown": (rng(6, 8), 6, False),
+    "arrive":    (rng(12, 13), 6, False),
+    "depart":    (rng(13, 16), 9, False),
+}
+
+EAGLE = {
+    "rest":      (rng(0, 6), 7, True),
+    "walk":      (rng(0, 6), 10, True),      # his sheet has no separate walk
+    "kick":      (rng(7, 8), 9, False),
+    "highKick":  (rng(15, 16), 8, False),
+    "knockdown": (rng(12, 13), 6, False),
+    "arrive":    (rng(15, 16), 8, False),
+    "depart":    (rng(0, 6), 10, False),
+}
+
+SLUM = {
+    "rest":      (rng(12, 15), 7, True),
+    "walk":      (rng(12, 15), 10, True),
+    "punch":     (rng(16, 19), 11, False),
+    "attack":    (rng(5, 9), 10, False),
+    "knockdown": (rng(10, 11), 6, False),
+    "arrive":    (rng(16, 19), 10, False),
+    "depart":    (rng(12, 15), 10, False),
+}
+
 for name, clips, talk in [("peedy", PEEDY, PEEDY_TALK), ("bonzi", BONZI, BONZI_TALK),
                           ("axel", AXEL, {}), ("blaze", BLAZE, {}),
-                          ("max", MAX, {}), ("skate", SKATE, {})]:
+                          ("max", MAX, {}), ("skate", SKATE, {}),
+                          ("adam", ADAM, {}), ("axel1", AXEL1, {}),
+                          ("blaze1", BLAZE1, {}), ("galsia", GALSIA, {}),
+                          ("donovan", DONOVAN, {}), ("eagle", EAGLE, {}),
+                          ("slum", SLUM, {})]:
     # Bonzi is optional; skip anyone whose sprites haven't been imported.
     if not os.path.isdir(f"assets/{name}/rgba") and not os.path.isdir(
             f"app/Resources/characters/{name}/frames"):

@@ -1,8 +1,14 @@
 # Streets of Rage — a different kind of buddy
 
-Branch `axel`. Adds the Streets of Rage 2 playable roster — **Axel, Blaze, Max
-and Skate** — and in doing so establishes that the app can host something other
-than a Microsoft Agent character.
+Branch `axel`. Adds eleven Streets of Rage characters and, in doing so,
+establishes that the app can host something other than a Microsoft Agent
+character.
+
+| | |
+|---|---|
+| Streets of Rage 2 | Axel, Blaze, Max, Skate |
+| Streets of Rage 1 | Adam, Axel, Blaze |
+| Enemies | Galsia, Donovan, Eagle, Slum |
 
 They are not variations on Peedy and Bonzi. He's a beat-'em-up sprite rip, and
 almost everything that makes the other two work does not apply to him:
@@ -67,6 +73,38 @@ existed.
 
 Measured on Axel: 102 position changes over one stretch, 1846 points travelled,
 largest single step 38 points.
+
+## Squaring up
+
+Two of them close together stop wandering and have a go at each other. It's the
+same shape as the speaking characters' banter — take turns, face each other,
+nobody moves while somebody else is mid-swing — but the content is physical,
+because they have no words. One swings, the other takes it or blocks, then
+counters.
+
+Proximity is the trigger: under 420 points apart and both free, they square up.
+**Let Them Fight** in the menu walks two together first.
+
+Facing matters here and didn't before. Every sprite set faces the viewer's left
+unmirrored, so `Brain.face(toward:)` mirrors to look right — and whoever isn't
+swinging still turns to watch.
+
+## Two traps in the source art
+
+Both were found by rendering the frames and looking, and neither could have been
+caught automatically:
+
+**Captions live inside frames.** A label printed directly above a sprite is part
+of the same run of content, so it ends up in that frame. Those frames are a
+normal size, so no filter catches them. Blaze's walk starts two frames later
+than it looks like it should. I tested whether an unusually-short-frame rule
+would help; it would have thrown away her projectile and her lying-down poses
+instead.
+
+**The Streets of Rage 1 rips have no whole-body walk.** That game composited a
+walk from separate torso and leg sprites, so frames 3–10 of each character are
+disembodied legs. The trio glide on their idle and roam much less, which is
+better than animating a pair of trousers across the desktop.
 
 ## What this changed in the engine
 

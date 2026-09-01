@@ -155,6 +155,21 @@ for lang in Language.allCases {
     check("the \(lang.rawValue) voice menu isn't empty", !offered.isEmpty)
 }
 
+print("\nsparring needs somebody to spar with:")
+// Every clip named in an exchange must exist for somebody, or the move()
+// fallback quietly turns a punch into whatever else they had.
+let brawlerIDs = Personality.all.filter { !$0.speaks }.map(\.id)
+check("there is more than one brawler", brawlerIDs.count > 1, "\(brawlerIDs.count)")
+for p in Personality.all where !p.speaks {
+    guard let store = stores[p.id] else { continue }
+    // Whatever else they lack, they must be able to stand, move and react.
+    for name in ["rest", "walk", "arrive", "depart"] {
+        check("\(p.id): has \(name)", store.animation(name) != nil)
+    }
+    check("\(p.id): has something to throw",
+          !p.flourishes.filter { store.animation($0) != nil }.isEmpty)
+}
+
 print("\ncharacters who make noise instead of talking:")
 for p in Personality.all where !p.speaks {
     guard let store = stores[p.id] else { check("\(p.id) loads", false); continue }
