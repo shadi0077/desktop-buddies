@@ -11,7 +11,8 @@ CONTENT="app/Sources/Language.swift app/Sources/Chatter.swift app/Sources/Repert
          app/Sources/Personality.swift
          app/Sources/PeedyPersonality.swift app/Sources/PeedyArabic.swift
          app/Sources/BonziPersonality.swift app/Sources/BonziArabic.swift
-         app/Sources/AxelPersonality.swift"
+         app/Sources/AxelPersonality.swift
+         app/Sources/SoRPersonalities.swift"
 ENGINE="app/Sources/Animator.swift app/Sources/BuddyWindow.swift app/Sources/Voice.swift
         app/Sources/SoundBank.swift app/Sources/Brain.swift"
 
@@ -68,7 +69,7 @@ if [ "${SKIP_AUDIO:-0}" = "1" ]; then
   echo
   echo "== headless renders =="
   swiftc -O -framework AppKit $CORE tools/render/main.swift -o build/render
-  for who in peedy bonzi axel; do ./build/render build/Peedy.app "$who" >/dev/null; done
+  for who in peedy bonzi axel blaze max skate; do ./build/render build/Peedy.app "$who" >/dev/null; done
   echo "sheets in shots/"
   exit 0
 fi
@@ -80,7 +81,7 @@ swiftc -O -framework AppKit -framework AVFoundation \
   app/Sources/Language.swift app/Sources/Personality.swift \
   app/Sources/PeedyPersonality.swift app/Sources/PeedyArabic.swift \
   app/Sources/BonziPersonality.swift app/Sources/BonziArabic.swift \
-  app/Sources/AxelPersonality.swift \
+  app/Sources/AxelPersonality.swift app/Sources/SoRPersonalities.swift \
   tools/voicetest/main.swift -o build/voicetest
 for who in peedy bonzi; do echo "-- $who"; ./build/voicetest "$who"; done
 
@@ -121,7 +122,7 @@ swiftc -O -framework AppKit app/Sources/VolumeSlider.swift tools/uitest/main.swi
 echo
 echo "== headless renders =="
 swiftc -O -framework AppKit $CORE tools/render/main.swift -o build/render
-for who in peedy bonzi axel; do ./build/render build/Peedy.app "$who" >/dev/null; done
+for who in peedy bonzi axel blaze max skate; do ./build/render build/Peedy.app "$who" >/dev/null; done
 swiftc -O -framework AppKit -framework AVFoundation \
   app/Sources/SpriteStore.swift $CONTENT app/Sources/Voice.swift \
   app/Sources/BuddyView.swift tools/lipsync/main.swift -o build/lipsync

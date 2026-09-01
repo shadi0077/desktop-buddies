@@ -7,8 +7,10 @@ extension Personality {
         id: "peedy",
         expresses: .speech,
         pixelArt: false,
+        soundSet: nil,
         scale: 1.15,
         beatRange: 9...22,
+        roaming: .init(distance: 160...520, speed: 620, arc: 42),
         travel: .flies(takeoff: "takeoff", cruise: "fly", land: "land"),
 
         flourishes: ["lookAround", "cheer", "flourish", "announce", "shrug",

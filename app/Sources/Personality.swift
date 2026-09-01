@@ -84,11 +84,16 @@ struct Personality {
     /// without smoothing.
     let pixelArt: Bool
 
+    /// Folder its sound effects come from, when it has them. Shared between
+    /// characters out of the same game.
+    let soundSet: String?
+
     /// Scale relative to the sprite canvas, so the two end up sensibly sized
     /// next to each other rather than at whatever their sheets happened to be.
     let scale: CGFloat
     /// Seconds between idle beats, before energy and chattiness scale them.
     let beatRange: ClosedRange<Double>
+    let roaming: Roaming
     let travel: Travel
     let flourishes: [String]
     let bits: [Bit]
@@ -108,6 +113,33 @@ struct Personality {
             }
         }
     }
+
+    /// How far and how fast they move about.
+    ///
+    /// A flying parrot crosses a gap; someone walking crosses the room. Tying
+    /// speed to the character matters more than it sounds: a walk cycle played
+    /// while the window jumps 500 points in half a second reads as moonwalking,
+    /// which is exactly what it looked like before this existed.
+    struct Roaming {
+        /// How far a single wander goes, in points.
+        let distance: ClosedRange<CGFloat>
+        /// Points per second while travelling.
+        let speed: CGFloat
+        /// How high the arc lifts at the midpoint. Flight arcs; walking doesn't.
+        let arc: CGFloat
+        /// How much of the idle rotation goes on moving about. Someone who
+        /// walks for a living should be pacing, not standing.
+        let restlessness: Double
+
+        init(distance: ClosedRange<CGFloat>, speed: CGFloat, arc: CGFloat,
+             restlessness: Double = 1) {
+            self.distance = distance
+            self.speed = speed
+            self.arc = arc
+            self.restlessness = restlessness
+        }
+    }
+
 
     /// A "bit" is an intro, a loop to sit in, and an outro to undo it.
     struct Bit {
@@ -142,7 +174,7 @@ struct Personality {
 
     var name: String { pack(.english)?.name ?? id.capitalized }
 
-    static let all: [Personality] = [.peedy, .bonzi, .axel]
+    static let all: [Personality] = [.peedy, .bonzi, .axel, .blaze, .max, .skate]
 
     static func named(_ id: String) -> Personality {
         all.first { $0.id == id } ?? .peedy

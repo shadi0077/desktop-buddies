@@ -5,6 +5,12 @@ rips arrive as a single sheet with frames laid out in irregular rows, so they
 need segmenting: find bands of content, then columns within each band.
 
 Usage: sheet.py <character> <sheet.png> [key_r,key_g,key_b]
+
+Caveat worth knowing before authoring animations: a caption printed directly
+above a sprite ends up inside that frame, because the band containing both is
+one run of content. Those frames look normal by size, so they can't be filtered
+out automatically — render the numbered index and look. Blaze's walk cycle
+starts two frames later than it appears to for exactly this reason.
 """
 from PIL import Image
 import json, os, shutil, sys

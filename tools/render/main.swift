@@ -19,7 +19,7 @@ let cell = NSSize(width: store.canvas.width * scale, height: store.canvas.height
 
 func render(_ step: Step, mirrored: Bool) -> NSImage {
     let view = BuddyView(store: store)
-    view.pixelArt = (who == "axel")
+    view.pixelArt = ["axel", "blaze", "max", "skate"].contains(who)
     view.frame = NSRect(origin: .zero, size: cell)
     view.step = step
     view.mirrored = mirrored

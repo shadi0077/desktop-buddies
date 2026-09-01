@@ -12,8 +12,12 @@ extension Personality {
         id: "axel",
         expresses: .soundEffects,
         pixelArt: true,
+        soundSet: "_sor2",
         scale: 1.55,               // Genesis sprites are small; scale him up
         beatRange: 7...16,         // restless, the way someone squaring up is
+        // He walks, so he covers ground at walking pace and goes a long way
+        // with it — across the screen, not a hop and a stop.
+        roaming: .init(distance: 600...2200, speed: 165, arc: 0, restlessness: 2.6),
         travel: .hops(cruise: "walk"),
 
         flourishes: ["punch", "jab", "kick", "highKick", "knee",

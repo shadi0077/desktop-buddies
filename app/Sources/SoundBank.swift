@@ -22,8 +22,11 @@ final class SoundBank {
     var volume: Float = 0.8
     var isEnabled = true
 
-    init?(character: String, bundle: Bundle = .main) {
-        let dir = "characters/\(character)"
+    /// `set` is the folder the sounds live in, which may be shared: the four
+    /// Streets of Rage characters all draw on the same rip rather than
+    /// carrying four copies of it.
+    init?(set: String, bundle: Bundle = .main) {
+        let dir = "characters/\(set)"
         guard let manifest = bundle.url(forResource: "sounds", withExtension: "json",
                                         subdirectory: dir),
               let data = try? Data(contentsOf: manifest),

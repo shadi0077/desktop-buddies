@@ -116,7 +116,7 @@ final class Brain {
         self.personality = personality
         self.language = language
         self.pack = personality.pack(language)
-        self.sounds = personality.speaks ? nil : SoundBank(character: personality.id)
+        self.sounds = personality.soundSet.flatMap { SoundBank(set: $0) }
         self.store = store
         self.animator = animator
         self.window = window
@@ -452,7 +452,8 @@ final class Brain {
         // lively one is up and about.
         let settled = 1 - energy
         let beat = Self.weightedPick([(Beat.settle, 0.10 + 0.40 * settled),
-                                      (.wander, 0.07 + 0.28 * energy),
+                                      (.wander, (0.07 + 0.28 * energy)
+                                                * personality.roaming.restlessness),
                                       (.bit, 0.20),
                                       (.flourish, 0.08 + 0.22 * energy),
                                       (.turn, personality.speaks ? 0.12 + 0.26 * energy : 0)],
@@ -692,7 +693,7 @@ final class Brain {
                     screen.visibleFrame.height))
         guard let target = Self.wanderTarget(from: f.origin, size: f.size,
                                              in: screen.visibleFrame,
-                                             hop: .random(in: 160...480),
+                                             hop: .random(in: personality.roaming.distance),
                                              dy: .random(in: -90...90),
                                              preferRight: .random()) else {
             plog("wander: nowhere to go")
@@ -718,7 +719,10 @@ final class Brain {
 
         let token = bump()
         let distance = Double(hypot(target.x - from.x, target.y - from.y))
-        let duration = max(0.55, min(2.2, distance / 620))
+        // Travel time comes from the character's own pace, so the cruise
+        // animation matches the distance covered instead of the window
+        // teleporting under a looping walk cycle.
+        let duration = max(0.4, min(14, distance / Double(personality.roaming.speed)))
 
         let cruise = { [weak self] in
             guard let self, self.current(token) else { return }
@@ -754,7 +758,7 @@ final class Brain {
         travel = t
         // Ease in/out, plus a shallow arc so it reads as flight, not a slide.
         let e = t.t < 0.5 ? 2 * t.t * t.t : 1 - pow(-2 * t.t + 2, 2) / 2
-        let lift = sin(e * .pi) * (self.personality.travel.cruise == "fly" ? 42 : 16)
+        let lift = sin(e * .pi) * self.personality.roaming.arc
         let x = t.from.x + (t.to.x - t.from.x) * e
         let y = t.from.y + (t.to.y - t.from.y) * e + lift
         window.setFrameOrigin(NSPoint(x: x, y: y))

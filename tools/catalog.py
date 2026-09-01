@@ -225,8 +225,50 @@ AXEL = {
     "depart":      (rng(92, 101), 12, False),
 }
 
+# The rest of the Streets of Rage 2 roster. Same sheet format, same bands-are-
+# animations structure, so these were read off the frame index the same way.
+BLAZE = {
+    "rest":       (rng(0, 8), 8, True),
+    "walk":       (rng(105, 111), 12, True),
+    "punch":      (rng(114, 119), 14, False),
+    "kick":       (rng(24, 28), 12, False),
+    "highKick":   (rng(128, 131), 12, False),
+    "flip":       (rng(34, 40), 14, False),
+    "projectile": (rng(50, 57), 12, False),
+    "spin":       (rng(59, 63), 12, False),
+    "knockdown":  (rng(99, 101), 8, False),
+    "arrive":     (rng(34, 40), 14, False),
+    "depart":     (rng(105, 111), 12, False),
+}
+
+MAX = {
+    "rest":       (rng(0, 9), 7, True),
+    "walk":       (rng(80, 90), 10, True),
+    "punch":      (rng(96, 102), 12, False),
+    "flex":       (rng(10, 17), 8, False),
+    "grapple":    (rng(39, 47), 12, False),
+    "slam":       (rng(48, 55), 12, False),
+    "knockdown":  (rng(35, 38), 8, False),
+    "arrive":     (rng(10, 17), 8, False),
+    "depart":     (rng(80, 90), 10, False),
+}
+
+SKATE = {
+    "rest":       (rng(0, 11), 9, True),
+    "walk":       (rng(96, 103), 13, True),
+    "punch":      (rng(104, 110), 14, False),
+    "kick":       (rng(16, 18), 12, False),
+    "flip":       (rng(35, 43), 14, False),
+    "spin":       (rng(57, 66), 14, False),
+    "dash":       (rng(67, 73), 14, False),
+    "knockdown":  (rng(84, 86), 8, False),
+    "arrive":     (rng(44, 47), 10, False),
+    "depart":     (rng(96, 103), 13, False),
+}
+
 for name, clips, talk in [("peedy", PEEDY, PEEDY_TALK), ("bonzi", BONZI, BONZI_TALK),
-                          ("axel", AXEL, {})]:
+                          ("axel", AXEL, {}), ("blaze", BLAZE, {}),
+                          ("max", MAX, {}), ("skate", SKATE, {})]:
     # Bonzi is optional; skip anyone whose sprites haven't been imported.
     if not os.path.isdir(f"assets/{name}/rgba") and not os.path.isdir(
             f"app/Resources/characters/{name}/frames"):

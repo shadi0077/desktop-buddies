@@ -161,7 +161,8 @@ for p in Personality.all where !p.speaks {
     check("\(p.id): has no speech packs", p.packs.isEmpty)
     check("\(p.id): has no talk poses", store.talkPoses.isEmpty)
     check("\(p.id): every language is open to it", p.languages().count == Language.allCases.count)
-    guard let bank = SoundBank(character: p.id, bundle: bundle) else {
+    guard let set = p.soundSet,
+          let bank = SoundBank(set: set, bundle: bundle) else {
         check("\(p.id): has a sound bank", false); continue
     }
     check("\(p.id): has a sound bank", true)

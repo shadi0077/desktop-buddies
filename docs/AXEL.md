@@ -1,10 +1,10 @@
-# Axel — a different kind of buddy
+# Streets of Rage — a different kind of buddy
 
-Branch `axel`. Adds Axel Stone from *Streets of Rage 2* as a third character,
-and in doing so establishes that the app can host something other than a
-Microsoft Agent character.
+Branch `axel`. Adds the Streets of Rage 2 playable roster — **Axel, Blaze, Max
+and Skate** — and in doing so establishes that the app can host something other
+than a Microsoft Agent character.
 
-He is not a variation on Peedy and Bonzi. He's a beat-'em-up sprite rip, and
+They are not variations on Peedy and Bonzi. He's a beat-'em-up sprite rip, and
 almost everything that makes the other two work does not apply to him:
 
 | | Peedy / Bonzi | Axel |
@@ -20,9 +20,16 @@ almost everything that makes the other two work does not apply to him:
 
 `tools/sheet.py` segments a sheet into frames: find horizontal bands of
 content, then columns within each band, then trim each to its own bounding box.
-Axel's sheet gives 162 frames across 19 bands, which map almost one-to-one onto
-animations — idle, walk, jab, kick, the Grand Upper, knockdown, and the portrait
-art at the end.
+The four sheets give 162, 186, 150 and 137 frames, and their bands map almost
+one-to-one onto animations — idle, walk, jab, kick, the Grand Upper, knockdown,
+and the portrait art at the end.
+
+One trap worth knowing: a caption printed directly above a sprite ends up
+*inside* that frame, because the band containing both is one run of content.
+Those frames are a normal size, so nothing can filter them out automatically.
+Blaze's walk cycle starts two frames later than it looks like it should for
+exactly this reason, and the only way to catch it is to render the numbered
+index and look.
 
 Frames are anchored bottom-centre on a shared canvas so his feet stay planted.
 
@@ -41,6 +48,25 @@ what each one is — nobody wrote down which grunt is which. The grouping is by
 that naming convention plus duration: short voice clips are exertion, short
 effects are impacts, longer voice clips are shouts. It's an inference, not a
 transcription.
+
+## Moving about
+
+They walk, so they travel at walking pace and go a long way with it. `Roaming`
+carries a distance range, a speed in points per second, an arc height and a
+restlessness — because a walk cycle played while the window jumps 500 points in
+half a second reads as moonwalking, which is what it looked like before this
+existed.
+
+| | distance | speed | arc | restlessness |
+|---|---|---|---|---|
+| Peedy | 160–520 | 620 pt/s | 42 | 1.0 |
+| Bonzi | 200–560 | 400 pt/s | 16 | 1.0 |
+| Axel | 600–2200 | 165 pt/s | 0 | 2.6 |
+| Max | 500–1600 | 120 pt/s | 0 | 1.6 |
+| Skate | 900–3000 | 300 pt/s | 0 | 3.4 |
+
+Measured on Axel: 102 position changes over one stretch, 1846 points travelled,
+largest single step 38 points.
 
 ## What this changed in the engine
 

@@ -8,8 +8,10 @@ extension Personality {
         id: "bonzi",
         expresses: .speech,
         pixelArt: false,
+        soundSet: nil,
         scale: 1.0,                 // his canvas is already bigger than Peedy's
         beatRange: 14...32,         // and he does far less, far less often
+        roaming: .init(distance: 200...560, speed: 400, arc: 16),
         travel: .hops(cruise: "vineSwing"),
 
         flourishes: ["lookAround", "shrug", "scratchHead", "point",
