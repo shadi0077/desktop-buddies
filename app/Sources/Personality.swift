@@ -81,6 +81,10 @@ struct Personality {
     /// What they say, per language. Empty for characters who don't talk.
     let packs: [Language: SpeechPack]
 
+    /// A clip to loop while speaking, for the characters whose sprite sets
+    /// have no mouth patches to composite. Nil means lip-sync as usual.
+    var talkLoop: String? = nil
+
     /// Shown in the menu, when the id isn't presentable on its own. Speaking
     /// characters take their name from their speech pack; the rest fall back to
     /// the id, which is fine for `axel` and not for `axel1`.
@@ -164,7 +168,12 @@ struct Personality {
 
     /// Everyone this build ships. The full roster lives in `everyone`; a
     /// product manifest picks from it.
-    static let everyone: [Personality] = [.peedy, .bonzi]
+    static let everyone: [Personality] = [
+        .peedy, .bonzi,                       // BonziBUDDY
+        .max,                                 // MaxALERT
+        .clippy, .rover, .merlin, .f1,        // Microsoft Office XP
+        .earl, .manma,
+    ]
 
     static let all: [Personality] = {
         let wanted = Product.current.cast

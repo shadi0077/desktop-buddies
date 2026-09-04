@@ -33,6 +33,10 @@ func isPlausibleArabic(_ s: String) -> Bool {
         return (0x0600...0x06FF).contains(v) || (0x0750...0x077F).contains(v)
             || v == 0x20 || (0x21...0x40).contains(v) || v == 0x2026 || v == 0x060C
             || (0x2018...0x201D).contains(v)
+            // Guillemets are the ordinary quotation marks in Arabic
+            // typography, and Majed reads a quoted word at the same rate as an
+            // unquoted one.
+            || v == 0x00AB || v == 0x00BB
     }
 }
 

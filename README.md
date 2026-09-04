@@ -4,18 +4,19 @@
 [![License: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/macOS-11%2B%20(Apple%20Silicon)-lightgrey)
 
-Characters who live on your macOS desktop. One codebase, **two apps**:
+Nine characters who live on your macOS desktop, from the era when software
+came with a cartoon in the corner. They walk about, do bits, sing in tune, and
+talk to each other when more than one of them is out.
 
-**Desktop Buddies.** **Peedy** is a parrot: quick, fussy, theatrical, opinions
-about crackers. **Bonzi** is a gorilla: slow, heavy, unbothered, arrives on a
-vine. They talk, sing, and when both are out they talk to each other.
+![The cast](docs/img/cast-lineup.png)
 
-**MegaDrive Buddies.** Eleven Streets of Rage sprites who walk the length of the
-screen and square up when two of them get close. They have no words — they
-grunt, and they hit each other. See [docs/MEGADRIVE.md](docs/MEGADRIVE.md).
+**Peedy** is a parrot: quick, fussy, theatrical. **Bonzi** is a gorilla: slow,
+heavy, unbothered. **Max** reports the news whether or not there is any.
+**Merlin** has seen all this before. **Rover** is helping. **Clippit** has
+decided what you are doing. **Earl** is not worried. **F1** is precise.
+**Manma** wants to know if you've eaten.
 
-They ship as separate apps with separate bundle identifiers, so you can install
-either or both, run them at the same time, and they keep separate settings.
+Have one, or all nine.
 
 The Bonzi idea, minus the part everyone remembers it for: **no network access,
 no analytics, no bundled anything, no browser changes, no upsell.** They are
@@ -39,53 +40,40 @@ macOS 11 or later on Apple Silicon, plus the Xcode command line tools.
 ```bash
 git clone https://github.com/shadi0077/desktop-buddies.git
 cd desktop-buddies
-./build.sh
-open "build/Desktop Buddies.app"
-open "build/MegaDrive Buddies.app"
+./build.sh && open "build/Desktop Buddies.app"
 ```
 
-`./build.sh` with no argument builds both. Name one to build just that one:
-
-```bash
-./build.sh megadrive-buddies
-```
-
-> **On the artwork.** Peedy and Bonzi are Microsoft Agent characters; the
-> Streets of Rage sprites are Sega's. They are included so this runs from a
-> clone, but they are **not** covered by the MIT licence and are not mine to
-> license — see [docs/SPRITES.md](docs/SPRITES.md). Rights holders: open an
-> issue and it comes down.
+> **On the artwork.** These are Microsoft Agent characters — the BonziBUDDY
+> pair, the Office XP assistants, and Max from MaxALERT. They are included so
+> this runs from a clone, but they are **not** covered by the MIT licence and
+> are not mine to license — see [docs/SPRITES.md](docs/SPRITES.md). Rights
+> holders: open an issue and it comes down.
 
 There is no Xcode project. `build.sh` compiles the sources with `swiftc`,
 assembles the `.app`, and ad-hoc signs it.
 
-### Two apps, one codebase
+### The cast is a manifest
 
-A product is a JSON manifest in `products/` — a name, a bundle identifier, and
-the cast that ships with it:
+Who ships with the app lives in `products/desktop-buddies.json` rather than in
+the sources — a name, a bundle identifier, and a list:
 
 ```json
 {
-  "id": "megadrive-buddies",
-  "name": "MegaDrive Buddies",
-  "bundleID": "com.shadi.megadrivebuddies",
-  "cast": ["axel", "blaze", "max", "skate", "..."],
-  "iconCharacter": "axel",
-  "iconFrame": 157
+  "name": "Desktop Buddies",
+  "bundleID": "com.shadi.desktopbuddies",
+  "cast": ["peedy", "bonzi", "max", "merlin", "rover", "..."],
+  "iconCharacter": "peedy",
+  "iconFrame": 401
 }
 ```
 
-`build.sh` reads it, writes the `Info.plist`, and copies **only** that product's
-sprite folders — which is why Desktop Buddies is 18 MB and MegaDrive Buddies is
-7 MB rather than both being the sum. At runtime `Product.swift` loads the
-bundled copy of the manifest and `Personality.all` filters the full roster down
-to that cast; everything downstream reads off it, so the menu drops speech items
-in a product where nobody speaks. Set `BUDDY_PRODUCT=<id>` to run the tools
-against a product without rebuilding.
+`build.sh` reads it, writes the `Info.plist`, and copies only the sprite folders
+it names. At runtime `Product.swift` loads the bundled copy and
+`Personality.all` filters the roster to match, so a character can be built and
+kept out of a release by deleting one line. `test.sh` reads the same list, which
+is why adding a character doesn't mean remembering to add it to three others.
 
-Adding a third app is a manifest and an icon frame, not a target.
-
-## The cast — Desktop Buddies
+## The double act
 
 | | Peedy | Bonzi |
 |---|---|---|
@@ -117,24 +105,54 @@ first if they've drifted apart. Two rules make it read as conversation rather
 than two monologues: nobody starts a line while somebody else is mid-sentence,
 and arrivals are staggered so they don't greet in unison.
 
-## The cast — MegaDrive Buddies
+Nine characters make thirty-six pairings, and hand-writing a set of exchanges
+for each would produce mostly filler written to fill a grid. So the Peedy and
+Bonzi material stays exactly as it is, for the two it was written for, and every
+other pair draws on exchanges that work in any mouth — because the one thing all
+nine have in common is being strangers stuck on somebody else's desktop:
 
-![The MegaDrive cast, mid-walk](docs/img/megadrive-buddies.png)
+> **Rover:** Nobody has ever asked me what I want.
+> **F1:** What do you want?
+> **Rover:** I hadn't got that far.
 
-Axel, Blaze, Max and Skate from Streets of Rage 2; Adam, Axel and Blaze from the
-first game; and Galsia, Donovan, Eagle and Slum, who are enemies and behave like
-it. Both games have an Axel and a Blaze, so the 1991 pair are labelled as such.
+Those carry no gestures, deliberately: a clip one character has is not one the
+other necessarily does.
 
-They work differently enough from the parrot and the gorilla to have their own
-page: one sprite sheet rather than numbered frames, sound effects rather than
-speech, walking rather than flying, and fighting rather than banter. Two of them
-within 420 points of each other stop wandering and square up.
-**[docs/MEGADRIVE.md](docs/MEGADRIVE.md)** covers the sheet cutting, the sound
-inference, and the two traps in the source art.
+## The rest of them
+
+| | | |
+|---|---|---|
+| **Max** | MaxALERT | Reports the news whether or not there is any. Bulletins about nothing, delivered properly. |
+| **Merlin** | Office XP | Materialises out of nothing, says something with the weight of prophecy, folds himself away. |
+| **Rover** | Office XP | The search dog. Is helping. Not always with the thing you wanted. |
+| **Clippit** | Office XP | Has decided what you're doing and is going to help you do it. |
+| **Earl** | Office XP | Surfs. Not worried. Never offers to help. |
+| **F1** | Office XP | Literal, precise, no subtext. Says numbers where the others say "a lot". |
+| **Manma** | Office XP (Japan) | Quiet, attentive, asks whether you've eaten. |
+
+Each has a voice of its own — the classic MacinTalk and Eloquence set, one per
+character — its own pace, its own tonic for singing, and pools of lines that
+`test.sh` asserts stay disjoint across the whole cast.
+
+### Two of them have mouths and seven don't
+
+Peedy, Bonzi, Max and Merlin come from dumps with the full Microsoft Agent
+structure: full-body frames, plus small overlay patches — seven per pose for
+lip-sync visemes, two for a blink — registered to exactly one body frame.
+
+The five Office XP assistants were ripped as finished frames, with no overlays
+at all. Rover has six small frames in seven hundred and none of them is a mouth.
+So they can't lip-sync, and holding a still pose through a whole sentence reads
+as a freeze. They gesture instead: `talkLoop` names a clip to loop while the
+audio plays — Rover pants, Clippit does his eyebrows, F1 works his arms — which
+is what those characters did originally anyway.
+
+`test.sh` asserts every speaking character has one or the other, so a new
+character can't quietly end up talking through a frozen body.
 
 ## Arabic — Saudi
 
-Both characters speak **Najdi Arabic**, switchable from **Language** in the
+All nine speak **Najdi Arabic**, switchable from **Language** in the
 menu. The menu localises with them and speech balloons lay out right-to-left.
 
 ![Arabic speech balloons](docs/img/arabic.png)
@@ -171,8 +189,10 @@ What *is* controllable, and used:
 - **Pauses.** Commas and ellipses are the one handle on cadence: `يا هلا والله
   حياك` runs 2.13 s, `يا هلا... والله... حياك` runs 2.54 s. Najdi speech leans
   on pauses, so the lines are punctuated for it.
-- **Pitch and pace.** Both characters share the one voice, so this is all that
-  separates them: Peedy near 284 Hz, Bonzi near 128, and Bonzi much slower.
+- **Pitch and pace.** All nine share the one voice, so this is all that
+  separates them: Peedy near 284 Hz, Bonzi near 128, and everyone else spread
+  between, at nine different rates. It is a thinner distinction than the
+  English voices give — nine characters and one synthesiser — but a real one.
 
 `test.sh` renders all 356 Arabic lines and checks each reads at a normal rate —
 a line the voice can't handle shows up as a spike in ms/char, the signature of
@@ -188,10 +208,10 @@ and that no Latin characters have crept in.
 | Right-click | Same menu as the menu bar |
 | Menu bar icon | Jokes, facts, songs, Let Them Chat, Who's Here, volume, per-character voice and pitch |
 
-The menu follows the cast. In MegaDrive Buddies, where nobody speaks, the items
-that need a voice aren't there at all: **Do Something** instead of Say Hello,
-**Let Them Fight** instead of Let Them Chat, **Mute Sounds** instead of Mute
-Voices, and no Language submenu.
+**Who's Here** lists all nine, with a submenu each: come here, send away, and
+that character's own voice and pitch. Whoever is out defines the menu-bar icon,
+and every character names the frame it wants used for that in its own
+catalogue — a front-facing pose usually flattens into a blob at 18 points.
 
 **Volume** is theirs alone — a slider in the menu, independent of the system
 volume. Turning them down doesn't quieten anything else, and turning the Mac up
@@ -300,20 +320,24 @@ but can never invalidate anyone else's.
 
 ## What they actually do
 
-Beyond fidgeting, he has a repertoire — all of it bundled, since he has no
-network access and never will.
+Beyond fidgeting, each of them has a repertoire — all of it bundled, since none
+of them has network access and never will. Across the cast, in both languages:
 
 | | |
 |---|---|
-| **Jokes** | 25, told properly: setup, a beat to let it land, then the punchline with a flourish |
-| **Facts** | 32, and they're all true — parrots, birds, computing history, and assorted trivia |
-| **Riddles** | 12, with a longer pause before the answer so you can have a go |
-| **Tongue twisters** | 7, which a formant synthesiser makes funnier than they deserve |
-| **Songs** | 4, actually sung — see below |
+| **Jokes** | 84, told properly: setup, a beat to let it land, then the punchline with a flourish |
+| **Facts** | 47, and they're all true — each character knows about its own world |
+| **Riddles** | 21, with a longer pause before the answer so you can have a go |
+| **Tongue twisters** | 23, which a formant synthesiser makes funnier than they deserve |
+| **Songs** | 32, actually sung — see below |
+
+None of it is shared: the whole point of nine characters is that they are nine
+characters, so `test.sh` checks every pool against every other pool and fails if
+two of them ever say the same thing.
 
 Jokes, facts and songs are on the menu directly; riddles and tongue twisters are
-under **More**. They also come up on their own as he idles. Recent picks are
-remembered so he works through the material rather than looping a favourite.
+under **More**. They also come up on their own as they idle. Recent picks are
+remembered so each works through its material rather than looping a favourite.
 
 ### When there's no audio device
 
@@ -440,8 +464,11 @@ eye blinks. The tooling in `tools/` reverse-engineers that structure:
 | `pack.py` | Trims each frame to its opaque bounds, records the offset |
 | `catalog.py` | Emits the animation catalog (clip ranges, fps, loop flags) |
 | `strips.py`, `detail.py` | Labelled contact sheets used to identify the clips |
-| `icon.py` | Builds `<product>.icns` from a hero frame — `python3 tools/icon.py megadrive-buddies` |
-| `sheet.py` | Cuts a single game sprite sheet into frames (the MegaDrive characters) |
+| `icon.py` | Builds the app icon from a hero frame — `python3 tools/icon.py desktop-buddies` |
+| `grid.py` | Cuts a sheet laid out as a uniform grid into numbered frames |
+| `kinds.py` | Sorts frames into full bodies and overlay patches |
+| `runs.py` | Finds animation boundaries from frame-to-frame difference |
+| `lineup.py` | Renders the cast lineup used in this README |
 
 Rerun the whole pipeline with:
 
@@ -449,11 +476,14 @@ Rerun the whole pipeline with:
 python3 tools/extract.py && python3 tools/pack.py && python3 tools/catalog.py
 ```
 
-The app ships 36 named clips (`rest`, `arrive`, `depart`, `takeoff`/`fly`/`land`,
+Peedy ships 36 named clips (`rest`, `arrive`, `depart`, `takeoff`/`fly`/`land`,
 plus bits like reading a newspaper, taking notes, headphones, sunglasses,
-telescope, and a first-place ribbon) and six lip-sync poses. Costume bits have
-no "take it off" frames in the source set, so their intro clip is played
-backwards to undo it — which is what the original did too.
+telescope, and a first-place ribbon) and six lip-sync poses; the whole cast
+comes to 156 clips and 27 poses. Costume bits have no "take it off"
+frames in the source set, so their intro clip is played backwards to undo it —
+which is what the original did too. The same trick fills in a missing entrance:
+Clippit folds himself away but is never seen unfolding, so his arrival is that
+clip in reverse.
 
 ### Code
 
@@ -468,8 +498,9 @@ backwards to undo it — which is what the original did too.
 | `VolumeSlider.swift` | The app's own volume control, in the menu |
 | `Cast.swift` | Assembles each character; runs the two-hander dialogue |
 | `Personality.swift` | What makes one of them not the other — voice, pacing, clips, lines |
-| `Product.swift` | Which app this is: reads the bundled manifest, filters the roster |
-| `SoundBank.swift` | Game sound effects for the characters who don't speak |
+| `<Name>Personality.swift` | One per character: how it moves, and everything it says in English |
+| `<Name>Arabic.swift` | The same character in Najdi Arabic |
+| `Product.swift` | Reads the bundled manifest and filters the roster to the shipped cast |
 | `Banter.swift` | The exchanges between them |
 | `Chatter.swift` | The few lines that read the same in either mouth, and the no-repeat picker |
 | `Repertoire.swift` | Shared facts and riddles, and the songs as note data |
@@ -521,7 +552,7 @@ MIT, for the code. See [LICENSE](LICENSE).
 
 ## Sprites
 
-Peedy and Bonzi are Microsoft Agent characters; Axel, Blaze and the rest are
-Sega's, ripped from Streets of Rage. They are used here as-is and are not mine
+All nine are Microsoft Agent characters — the BonziBUDDY pair, the Office XP
+assistants, and Max from MaxALERT. They are used here as-is and are not mine
 to license. Fine for personal use — check before shipping this anywhere. See
 [docs/SPRITES.md](docs/SPRITES.md).

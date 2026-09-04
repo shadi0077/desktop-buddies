@@ -148,26 +148,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// Whoever is out, in miniature.
     ///
-    /// Frame 380 of Peedy is a flying pose and 1159 of Bonzi is mid-swing —
-    /// the front-facing frames flatten into unreadable blobs at menu-bar size,
-    /// while these keep a recognisable outline. Falls back through a silhouette
-    /// to an SF Symbol so the item is never blank, which on a menu-bar-only app
-    /// would mean no way in at all.
+    /// Each character names its own frame for this in its catalogue — frame
+    /// 380 of Peedy is a flying pose and 1159 of Bonzi is mid-swing, because
+    /// their front-facing frames flatten into unreadable blobs at menu-bar
+    /// size while these keep a recognisable outline. Falls back through a
+    /// silhouette to an SF Symbol so the item is never blank, which on a
+    /// menu-bar-only app would mean no way in at all.
     private func statusIcon() -> NSImage? {
-        // Axel's sheet ends with portrait art, which is a better menu-bar
-        // glyph than any of his action frames.
-        // A recognisable frame for each: portraits where the sheet has them.
-        let heroes = [("peedy", 380), ("bonzi", 1159), ("axel", 157),
-                      ("blaze", 181), ("max", 145), ("skate", 88),
-                      ("adam", 0), ("axel1", 0), ("blaze1", 0),
-                      ("galsia", 0), ("donovan", 0), ("eagle", 0), ("slum", 12)]
-        for (id, frame) in heroes where cast.buddy(id)?.isVisible == true {
-            if let icon = cast.buddy(id)?.store.menuBarIcon(frame: frame, height: 18) {
+        for buddy in cast.buddies where buddy.isVisible {
+            if let icon = buddy.store.menuBarIcon(frame: buddy.store.heroFrame,
+                                                  height: 18) {
                 return icon
             }
         }
-        if let peedy = cast.buddy("peedy")?.store.menuBarIcon(frame: 380, height: 18) {
-            return peedy
+        if let first = cast.buddies.first,
+           let icon = first.store.menuBarIcon(frame: first.store.heroFrame, height: 18) {
+            return icon
         }
         for name in ["bird.fill", "bird"] {
             if let img = NSImage(systemSymbolName: name, accessibilityDescription: "Buddies") {

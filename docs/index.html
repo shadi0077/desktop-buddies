@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Desktop Buddies — animated characters for your Mac</title>
-<meta name="description" content="Animated characters who live on your macOS desktop. A parrot and a gorilla who sing and argue, or eleven Streets of Rage sprites who walk about and fight. No network, no analytics, no upsell.">
+<title>Desktop Buddies — nine characters for your Mac</title>
+<meta name="description" content="Nine animated characters who live on your macOS desktop — a parrot, a gorilla, a paperclip, a wizard, a dog and more. They do bits, sing in tune, and argue with each other. No network, no analytics, no upsell.">
 <meta property="og:title" content="Desktop Buddies">
-<meta property="og:description" content="A parrot and a gorilla for your Mac — plus a second app full of Streets of Rage sprites. They walk around, tell jokes, sing in tune, and go for each other.">
+<meta property="og:description" content="Nine desktop characters for your Mac, from a parrot to a paperclip. They walk around, tell jokes, sing in tune, and talk to each other.">
 <meta property="og:type" content="website">
 <style>
 :root {
@@ -73,10 +73,9 @@ a { color: var(--accent); }
 
 <header>
   <h1><span class="p">Peedy</span> &amp; <span class="b">Bonzi</span></h1>
-  <p class="tag">A parrot and a gorilla who live on your Mac's desktop. They walk
-  around, do bits, sing in tune, and argue with each other. There's a second app
-  in the same repository, <a href="#megadrive">MegaDrive Buddies</a>, with eleven
-  Streets of Rage sprites in it.</p>
+  <p class="tag">Nine characters who live on your Mac's desktop, from the era
+  when software came with a cartoon in the corner. They walk around, do bits,
+  sing in tune, and talk to each other.</p>
   <div class="btns">
     <a class="btn primary" href="https://github.com/shadi0077/desktop-buddies">View on GitHub</a>
     <a class="btn" href="https://github.com/shadi0077/desktop-buddies#build-and-run">Build it</a>
@@ -84,8 +83,8 @@ a { color: var(--accent); }
 </header>
 
 <figure>
-  <img src="img/cast.png" alt="Peedy the green parrot and Bonzi the purple gorilla, each shown idle, greeting, moving, and doing a bit of business">
-  <figcaption>Two characters, deliberately opposed. Have either, or both.</figcaption>
+  <img src="img/cast-lineup.png" alt="Nine desktop characters in a row: Peedy the parrot, Bonzi the gorilla, Max the macaw, Merlin the wizard, Rover the dog, Clippit the paperclip, Earl on a surfboard, F1 the robot and Manma-chan">
+  <figcaption>All nine, to scale. Have one, or all of them.</figcaption>
 </figure>
 
 <h2>The idea</h2>
@@ -96,7 +95,7 @@ They are windows that draw an animal. Quit them from the menu bar and they're go
 <div class="cards">
   <div class="card"><h4>Alive, not looping</h4><p>Energy that rises with attention and decays without it. They notice your cursor, blink on their own clock, get bored of being poked, and settle down when you leave the keyboard.</p></div>
   <div class="card"><h4>They actually sing</h4><p>Real melodies, in tune, by imposing pitch on the synthesised voice rather than asking it to sing — which does not work.</p></div>
-  <div class="card"><h4>They talk to each other</h4><p>23 exchanges between a fussy parrot and an unbothered gorilla. Neither wins.</p></div>
+  <div class="card"><h4>They talk to each other</h4><p>Hand-written exchanges between the parrot and the gorilla, and a set that works for any of the other pairings — nine characters make thirty-six.</p></div>
   <div class="card"><h4>Their own volume</h4><p>A slider that's theirs alone, independent of the system volume — and it doesn't change how their mouths move.</p></div>
 </div>
 
@@ -121,7 +120,7 @@ They are windows that draw an animal. Quit them from the menu bar and they're go
 </figure>
 
 <h2>يتكلمون سعودي</h2>
-<p>Both characters speak <strong>Najdi Arabic</strong>, switchable from the menu —
+<p>All nine speak <strong>Najdi Arabic</strong>, switchable from the menu —
 which localises with them. Speech balloons lay out right to left.</p>
 <figure>
   <img src="img/arabic.png" alt="Speech balloons showing Arabic lines from Peedy and Bonzi, laid out right to left">
@@ -135,46 +134,41 @@ which localises with them. Speech balloons lay out right to left.</p>
 says <em>qahwa</em>, not <em>gahwa</em>. So the dialect is Saudi and the
 pronunciation is fus·ḥā. What is controllable gets used: vocabulary and syntax,
 which cost the synthesiser nothing; pauses, which are the one handle on cadence;
-and pitch and pace, which is all that separates two characters sharing one
+and pitch and pace, which is all that separates nine characters sharing one
 voice.</p>
 
-<h2 id="megadrive">MegaDrive Buddies</h2>
-<p>The same engine, a different cast, its own app. Eleven Streets of Rage
-sprites who walk the length of the screen at walking pace and square up when two
-of them get close.</p>
-<figure>
-  <img src="img/megadrive-buddies.png" alt="Eleven Streets of Rage sprites in a row: Axel, Blaze, Max, Skate, Adam, Axel (1991), Blaze (1991), Galsia, Donovan, Eagle and Slum">
-  <figcaption>Mid-walk, on a shared baseline — the size differences are the real ones.</figcaption>
-</figure>
-<p>They have no words. They grunt, thud and shout, using the game's own sound
-effects, and their exchanges are physical: one swings, the other blocks, then
-counters. Adding them is what proved the engine could host something that isn't
-a Microsoft Agent character — no visemes, no blink frames, pixel art that has to
-be scaled without smoothing, and a sprite sheet to be cut up rather than
-numbered frames to load.</p>
-<p>The two casts ship as separate apps with separate bundle identifiers, so you
-can run both at once and each keeps its own settings. A product is a JSON
-manifest naming a cast; the build copies only those sprites, and the app filters
-its roster and its menu to match.</p>
+<h2>The rest of the cast</h2>
+<p>Seven more, all from the same era and the same technology — Microsoft Agent,
+the thing that put a cartoon in the corner of Office.</p>
+<table>
+<tr><td><b>Max</b></td><td>Reports the news whether or not there is any.</td></tr>
+<tr><td><b>Merlin</b></td><td>Materialises out of nothing and speaks in prophecy.</td></tr>
+<tr><td><b>Rover</b></td><td>The search dog. Is helping. Not always with what you wanted.</td></tr>
+<tr><td><b>Clippit</b></td><td>Has decided what you're doing and is going to help.</td></tr>
+<tr><td><b>Earl</b></td><td>Surfs. Not worried about any of this.</td></tr>
+<tr><td><b>F1</b></td><td>Literal and precise. Says numbers where the others say "a lot".</td></tr>
+<tr><td><b>Manma</b></td><td>Quiet, attentive, wants to know whether you've eaten.</td></tr>
+</table>
+<p>Four of the nine have the full Agent structure — body frames plus small
+overlay patches, seven per pose for lip-sync. The five Office XP assistants were
+ripped as finished frames with no overlays at all, so there is no mouth to
+composite: they gesture through their lines instead, which is what those
+characters did originally.</p>
 
 <h2>Getting it running</h2>
 <p>macOS 11 Big Sur or later, on Apple Silicon, plus the Xcode command line
 tools. A clone builds and runs directly — the sprites are included.</p>
 <pre><code>git clone https://github.com/shadi0077/desktop-buddies.git
 cd desktop-buddies
-./build.sh
-open "build/Desktop Buddies.app"
-open "build/MegaDrive Buddies.app"</code></pre>
-<p><code>./build.sh</code> with no argument builds both; name one
-(<code>megadrive-buddies</code>) to build just that one.</p>
+./build.sh &amp;&amp; open "build/Desktop Buddies.app"</code></pre>
 <p>There's no Xcode project. <code>build.sh</code> compiles the sources with
 <code>swiftc</code> and assembles the <code>.app</code> itself.</p>
 
 <div class="note">
-  <strong>On the artwork.</strong> Peedy and Bonzi are Microsoft Agent
-  characters; the Streets of Rage sprites are Sega's. They are included so this
-  runs from a clone, but they are not covered by the MIT licence and are not
-  mine to license. See
+  <strong>On the artwork.</strong> All nine are Microsoft Agent characters —
+  the BonziBUDDY pair, the Office XP assistants, and Max from MaxALERT. They
+  are included so this runs from a clone, but they are not covered by the MIT
+  licence and are not mine to license. See
   <a href="https://github.com/shadi0077/desktop-buddies/blob/main/docs/SPRITES.md">docs/SPRITES.md</a>.
 </div>
 

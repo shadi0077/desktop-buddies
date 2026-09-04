@@ -30,11 +30,11 @@ for p in Personality.all {
         for name in [bit.intro, bit.loop, bit.outro].compactMap({ $0 })
         where store.animation(name) == nil { missing.append(name) }
     }
-    // Everyone needs these. Blinking, greeting and cheering are particular to
-    // the Agent characters, which have eye patches and a wave; a Genesis sprite
-    // rip has neither.
-    var required = ["rest", "arrive", "depart", p.travel.cruise]
-    if p.speaks { required += ["blink", "greet", "cheer"] }
+    // Everyone needs these four. Blinking and cheering are not universal —
+    // five of the Office assistant rips are finished frames with no eye
+    // patches in them at all — so those are checked where they're claimed
+    // rather than demanded of everyone.
+    let required = ["rest", "arrive", "depart", p.travel.cruise, "greet"]
     for name in required where store.animation(name) == nil { missing.append(name) }
     if case .flies(let takeoff, _, let land) = p.travel {
         for name in [takeoff, land] where store.animation(name) == nil { missing.append(name) }
@@ -46,8 +46,18 @@ for p in Personality.all {
     let badPose = p.bits.compactMap(\.pose).filter { store.talkPoses[$0] == nil }
     check("\(p.name): every named talk pose exists", badPose.isEmpty,
           badPose.joined(separator: ", "))
+    // A speaking character needs one of two things: mouth patches registered
+    // to a neutral pose, or a clip to gesture through while it talks. With
+    // neither, a sentence plays over a frozen body.
     if p.speaks {
-        check("\(p.name): has a neutral talk pose", store.talkPoses["neutral"] != nil)
+        let poses = store.talkPoses["neutral"] != nil
+        let loop = p.talkLoop.map { store.animation($0) != nil } ?? false
+        check("\(p.name): lip-syncs or gestures while speaking", poses || loop,
+              poses ? "" : "no neutral pose and no talk loop")
+        if let loop = p.talkLoop {
+            check("\(p.name): the talk loop \(loop) loops",
+                  store.animation(loop)?.loop == true)
+        }
     }
 }
 

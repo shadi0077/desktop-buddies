@@ -1,6 +1,28 @@
 # Changelog
 
+## 1.4
+
+- **Seven more characters**, all from the same era and the same technology:
+  **Max** (MaxALERT) and the Microsoft Office XP assistants **Clippit**,
+  **Rover**, **Merlin**, **F1**, **Earl** and **Manma-chan**. Nine in total,
+  each with its own voice, pace, singing register, jokes, facts, riddles and
+  songs — in English and Saudi Arabic — and none of them sharing a line with
+  another.
+- Characters whose sprite sets have no mouth patches gesture while they speak
+  rather than holding a still pose. Five of the seven are like this: they were
+  ripped as finished frames, with no overlays to composite a mouth from.
+- **Any two of them can now hold a conversation.** The Peedy and Bonzi
+  exchanges stay as they were; every other pairing draws on a set written to
+  work in any mouth, so a cast of nine never has two characters with nothing
+  to say to each other.
+- The menu-bar frame is now part of each character's catalogue rather than a
+  list in the app.
+- The Streets of Rage characters have been removed, along with the second app
+  and everything the engine only had for them.
+
 ## 1.3
+
+*Superseded by 1.4, which folded the cast back into one app.*
 
 - **Two apps.** The cast is split in two: **Desktop Buddies** is Peedy and
   Bonzi, and **MegaDrive Buddies** is the eleven Streets of Rage characters.

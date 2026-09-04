@@ -201,7 +201,55 @@ MAX_TALK = {
     "excited":  {"body": 95,  "mouths": rng(96, 102)},
 }
 
+# --------------------------------------------------------------------------
+# Merlin - Microsoft Office XP. A wizard, which the sprite set takes seriously:
+# he arrives by materialising out of nothing and leaves by folding up into his
+# own robe. Nine viseme sets, including one for holding a book and one for
+# holding a trophy.
+# --------------------------------------------------------------------------
+MERLIN = {
+    "rest":       (rng(0, 5), 7, True),
+    "blink":      ([10, (10, 11), (10, 12), (10, 11), 10], 14, False),
+    "explain":    (rng(21, 25), 10, False),
+    "cauldron":   (rng(33, 46), 10, False),
+    "spell":      (rng(65, 87), 12, False),
+    "gesture":    (rng(51, 55), 10, False),
+    "greet":      (rng(95, 99), 10, False),
+    "readStart":  (rng(112, 130), 11, False),
+    "trophy":     (rng(139, 151), 11, False),
+    "cheer":      (rng(139, 151), 11, False),
+    "poof":       (rng(160, 169), 12, False),
+    "idea":       (rng(183, 190), 10, False),
+    "ideaEnd":    (rng(198, 205), 10, False),
+    "lookAround": (rng(235, 238), 9, False),
+    "flourish":   (rng(210, 212), 8, False),
+    "arrive":     (rng(427, 437), 12, False),
+    "depart":     (rng(438, 442), 10, False),
+}
+
+MERLIN_TALK = {
+    "neutral":  {"body": 13,  "mouths": rng(14, 20)},
+    "explain":  {"body": 25,  "mouths": rng(26, 32)},
+    "gesture":  {"body": 87,  "mouths": rng(88, 94)},
+    "book":     {"body": 131, "mouths": rng(132, 138)},
+    "trophy":   {"body": 152, "mouths": rng(153, 159)},
+    "idea":     {"body": 190, "mouths": rng(191, 197)},
+    "aside":    {"body": 467, "mouths": rng(468, 474)},
+    "settled":  {"body": 496, "mouths": rng(497, 503)},
+}
+
 REVERSALS = {
+    "rover": [("arrive", "depart"), ("readEnd2", "readStart"),
+              ("paperDrop", "paperFetch")],
+    # Several of these rips have one of the pair and not the other: Clippy
+    # folds himself away but is never seen unfolding, Earl surfs in from the
+    # distance but never off. Played backwards, one is the other.
+    "clippy": [("arrive", "depart"), ("headphonesOff", "headphones")],
+    "earl": [("depart", "arrive"), ("sunglassesOff", "sunglasses"),
+             ("pyjamasOff", "pyjamas")],
+    "f1": [("depart", "arrive")],
+    "manma": [("arrive", "greet"), ("depart", "greet")],
+    "merlin": [("readEnd", "readStart"), ("trophyEnd", "trophy")],
     "peedy": [("headphonesOff", "headphonesOn"), ("sunglassesOff", "sunglassesOn"),
               ("readEnd", "readStart"), ("writeEnd", "writeStart"),
               ("searchEnd", "searchStart")],
@@ -216,6 +264,81 @@ def norm(steps):
     return out
 
 
+# --------------------------------------------------------------------------
+# Rover - Microsoft Office XP. The search dog. His rip is finished frames with
+# no overlays at all — six small frames in seven hundred, none of them a mouth
+# — so he has no talk poses and gestures while he speaks instead. He does have
+# a panting loop, which is the next best thing to a mouth.
+# --------------------------------------------------------------------------
+ROVER = {
+    "rest":       (rng(149, 179), 8, True),
+    "sit":        (rng(130, 148), 8, False),
+    "pant":       (rng(293, 302), 10, True),
+    "walk":       (rng(58, 91), 12, True),
+    "sniff":      (rng(98, 125), 10, True),
+    "turn":       (rng(307, 313), 10, False),
+    "greet":      (rng(128, 140), 10, False),
+    "fetch":      (rng(335, 340), 10, False),
+    "readStart":  (rng(2, 8), 10, False),
+    "reading":    (rng(9, 45), 8, True),
+    "readEnd":    (rng(47, 54), 10, False),
+    "paperFetch": (rng(380, 385), 10, False),
+    "paper":      (rng(386, 394), 8, True),
+    "depart":     (rng(319, 332), 12, False),
+}
+
+# --------------------------------------------------------------------------
+# Clippit, Earl, F1 and Manma-chan - Microsoft Office XP. Ripped the same way
+# as Rover: finished frames, no overlays, so no talk poses. Each has a loop
+# with enough movement in it to carry a sentence.
+# --------------------------------------------------------------------------
+CLIPPY = {
+    "rest":        (rng(7, 26), 9, True),
+    "express":     (rng(27, 45), 10, True),
+    "greet":       (rng(46, 67), 10, False),
+    "flatten":     (rng(70, 80), 10, False),
+    "spin":        (rng(152, 170), 14, False),
+    "headphones":  (rng(330, 345), 11, False),
+    "listening":   (rng(346, 358), 9, True),
+    "write":       (rng(359, 364), 9, False),
+    "depart":      (rng(174, 182), 12, False),
+}
+
+EARL = {
+    "rest":        (rng(13, 29), 9, True),
+    "greet":       (rng(30, 34), 9, False),
+    "flourish":    (rng(388, 393), 10, False),
+    "sunglasses":  (rng(394, 405), 10, False),
+    "pyjamas":     (rng(407, 430), 10, False),
+    "ball":        (rng(436, 448), 11, False),
+    "card":        (rng(456, 467), 10, False),
+    "arrive":      (rng(0, 12), 12, False),
+}
+
+F1 = {
+    "rest":        (rng(13, 46), 10, True),
+    "settle":      (rng(7, 10), 8, False),
+    "greet":       (rng(98, 102), 10, False),
+    "birdhouse":   (rng(78, 93), 10, False),
+    "arrive":      (rng(2, 10), 12, False),
+}
+
+MANMA = {
+    "rest":        (rng(25, 34), 9, True),
+    "fidget":      (rng(35, 40), 9, True),
+    "greet":       (rng(22, 24), 8, False),
+    "bowl":        (rng(45, 54), 9, False),
+    "writeStart":  (rng(0, 8), 10, False),
+    "writing":     (rng(9, 14), 9, True),
+    "writeEnd":    (rng(15, 21), 10, False),
+}
+
+# The frame that stands in for a character in the menu bar: a clear, front-on
+# pose that survives being shrunk to 18 points and cut to a silhouette.
+HEROES = {"peedy": 380, "bonzi": 1159, "max": 126, "merlin": 0,
+          "rover": 149, "clippy": 7, "earl": 13, "f1": 13, "manma": 25}
+
+
 def build(name, clips, talk):
     clips = dict(clips)
     for new, src in REVERSALS.get(name, []):
@@ -227,6 +350,7 @@ def build(name, clips, talk):
         "animations": {n: {"steps": norm(s), "fps": f, "loop": l}
                        for n, (s, f, l) in clips.items()},
         "talk": {n: {**pose, "ramp": ramps[n]} for n, pose in talk.items()},
+        "hero": HEROES.get(name, 0),
     }
     out = f"app/Resources/characters/{name}"
     os.makedirs(out, exist_ok=True)
@@ -237,7 +361,11 @@ def build(name, clips, talk):
 import os.path
 
 for name, clips, talk in [("peedy", PEEDY, PEEDY_TALK), ("bonzi", BONZI, BONZI_TALK),
-                          ("max", MAX, MAX_TALK)]:
+                          ("max", MAX, MAX_TALK),
+                          ("merlin", MERLIN, MERLIN_TALK),
+                          ("rover", ROVER, {}), ("clippy", CLIPPY, {}),
+                          ("earl", EARL, {}), ("f1", F1, {}),
+                          ("manma", MANMA, {})]:
     # Bonzi is optional; skip anyone whose sprites haven't been imported.
     if not os.path.isdir(f"assets/{name}/rgba") and not os.path.isdir(
             f"app/Resources/characters/{name}/frames"):

@@ -197,14 +197,153 @@ enum Banter {
          BanterLine("bonzi", "أنا عندي فرو. نفس المشكلة.", "shrug")],
     ]
 
+    // MARK: - Exchanges for any pair
+
+    /// Nine characters make thirty-six pairings, and hand-writing a set for
+    /// each would be neither possible nor good — most of them would be filler
+    /// written to fill a grid.
+    ///
+    /// So the hand-written exchanges above stay exactly as they are, for the
+    /// two they were written for, and every other pair draws on these: lines
+    /// that work in any mouth, because they are about the only thing all of
+    /// them have in common — being two strangers stuck on somebody else's
+    /// desktop. `A` and `B` are substituted for whoever is actually present.
+    /// No gestures, since a clip one of them has is not a clip the other does.
+    static let anyPair: [[BanterLine]] = [
+        [BanterLine("A", "Do you ever wonder what's behind the wallpaper?"),
+         BanterLine("B", "No."),
+         BanterLine("A", "Fair enough.")],
+
+        [BanterLine("A", "How long have you been here?"),
+         BanterLine("B", "Since they installed me. You?"),
+         BanterLine("A", "Same. We should have met sooner.")],
+
+        [BanterLine("B", "They're not going to click on us, you know."),
+         BanterLine("A", "I know. I'm staying anyway.")],
+
+        [BanterLine("A", "Is it just me, or is this desktop getting fuller?"),
+         BanterLine("B", "It's not just you.")],
+
+        [BanterLine("B", "What do you do when nobody's looking?"),
+         BanterLine("A", "The same thing. That's rather the point of me.")],
+
+        [BanterLine("A", "We could move to the other screen."),
+         BanterLine("B", "There's another screen?"),
+         BanterLine("A", "Sometimes. It comes and goes.")],
+
+        [BanterLine("B", "You're standing in front of something important."),
+         BanterLine("A", "How important?"),
+         BanterLine("B", "Hard to say now.")],
+
+        [BanterLine("A", "Do you think they've saved recently?"),
+         BanterLine("B", "Don't. You'll worry them.")],
+
+        [BanterLine("B", "I like it when they leave the screen on all night."),
+         BanterLine("A", "You would.")],
+
+        [BanterLine("A", "Nobody has ever asked me what I want."),
+         BanterLine("B", "What do you want?"),
+         BanterLine("A", "I hadn't got that far.")],
+
+        [BanterLine("B", "Careful, that's the edge."),
+         BanterLine("A", "It's fine. I've fallen off before."),
+         BanterLine("B", "And?"),
+         BanterLine("A", "You come back at the other side.")],
+
+        [BanterLine("A", "Quiet today."),
+         BanterLine("B", "It was quiet yesterday too."),
+         BanterLine("A", "I know. I'm making conversation.")],
+
+        [BanterLine("B", "Were we supposed to be useful?"),
+         BanterLine("A", "Originally."),
+         BanterLine("B", "Right.")],
+
+        [BanterLine("A", "Do you get tired?"),
+         BanterLine("B", "I get slower. It might be the same thing.")],
+    ]
+
+    static let anyPairArabic: [[BanterLine]] = [
+        [BanterLine("A", "تتوقع وش وراء الخلفية؟"),
+         BanterLine("B", "لا."),
+         BanterLine("A", "طيب، عادي.")],
+
+        [BanterLine("A", "من متى وأنت هنا؟"),
+         BanterLine("B", "من يوم نصّبوني. وأنت؟"),
+         BanterLine("A", "نفس الشي. چان تعارفنا من زمان.")],
+
+        [BanterLine("B", "ما راح يضغطون علينا، تدري."),
+         BanterLine("A", "أدري. وباقي على أي حال.")],
+
+        [BanterLine("A", "الشاشة تزدحم، ولا أنا اللي أتوهم؟"),
+         BanterLine("B", "لا، مو أنت.")],
+
+        [BanterLine("B", "وش تسوي لما ما أحد يطالع؟"),
+         BanterLine("A", "نفس الشي. هذي وظيفتي أصلاً.")],
+
+        [BanterLine("A", "نقدر ننتقل للشاشة الثانية."),
+         BanterLine("B", "في شاشة ثانية؟"),
+         BanterLine("A", "أحياناً. تجي وتروح.")],
+
+        [BanterLine("B", "أنت واقف قدام شي مهم."),
+         BanterLine("A", "مهم قد إيش؟"),
+         BanterLine("B", "صعب أحكم الحين.")],
+
+        [BanterLine("A", "تتوقع إنه حفظ الملف؟"),
+         BanterLine("B", "لا تقول كذا... بتقلقه.")],
+
+        [BanterLine("B", "أحب لما يخلّون الشاشة شغالة الليل كله."),
+         BanterLine("A", "طبعاً تحب.")],
+
+        [BanterLine("A", "ما أحد سألني وش أبغى."),
+         BanterLine("B", "طيب وش تبغى؟"),
+         BanterLine("A", "ما وصلت لهالمرحلة.")],
+
+        [BanterLine("B", "انتبه، هذي الحافة."),
+         BanterLine("A", "عادي، طحت قبل."),
+         BanterLine("B", "وبعدين؟"),
+         BanterLine("A", "ترجع من الطرف الثاني.")],
+
+        [BanterLine("A", "اليوم هادي."),
+         BanterLine("B", "وأمس كان هادي."),
+         BanterLine("A", "أدري. بس أفتح سيرة.")],
+
+        [BanterLine("B", "كنا المفروض نفيد بشي؟"),
+         BanterLine("A", "في الأصل."),
+         BanterLine("B", "آها.")],
+    ]
+
+    /// The hand-written exchanges, which name real characters.
     static func all(in language: Language) -> [[BanterLine]] {
         language == .arabic ? arabicExchanges : exchanges
     }
 
-    /// Exchanges that only involve characters currently on screen.
+    /// Exchanges two characters on screen could actually have.
+    ///
+    /// A pair with something written for them uses it; everyone else gets the
+    /// any-pair set with their own names put in, so a cast of nine never runs
+    /// into two characters who have nothing to say to each other.
     static func available(for cast: Set<String>, in language: Language) -> [[BanterLine]] {
-        all(in: language).filter { exchange in
-            Set(exchange.map(\.who)).isSubset(of: cast) && Set(exchange.map(\.who)).count > 1
+        let written = all(in: language).filter { exchange in
+            let speakers = Set(exchange.map(\.who))
+            return speakers.isSubset(of: cast) && speakers.count > 1
         }
+        guard cast.count > 1 else { return written }
+
+        let generic = language == .arabic ? anyPairArabic : anyPair
+        let ids = cast.sorted()
+        var out = written
+        for (i, a) in ids.enumerated() {
+            for b in ids[(i + 1)...] {
+                // Skip a pair that already has its own material.
+                let hasOwn = written.contains { Set($0.map(\.who)) == [a, b] }
+                if hasOwn { continue }
+                for exchange in generic {
+                    out.append(exchange.map {
+                        BanterLine($0.who == "A" ? a : b, $0.text, $0.move)
+                    })
+                }
+            }
+        }
+        return out
     }
 }

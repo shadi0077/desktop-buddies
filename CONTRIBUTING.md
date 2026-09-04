@@ -12,10 +12,8 @@ a clone builds and runs directly:
 ./build.sh && open "build/Desktop Buddies.app"
 ```
 
-`./build.sh` builds both apps; pass `desktop-buddies` or `megadrive-buddies` to
-build just one. `./setup.sh <peedy.zip> <bonzi.zip>` rebuilds the asset pack from
-the raw sprite dumps — only needed if you're changing the pipeline or adding a
-character.
+`./setup.sh <peedy.zip> <bonzi.zip>` rebuilds the asset pack from the raw sprite
+dumps — only needed if you're changing the pipeline or adding a character.
 
 There is no Xcode project. `build.sh` compiles the sources with `swiftc` and
 assembles the `.app` itself.
@@ -26,8 +24,10 @@ assembles the `.app` itself.
 ./test.sh
 ```
 
-Everything should pass. It takes a couple of minutes, mostly because the speech
-tests render real audio.
+Everything should pass. With nine characters it takes about fifteen minutes,
+almost all of it rendering real audio — every line of every pack, in both
+languages. `SKIP_AUDIO=1 ./test.sh` runs the rest in seconds, which is what CI
+does.
 
 `PEEDY_DEBUG=1` traces behaviour decisions to stderr, and `PEEDY_TURN=song`
 (or `joke`, `fact`, `riddle`, `twister`, `banter`) runs that on launch rather
@@ -76,8 +76,10 @@ synthetic signals whose answer is known.
 8. List them in the `cast` of whichever `products/*.json` should ship them. A
    character in no product's cast is compiled but never appears.
 
-Characters from a single game sprite sheet go through `tools/sheet.py` instead
-of steps 2–3; see [docs/MEGADRIVE.md](docs/MEGADRIVE.md).
+A character that arrives as one gridded sheet rather than numbered files goes
+through `tools/grid.py` first; `tools/kinds.py` then sorts its frames into
+bodies and overlay patches, and `tools/runs.py` finds the animation boundaries
+so the contact strips are readable.
 
 `tools/casttest` will tell you if you've named a clip that doesn't exist. It
 runs once per product, so a clip only one cast has can't become a requirement

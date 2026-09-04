@@ -67,21 +67,44 @@ final class Animator {
         render()
     }
 
+    /// A clip to loop while speaking, for characters whose sprite set has no
+    /// mouth patches.
+    ///
+    /// Five of the Office assistants were ripped as finished frames with no
+    /// overlays, so there is nothing to composite a mouth from — Rover has six
+    /// small frames in seven hundred, and none of them is a mouth. Holding a
+    /// still pose through a whole sentence reads as a freeze, so they gesture
+    /// instead, which is what the original characters did for these
+    /// animations anyway.
+    var talkLoop: String?
+    private var loopingTalk = false
+
     /// Start lip-syncing in `pose`, holding the body frame its mouth patches
     /// were drawn for. Pass nil (or a pose with no mouth set in the sprite
-    /// data) to speak without lip-sync and leave the animation alone.
+    /// data) to speak without lip-sync — which gestures instead if this
+    /// character has a talk loop, and otherwise leaves the animation alone.
     func beginTalking(pose: String?) {
-        guard let pose, let talk = store.talkPoses[pose] else {
-            talking = nil
+        if let pose, let talk = store.talkPoses[pose] {
+            talking = talk
+            mouthClock = 0
+            hold(talk.body)
             return
         }
-        talking = talk
-        mouthClock = 0
-        hold(talk.body)
+        talking = nil
+        guard let name = talkLoop, let def = store.animation(name) else { return }
+        loopingTalk = true
+        current = AnimationDef(name: def.name, steps: def.steps, fps: def.fps, loop: true)
+        elapsed = 0
+        onFinish = nil
+        render()
     }
 
     func endTalking() {
         talking = nil
+        guard loopingTalk else { return }
+        loopingTalk = false
+        // Back to standing, or they gesture on after the sentence ends.
+        if store.animation("rest") != nil { play("rest") }
     }
 
     /// Mirrors the sprite horizontally. What that *means* depends on the clip —

@@ -13,10 +13,15 @@ if [ $# -lt 1 ]; then
     cat <<'USAGE'
 usage: ./setup.sh <peedy-sprites.zip> [bonzi-sprites.zip]
 
-Each zip should contain numbered PNG frames on a cyan (#00FFFF) background —
-the "BonziBUDDY - Characters - Peedy" and "- Bonzi" dumps.
+Each zip should contain numbered PNG frames on a flat colour-key background —
+the "BonziBUDDY - Characters - Peedy" and "- Bonzi" dumps. The key is read off
+the art, so cyan, magenta and green dumps all work.
 
 Peedy alone is enough to run the app; Bonzi is optional.
+
+The other seven characters come from their own dumps, most of them as one
+gridded sheet rather than numbered files. Those go through tools/grid.py
+first — see docs/SPRITES.md.
 USAGE
     exit 1
 fi
@@ -47,7 +52,7 @@ unpack() {
     [ "$count" -gt 100 ] || { echo "error: only $count frames found in $zip"; exit 1; }
     echo "    $count frames"
 
-    echo "==> $name: keying out the cyan background"
+    echo "==> $name: keying out the background"
     python3 tools/extract.py "$name"
     echo "==> $name: trimming and packing"
     python3 tools/pack.py "$name"

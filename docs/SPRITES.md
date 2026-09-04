@@ -7,11 +7,11 @@ Peedy (the parrot) and Bonzi (the gorilla) are Microsoft Agent characters. The
 artwork belongs to its respective owners — Microsoft for the Agent character
 set, and Bonzi Software for Bonzi.
 
-Axel, Blaze, Max, Skate, Adam, Galsia, Donovan, Eagle and Slum, and the sound
-effects that go with them, are from **Streets of Rage** and belong to Sega. The
-sheets are community rips, of the kind archived on The Spriters Resource.
+Clippit, Rover, Merlin, F1, Earl and Manma-chan are the **Microsoft Office XP**
+assistants, and Max is from **MaxALERT**. Same position: the artwork belongs to
+its owners.
 
-All of it is included here so the apps run straight from a clone, but no rights
+All of it is included here so the app runs straight from a clone, but no rights
 to any of these characters are granted with it, and none of it is mine to
 license.
 
@@ -28,7 +28,6 @@ contact the maintainer and it will be taken down promptly.
 | `app/Resources/characters/<name>/frames/` | The packed sprites the app loads — trimmed, alpha-keyed PNGs. Committed. |
 | `app/Resources/characters/<name>/frames.json` | Frame offsets, so trimmed frames stay registered with each other. Committed. |
 | `app/Resources/characters/<name>/animations.json` | Clip ranges, frame rates, talk poses, viseme ramps. Committed. |
-| `app/Resources/characters/_sor2/` | The Streets of Rage sound effects, shared by that whole cast. Committed. |
 | `assets/` | The raw sprite dumps, the game sheets, and the keyed intermediates. **Not committed** — 35 MB, and regenerable. |
 
 ## Rebuilding the asset pack
@@ -44,20 +43,21 @@ source dumps are widely archived as "BonziBUDDY - Characters - Peedy" and
 That unpacks them, keys out the cyan, trims every frame, measures the visemes,
 writes the asset pack, and builds the app.
 
-### From a single game sheet
+### From a single gridded sheet
 
-Sprite rips usually come as one sheet rather than numbered frames, so they start
-at a different place:
+Several of these characters arrive as one image with every frame in a grid
+rather than as numbered files:
 
 ```bash
-python3 tools/sheet.py <name> <sheet.png>
+python3 tools/grid.py <name> <sheet.png>
 ```
 
-It finds horizontal bands of content, then columns within each band, then trims
-each to its bounding box — and auto-detects whether the background is real alpha
-or a colour key. Bands map almost one-to-one onto animations. A caption printed
-directly above a sprite ends up *inside* that frame, and nothing catches that
-automatically; see [MEGADRIVE.md](MEGADRIVE.md).
+The cell *is* the character's canvas — each frame sits at its true position
+inside it, which is what keeps a mouth patch registered to the body it belongs
+to — so every cell is written out whole, background and all, and the rest of the
+pipeline treats the result exactly like a numbered dump. The grid is measured
+rather than assumed; see the tool's own notes for how, and for what happens when
+a sheet's cell size doesn't divide its width.
 
 ## Adding your own character
 

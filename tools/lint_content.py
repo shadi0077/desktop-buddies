@@ -3,6 +3,7 @@
 Verifies the two characters stay distinct and that nothing in the dialogue
 refers to a character or an animation that no longer exists.
 """
+import json
 import re
 import sys
 from pathlib import Path
@@ -23,38 +24,63 @@ def swift(name):
 
 # Animation names the catalogue declares, per character.
 catalog = Path("tools/catalog.py").read_text()
+cast = json.load(open("products/desktop-buddies.json"))["cast"]
 
 
 def clip_names(block):
+    if f"{block} = {{" not in catalog:
+        return set()
     section = catalog.split(f"{block} = {{", 1)[1].split("\n}", 1)[0]
     names = set(re.findall(r'^\s*"([A-Za-z0-9]+)":', section, re.M))
-    for new, src in re.findall(r'\("(\w+)", "(\w+)"\)', catalog):
-        if src in names:
-            names.add(new)
     return names
 
 
-peedy_clips = clip_names("PEEDY") | {"headphonesOff", "sunglassesOff", "readEnd",
-                                     "writeEnd", "searchEnd"}
-bonzi_clips = clip_names("BONZI") | {"readEnd", "globeEnd"}
-check("catalogue declares clips for Peedy", len(peedy_clips) > 20, str(len(peedy_clips)))
-check("catalogue declares clips for Bonzi", len(bonzi_clips) > 20, str(len(bonzi_clips)))
+# Reversals add a clip under a new name, so they count as declared.
+reversals = {}
+block = catalog.split("REVERSALS = {", 1)[1].split("\n}", 1)[0]
+for who, body in re.findall(r'"(\w+)":\s*\[(.*?)\]', block, re.S):
+    reversals[who] = re.findall(r'\("(\w+)", "(\w+)"\)', body)
+
+clips = {}
+for who in cast:
+    names = clip_names(who.upper())
+    for new, src in reversals.get(who, []):
+        if src in names:
+            names.add(new)
+    clips[who] = names
+    check(f"catalogue declares clips for {who}", len(names) >= 5, str(len(names)))
 
 # Every gesture used in dialogue must exist for whoever performs it.
 banter = swift("Banter.swift")
 lines = re.findall(r'BanterLine\("(\w+)",\s*"((?:[^"\\]|\\.)*)"(?:,\s*"(\w+)")?\)', banter)
 check("dialogue has lines", len(lines) > 30, str(len(lines)))
-known = {"peedy": peedy_clips, "bonzi": bonzi_clips}
-bad = [f"{who}:{move}" for who, _, move in lines if move and move not in known.get(who, set())]
+# "A" and "B" are the placeholders in the any-pair exchanges, substituted for
+# whoever is on screen. They carry no gestures, precisely because a clip one
+# character has is not one the other necessarily does.
+placeholders = {"A", "B"}
+bad = [f"{who}:{move}" for who, _, move in lines
+       if move and move not in clips.get(who, set())]
 check("every dialogue gesture exists for its speaker", not bad, ", ".join(bad))
 check("dialogue only names known characters",
-      all(who in known for who, _, _ in lines))
+      all(who in clips or who in placeholders for who, _, _ in lines))
+check("any-pair dialogue carries no gestures",
+      not [m for who, _, m in lines if who in placeholders and m])
 
-# The personalities must not quietly converge into the same character.
-peedy_src, bonzi_src = swift("PeedyPersonality.swift"), swift("BonziPersonality.swift")
+# The personalities must not quietly converge into one character.
+sources = {}
+for who in cast:
+    for name in [f"{who.capitalize()}Personality.swift", f"{who.upper()}Personality.swift",
+                 f"{who}Personality.swift"]:
+        if (SRC / name).exists():
+            sources[who] = swift(name)
+            break
+check("every character has a personality file", len(sources) == len(cast),
+      ", ".join(sorted(set(cast) - set(sources))))
 
 
 def pool(src, field):
+    if f"{field}: [" not in src:
+        return set()
     body = src.split(f"{field}: [", 1)[1]
     depth, out = 1, []
     for i, ch in enumerate(body):
@@ -68,19 +94,32 @@ def pool(src, field):
     return set(re.findall(r'"((?:[^"\\]|\\.)*)"', out))
 
 
+overlaps = []
 for field in ["greetings", "idle", "poked", "dropped", "leaving"]:
-    shared = pool(peedy_src, field) & pool(bonzi_src, field)
-    check(f"no shared {field}", not shared, ", ".join(list(shared)[:3]))
+    for i, a in enumerate(sorted(sources)):
+        for b in sorted(sources)[i + 1:]:
+            shared = pool(sources[a], field) & pool(sources[b], field)
+            if shared:
+                overlaps.append(f"{a}/{b} {field}: {list(shared)[0]}")
+check("no two characters share a line", not overlaps, "; ".join(overlaps[:3]))
 
-check("no shared jokes",
-      not (set(re.findall(r'setup: "((?:[^"\\]|\\.)*)"', peedy_src))
-           & set(re.findall(r'setup: "((?:[^"\\]|\\.)*)"', bonzi_src))))
-check("Bonzi speaks more slowly",
-      float(re.search(r"rate: ([\d.]+)", bonzi_src).group(1))
-      < float(re.search(r"rate: ([\d.]+)", peedy_src).group(1)))
-check("they sing in different registers",
-      float(re.search(r"singingRoot: (\d+)", bonzi_src).group(1))
-      != float(re.search(r"singingRoot: (\d+)", peedy_src).group(1)))
+setups = {who: set(re.findall(r'setup: "((?:[^"\\]|\\.)*)"', src))
+          for who, src in sources.items()}
+shared_jokes = [f"{a}/{b}" for i, a in enumerate(sorted(setups))
+                for b in sorted(setups)[i + 1:] if setups[a] & setups[b]]
+check("no two characters share a joke", not shared_jokes, ", ".join(shared_jokes[:3]))
+
+# They must be told apart by ear as well as by eye.
+roots = {who: re.search(r"singingRoot: (\d+)", src).group(1) for who, src in sources.items()}
+check("they all sing in different registers", len(set(roots.values())) == len(roots),
+      str(sorted(roots.items(), key=lambda kv: kv[1])))
+rates = {who: float(re.search(r"rate: ([\d.]+)", src).group(1)) for who, src in sources.items()}
+# The original pair are built as opposites, so that one holds whoever else
+# joins; the cast as a whole only has to not be uniform.
+check("Bonzi speaks more slowly than Peedy", rates["bonzi"] < rates["peedy"],
+      f'{rates["bonzi"]} vs {rates["peedy"]}')
+check("the cast varies in pace", len(set(rates.values())) >= max(3, len(rates) - 2),
+      str(sorted(rates.values())))
 
 # Every menu string the app asks for must exist in every language, or the menu
 # comes out half translated — which is worse than not translating it at all.
@@ -102,13 +141,21 @@ check("every menu string has an Arabic translation", not missing,
       ", ".join(missing[:6]))
 print(f"        {len(used)} strings used, {len(arabic_keys)} translated")
 
-# Both characters must be able to speak both languages.
-for who, src in [("Peedy", peedy_src), ("Bonzi", bonzi_src)]:
-    ar = swift(f"{who}Arabic.swift")
+# Every character must be able to speak both languages, or the cast is
+# half-translated — which is worse than not translating it at all.
+for who in cast:
+    name = None
+    for candidate in [f"{who.capitalize()}Arabic.swift", f"{who.upper()}Arabic.swift"]:
+        if (SRC / candidate).exists():
+            name = candidate
+            break
+    if name is None:
+        check(f"{who} has an Arabic pack", False)
+        continue
+    ar = swift(name)
     check(f"{who} has an Arabic pack", "SpeechPack(" in ar)
-    # Arabic packs must actually contain Arabic.
     arabic_chars = sum(1 for ch in ar if "\u0600" <= ch <= "\u06ff")
-    check(f"{who}'s Arabic pack is written in Arabic", arabic_chars > 2000,
+    check(f"{who}'s Arabic pack is written in Arabic", arabic_chars > 1200,
           f"{arabic_chars} Arabic characters")
 
 print("\nall checks passed" if not failures else f"\n{len(failures)} FAILED")

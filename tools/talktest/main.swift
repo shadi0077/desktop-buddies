@@ -12,7 +12,35 @@ let who = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "peedy"
 guard let store = SpriteStore(character: who, bundle: Bundle(path: ProcessInfo.processInfo.environment["BUDDY_APP"] ?? "build/Desktop Buddies.app")!) else {
     print("cannot load sprites"); exit(1)
 }
-guard let neutral = store.talkPoses["neutral"] else { print("no neutral pose"); exit(1) }
+// A character with no mouth patches has no registration to violate — but it
+// does have the other half of the invariant to satisfy: it must gesture
+// through its lines rather than freeze, or a whole sentence plays over a still
+// body. That's the only thing worth checking here for those characters.
+guard let neutral = store.talkPoses["neutral"] else {
+    print("no mouth patches in this sprite set — checking the talk loop instead")
+    let loops = store.animation("express") ?? store.animation("pant")
+        ?? store.animation("fidget") ?? store.animation("rest")
+    guard let loop = loops else { print("  FAIL nothing to loop"); exit(1) }
+    let view = BuddyView(store: store)
+    let animator = Animator(store: store, view: view)
+    animator.talkLoop = loop.name
+    animator.start()
+    var frames: [Int] = []
+    animator.beginTalking(pose: "neutral")
+    let deadline = Date().addingTimeInterval(1.0)
+    while Date() < deadline {
+        RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.008))
+        if let f = view.step?.frame { frames.append(f) }
+    }
+    let inClip = Set(loop.steps.map(\.frame))
+    check("gestures rather than freezing while speaking", Set(frames).count > 1,
+          "\(Set(frames).count) distinct frames")
+    check("the frames come from the talk loop", frames.allSatisfy(inClip.contains))
+    check("no overlay is composited", view.step?.overlay == nil)
+    animator.endTalking()
+    print(failures == 0 ? "\nall checks passed" : "\n\(failures) FAILED")
+    exit(failures == 0 ? 0 : 1)
+}
 
 var failures = 0
 func check(_ label: String, _ ok: Bool, _ detail: String = "") {

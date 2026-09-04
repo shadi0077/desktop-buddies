@@ -50,6 +50,8 @@ final class SpriteStore {
 
     private(set) var animations: [String: AnimationDef] = [:]
     private(set) var talkPoses: [String: TalkPose] = [:]
+    /// The frame this character is recognised by, shrunk into the menu bar.
+    private(set) var heroFrame = 0
 
     let character: String
 
@@ -96,6 +98,7 @@ final class SpriteStore {
                 animations[name] = AnimationDef(name: name, steps: steps, fps: fps, loop: loop)
             }
         }
+        heroFrame = aRoot["hero"] as? Int ?? 0
         if let talk = aRoot["talk"] as? [String: Any] {
             for (name, raw) in talk {
                 guard let d = raw as? [String: Any],

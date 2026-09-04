@@ -27,7 +27,8 @@ check("Fred is the default", Voice.defaultIdentifier.hasSuffix("voice.Fred"),
 print("        \(Voice.options.map(\.title).joined(separator: ", "))")
 
 print("\nmenu-bar icon:")
-let hero = who == "bonzi" ? 1159 : 380
+// Each character names its own menu-bar frame in its catalogue.
+let hero = store.heroFrame
 if let icon = store.menuBarIcon(frame: hero, height: 18) {
     check("is a sane menu-bar size",
           icon.size.height == 18 && icon.size.width > 8 && icon.size.width < 40,
@@ -40,8 +41,8 @@ if let icon = store.menuBarIcon(frame: hero, height: 18) {
             for x in 0..<rep.pixelsWide {
                 guard let c = rep.colorAt(x: x, y: y), c.alphaComponent > 0.4 else { continue }
                 ink += 1
-                // Peedy is green, Bonzi purple; either way it must not be
-                // rendering as a grey blob.
+                // Peedy is green, Bonzi purple, F1 grey-and-red; whatever
+                // the colour, it must not be rendering as a flat grey blob.
                 let channels = [c.redComponent, c.greenComponent, c.blueComponent]
                 if (channels.max()! - channels.min()!) > 0.12 { coloured += 1 }
             }

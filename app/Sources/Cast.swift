@@ -14,6 +14,7 @@ final class Buddy {
         self.store = store
         window = BuddyWindow(store: store, scale: scale * personality.scale)
         animator = Animator(store: store, view: window.buddyView)
+        animator.talkLoop = personality.talkLoop
         brain = Brain(personality: personality, language: language, store: store,
                       animator: animator, window: window)
         store.warm(["rest", "arrive", personality.travel.cruise, "greet", "blink"])
@@ -154,21 +155,34 @@ final class Cast {
     func startBanter() -> Bool {
         guard !talking else { return false }
         let present = onScreen
-        guard present.count > 1, present.allSatisfy({ $0.brain.isAvailable }) else { return false }
+        guard present.count > 1 else { return false }
 
-        let options = Banter.available(for: activeIDs, in: language)
+        // Only whoever is free can take part. With two on screen that's the
+        // same as requiring everybody, which is what this used to do; with
+        // nine it would mean waiting for all of them at once, and no
+        // conversation would ever start.
+        let free = Set(present.filter(\.brain.isAvailable).map(\.id))
+        guard free.count > 1 else { return false }
+        let options = Banter.available(for: free, in: language)
         guard !options.isEmpty else { return false }
 
-        // Pick by opening line so the no-repeat memory has something stable to
-        // key on.
-        let opener = recentBanter.pick(from: options.map { $0[0].text })
-        guard let exchange = options.first(where: { $0[0].text == opener }) else { return false }
+        // Keyed on speaker as well as opening line: the same opener belongs to
+        // every pair that has no material of its own, so keying on the text
+        // alone would hand the conversation to the same two characters every
+        // time.
+        func key(_ exchange: [BanterLine]) -> String {
+            "\(exchange[0].who)|\(exchange[0].text)"
+        }
+        let chosen = recentBanter.pick(from: options.map(key))
+        guard let exchange = options.first(where: { key($0) == chosen }) else { return false }
 
         talking = true
-        plog("banter: \(exchange.count) lines, opening \"\(opener)\"")
-        // Long enough that neither wanders off mid-conversation.
+        let speakers = Set(exchange.map(\.who))
+        plog("banter: \(exchange.count) lines between \(speakers.sorted().joined(separator: " and "))")
+        // Long enough that neither wanders off mid-conversation. Only the two
+        // taking part are held; the rest carry on with whatever they were doing.
         let hold = Double(exchange.count) * 6 + 6
-        present.forEach { $0.brain.holdBeats(for: hold) }
+        present.filter { speakers.contains($0.id) }.forEach { $0.brain.holdBeats(for: hold) }
         deliver(exchange, at: 0)
         return true
     }
@@ -205,9 +219,19 @@ final class Cast {
             startBanter()
             return
         }
-        guard let first = present.first, let second = present.dropFirst().first else { return }
-        let apart = abs(first.brain.centreX - second.brain.centreX)
-        guard apart > second.window.frame.width * 1.6 else { startBanter(); return }
+        // The two already nearest each other, so the walk is short and it
+        // reads as those two falling into conversation rather than the app
+        // picking the first two in the list every time.
+        var pair: (Buddy, Buddy)?
+        var closest = CGFloat.infinity
+        for (i, a) in present.enumerated() {
+            for b in present.dropFirst(i + 1) {
+                let gap = abs(a.brain.centreX - b.brain.centreX)
+                if gap < closest { closest = gap; pair = (a, b) }
+            }
+        }
+        guard let (first, second) = pair else { return }
+        guard closest > second.window.frame.width * 1.6 else { startBanter(); return }
         second.brain.moveNear(x: first.brain.centreX) { [weak self] in
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { self?.startBanter() }
         }
