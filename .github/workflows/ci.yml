@@ -25,11 +25,7 @@ jobs:
       - name: Test
         run: SKIP_AUDIO=1 ./test.sh
 
-      - name: Both apps target macOS 11 (first Apple Silicon release)
+      - name: Deployment target is macOS 11 (first Apple Silicon release)
         run: |
-          for app in build/*.app; do
-            name=$(basename "$app" .app)
-            echo -n "$name: "
-            otool -l "$app/Contents/MacOS/$name" \
-              | awk '/LC_BUILD_VERSION/{f=1} f&&/minos/{print "minos", $2; exit}'
-          done
+          otool -l "build/Desktop Buddies.app/Contents/MacOS/Desktop Buddies" \
+            | awk '/LC_BUILD_VERSION/{f=1} f&&/minos/{print "minos", $2; exit}'

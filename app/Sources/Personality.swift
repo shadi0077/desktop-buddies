@@ -85,11 +85,6 @@ struct Personality {
     /// have no mouth patches to composite. Nil means lip-sync as usual.
     var talkLoop: String? = nil
 
-    /// Shown in the menu, when the id isn't presentable on its own. Speaking
-    /// characters take their name from their speech pack; the rest fall back to
-    /// the id, which is fine for `axel` and not for `axel1`.
-    var title: String? = nil
-
     enum Travel {
         /// Takeoff, a looping cruise, then a landing.
         case flies(takeoff: String, cruise: String, land: String)
@@ -164,7 +159,10 @@ struct Personality {
         return Language.allCases.filter { packs[$0]?.preferredVoice != nil }
     }
 
-    var name: String { title ?? pack(.english)?.name ?? id.capitalized }
+    /// Every character here has a speech pack, which is where the name comes
+    /// from — in whichever language they're speaking. The id is a fallback for
+    /// a character whose pack hasn't been written yet.
+    var name: String { pack(.english)?.name ?? id.capitalized }
 
     /// Everyone this build ships. The full roster lives in `everyone`; a
     /// product manifest picks from it.

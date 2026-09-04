@@ -24,6 +24,11 @@ windows that draw an animal. Quit them from the menu bar and they're gone.
 
 📖 **[shadi0077.github.io/desktop-buddies](https://shadi0077.github.io/desktop-buddies/)**
 
+There's a sibling app built on the same engine with the talking taken out:
+**[MegaDrive Buddies](https://github.com/shadi0077/megadrive-buddies)** — eleven
+Streets of Rage characters who walk the length of the screen and square up when
+two of them get close.
+
 ---
 
 > **Peedy:** You're very still.
@@ -543,8 +548,8 @@ Output lands in `shots/`.
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) — it covers getting it running, the three
-failure modes that have bitten repeatedly, and how to add a character or a third
-app.
+failure modes that have bitten repeatedly, and how to add a character or a
+second app.
 
 ## Licence
 
