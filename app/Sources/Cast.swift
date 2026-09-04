@@ -13,7 +13,6 @@ final class Buddy {
         self.personality = personality
         self.store = store
         window = BuddyWindow(store: store, scale: scale * personality.scale)
-        window.buddyView.pixelArt = personality.pixelArt
         animator = Animator(store: store, view: window.buddyView)
         brain = Brain(personality: personality, language: language, store: store,
                       animator: animator, window: window)
@@ -147,22 +146,7 @@ final class Cast {
             return
         }
         guard present.allSatisfy({ $0.brain.isAvailable }) else { return }
-
-        // Two brawlers who have wandered close together square up; otherwise
-        // whoever can talk has a conversation.
-        let brawlers = present.filter { !$0.personality.speaks }
-        if brawlers.count > 1 {
-            var closest = CGFloat.infinity
-            for a in brawlers {
-                for b in brawlers where b.id != a.id {
-                    closest = min(closest, abs(a.brain.centreX - b.brain.centreX))
-                }
-            }
-            if closest < 420, startSparring() { return }
-        }
-        if startBanter() { return }
-        // Nobody could talk — walk two of them together instead.
-        if brawlers.count > 1 { gatherAndSpar() }
+        startBanter()
     }
 
     /// Kick off an exchange now, if the cast allows one.
@@ -211,86 +195,6 @@ final class Cast {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) {
                 self.deliver(exchange, at: index + 1)
             }
-        }
-    }
-
-    // MARK: - Characters who can't talk
-
-    /// One exchange of blows: who swings, and what the other one does about it.
-    private static let sparring: [[(attacker: Int, clips: [String])]] = [
-        [(0, ["punch", "jab"]), (1, ["knockdown", "guard", "flip"]),
-         (1, ["punch", "kick"]), (0, ["guard", "knockdown", "flip"])],
-        [(0, ["kick", "highKick"]), (1, ["knockdown", "guard"]),
-         (0, ["punch", "jab"]), (1, ["flip", "knockdown", "guard"])],
-        [(1, ["grandUpper", "uppercut", "flameArc", "attack", "slam", "punch"]),
-         (0, ["knockdown", "guard"]), (0, ["getUp", "guard", "flex", "celebrate"])],
-        [(0, ["flex", "celebrate", "guard", "stretch"]),
-         (1, ["punch", "kick"]), (0, ["knockdown", "guard"])],
-    ]
-
-    /// Two of them squaring up.
-    ///
-    /// The speaking characters trade lines; these trade blows. Same shape —
-    /// take turns, face each other, nobody starts while someone else is
-    /// mid-move — but the content is physical, because they have no words.
-    @discardableResult
-    func startSparring() -> Bool {
-        guard !talking else { return false }
-        let brawlers = onScreen.filter { !$0.personality.speaks && $0.brain.isAvailable }
-        guard brawlers.count > 1 else { return false }
-
-        // The two closest together, so it reads as them reacting to proximity
-        // rather than shouting across the desktop.
-        var pair: (Buddy, Buddy)?
-        var closest = CGFloat.infinity
-        for a in brawlers {
-            for b in brawlers where b.id != a.id {
-                let gap = abs(a.brain.centreX - b.brain.centreX)
-                if gap < closest { closest = gap; pair = (a, b) }
-            }
-        }
-        guard let (a, b) = pair else { return false }
-
-        let exchange = Self.sparring.randomElement()!
-        talking = true
-        plog("sparring: \(a.id) and \(b.id), \(Int(closest)) pt apart")
-        let hold = Double(exchange.count) * 4 + 6
-        [a, b].forEach { $0.brain.holdBeats(for: hold) }
-        trade(exchange, at: 0, between: a, and: b)
-        return true
-    }
-
-    private func trade(_ exchange: [(attacker: Int, clips: [String])], at index: Int,
-                       between a: Buddy, and b: Buddy) {
-        guard index < exchange.count, talking else {
-            talking = false
-            nextBanter = Date().addingTimeInterval(Double.random(in: 40...90))
-            [a, b].forEach { $0.brain.face(toward: -1) }   // back to facing front
-            return
-        }
-        let step = exchange[index]
-        let actor = step.attacker == 0 ? a : b
-        let other = step.attacker == 0 ? b : a
-        // Whoever isn't moving still turns to watch.
-        other.brain.face(toward: actor.brain.centreX)
-
-        actor.brain.act(step.clips, facing: other.brain.centreX) { [weak self] in
-            guard let self, self.talking else { return }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                self.trade(exchange, at: index + 1, between: a, and: b)
-            }
-        }
-    }
-
-    /// Walk two of them together and have them square up.
-    func gatherAndSpar() {
-        let brawlers = onScreen.filter { !$0.personality.speaks }
-        guard brawlers.count > 1, !talking else { startSparring(); return }
-        let a = brawlers[0], b = brawlers[1]
-        let apart = abs(a.brain.centreX - b.brain.centreX)
-        guard apart > b.window.frame.width * 1.3 else { startSparring(); return }
-        b.brain.moveNear(x: a.brain.centreX) { [weak self] in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { self?.startSparring() }
         }
     }
 

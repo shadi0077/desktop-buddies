@@ -1,17 +1,41 @@
-"""Key out the cyan background and measure every frame.
+"""Key out the flat background and measure every frame.
 
-Usage: extract.py <character>
+Usage: extract.py <character> [r,g,b]
+
+The key differs per dump — cyan for the BonziBUDDY pair, magenta or green or
+a flat orange for the Office assistants — so it's read off the art rather than
+assumed: the colour filling the corners of a frame with plenty of empty space
+around the character.
 """
 from PIL import Image
+from collections import Counter
 import json, os, sys, glob
 
-KEY = (0, 255, 255)
 name = sys.argv[1] if len(sys.argv) > 1 else "peedy"
 SRC = f"assets/{name}/frames"
 OUT = f"assets/{name}/rgba"
 os.makedirs(OUT, exist_ok=True)
 
 paths = sorted(glob.glob(f"{SRC}/*.png"))
+if not paths:
+    raise SystemExit(f"no frames in {SRC}")
+
+
+def detect_key():
+    """The background colour, from the corners of a sample of frames."""
+    votes = Counter()
+    for path in paths[::max(1, len(paths) // 40)]:
+        im = Image.open(path).convert("RGB")
+        w, h = im.size
+        for x, y in [(0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1)]:
+            votes[im.getpixel((x, y))] += 1
+    return votes.most_common(1)[0][0]
+
+
+KEY = (tuple(int(v) for v in sys.argv[2].split(",")) if len(sys.argv) > 2
+       else detect_key())
+print(f"{name}: keying out rgb{KEY}")
+
 meta = []
 for path in paths:
     index = int(os.path.splitext(os.path.basename(path))[0])

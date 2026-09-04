@@ -42,10 +42,7 @@ enum Chattiness: Int, CaseIterable {
 final class Brain {
     let personality: Personality
     /// What he says and how he sounds, in the language currently selected.
-    /// Nil for characters who make noise instead of talking.
     private(set) var pack: SpeechPack?
-    /// A character's sound effects, where they have them instead of a voice.
-    let sounds: SoundBank?
     private(set) var language: Language = .english
 
     /// Trace lines carry the character's name, so a two-hander is readable.
@@ -116,7 +113,6 @@ final class Brain {
         self.personality = personality
         self.language = language
         self.pack = personality.pack(language)
-        self.sounds = personality.soundSet.flatMap { SoundBank(set: $0) }
         self.store = store
         self.animator = animator
         self.window = window
@@ -153,26 +149,6 @@ final class Brain {
         voice.pitch = pack.pitch
         voice.rate = pack.rate
         voice.personalityRoot = pack.singingRoot
-    }
-
-    /// Make a noise, for characters who have sounds rather than words.
-    @discardableResult
-    private func makeNoise(_ kind: SoundBank.Kind) -> Bool {
-        let played = sounds?.play(kind) ?? false
-        if played { plog("  sound: \(kind)") }
-        return played
-    }
-
-    /// The noise that suits a movement. Attacks land, efforts grunt.
-    private func noise(for clip: String) -> SoundBank.Kind {
-        switch clip {
-        case "grandUpper", "flameArc", "uppercut", "celebrate", "arrive":
-            return .shout
-        case "knockdown", "getUp":
-            return .impact
-        default:
-            return .effort
-        }
     }
 
     /// The name he goes by in the language he's speaking.
@@ -513,7 +489,6 @@ final class Brain {
     private func perform(_ name: String, then: (() -> Void)? = nil) {
         guard mode == .idle else { return }
         plog("perform \(name)")
-        if !personality.speaks { makeNoise(noise(for: name)) }
         mode = .busy
         let token = bump()
         animator.play(name) { [weak self] in
@@ -576,11 +551,8 @@ final class Brain {
 
     func say(_ text: String, pose: String? = "neutral", duration: TimeInterval? = nil,
              waited: TimeInterval = 0) {
-        guard personality.speaks else {
-            // Nothing to say and no mouth to say it with.
-            makeNoise(.shout)
-            return
-        }
+        // A character with no pack in this language simply doesn't speak.
+        guard personality.speaks else { return }
         guard !text.isEmpty else { return }
         // Wait for the floor rather than talk over the other one. Beats already
         // check this before they start, but a bit plays several seconds of
@@ -618,7 +590,6 @@ final class Brain {
     /// Cut a line short - used whenever something else takes over the bird.
     private func stopSpeaking() {
         voice.stop()
-        sounds?.stop()
         guard bubbleUntil > 0 else { return }
         bubbleUntil = 0
         bubble.dismiss()
@@ -944,7 +915,6 @@ final class Brain {
         let clip = move(preferred)
         let token = bump()
         mode = .busy
-        if !personality.speaks { makeNoise(noise(for: clip)) }
         animator.play(clip) { [weak self] in
             guard let self, self.current(token) else { completion(); return }
             self.mode = .idle

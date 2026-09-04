@@ -117,8 +117,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// unintelligibly. A saved voice that can't speak the current language is
     /// now ignored outright.
     private func restoreVoice(for buddy: Buddy) {
-        buddy.brain.sounds?.volume = volume
-        buddy.brain.sounds?.isEnabled = defaults.object(forKey: "voice") as? Bool ?? true
         let voice = buddy.brain.voice
         voice.isEnabled = defaults.object(forKey: "voice") as? Bool ?? true
         voice.volume = volume
@@ -185,31 +183,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.autoenablesItems = false
         let present = cast.onScreen
 
-        let silent = Product.current.isSilent
-        menu.addItem(item(t(silent ? "Do Something" : "Say Hello"), #selector(sayHello)))
-        if !silent {
-            menu.addItem(item(t("Tell a Joke"), #selector(tellJoke)))
-            menu.addItem(item(t("Tell Me Something"), #selector(tellFact)))
-            menu.addItem(item(t("Sing a Song"), #selector(singSong)))
-        }
+        menu.addItem(item(t("Say Hello"), #selector(sayHello)))
+        menu.addItem(item(t("Tell a Joke"), #selector(tellJoke)))
+        menu.addItem(item(t("Tell Me Something"), #selector(tellFact)))
+        menu.addItem(item(t("Sing a Song"), #selector(singSong)))
 
         if present.count > 1 {
-            let brawlers = present.filter { !$0.personality.speaks }.count
-            menu.addItem(item(t(brawlers > 1 ? "Let Them Fight" : "Let Them Chat"),
-                              #selector(haveThemChat)))
+            menu.addItem(item(t("Let Them Chat"), #selector(haveThemChat)))
         }
 
-        if silent {
-            menu.addItem(item(t("Do a Trick"), #selector(doTrick)))
-        } else {
-            let more = NSMenuItem(title: t("More"), action: nil, keyEquivalent: "")
-            let moreMenu = NSMenu()
-            moreMenu.addItem(item(t("Do a Trick"), #selector(doTrick)))
-            moreMenu.addItem(item(t("Ask Me a Riddle"), #selector(tellRiddle)))
-            moreMenu.addItem(item(t("Tongue Twister"), #selector(tellTwister)))
-            more.submenu = moreMenu
-            menu.addItem(more)
-        }
+        let more = NSMenuItem(title: t("More"), action: nil, keyEquivalent: "")
+        let moreMenu = NSMenu()
+        moreMenu.addItem(item(t("Do a Trick"), #selector(doTrick)))
+        moreMenu.addItem(item(t("Ask Me a Riddle"), #selector(tellRiddle)))
+        moreMenu.addItem(item(t("Tongue Twister"), #selector(tellTwister)))
+        more.submenu = moreMenu
+        menu.addItem(more)
         menu.addItem(.separator())
 
         // Who's out.
@@ -232,7 +221,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Language, when there's more than one to choose from.
         let usable = cast.availableLanguages
-        if usable.count > 1, !silent {
+        if usable.count > 1 {
             let langItem = NSMenuItem(title: t("Language"), action: nil, keyEquivalent: "")
             let langMenu = NSMenu()
             for l in usable {
@@ -268,8 +257,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(sizeItem)
 
         let voiceOn = cast.buddies.first?.brain.voice.isEnabled ?? true
-        menu.addItem(item(t(voiceOn ? (silent ? "Mute Sounds" : "Mute Voices")
-                                    : (silent ? "Unmute Sounds" : "Unmute Voices")),
+        menu.addItem(item(t(voiceOn ? "Mute Voices" : "Unmute Voices"),
                           #selector(toggleVoice)))
 
         // Their own level, not the system's.
@@ -368,13 +356,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func tellTwister() { speaker()?.perform(.twister, userAsked: true) }
     @objc private func singSong() { speaker()?.perform(.song, userAsked: true) }
     @objc private func doTrick() { speaker()?.doATrick() }
-    @objc private func haveThemChat() {
-        if cast.onScreen.filter({ !$0.personality.speaks }).count > 1 {
-            cast.gatherAndSpar()
-        } else {
-            cast.gatherAndBanter()
-        }
-    }
+    @objc private func haveThemChat() { cast.gatherAndBanter() }
 
     @objc private func comeHere(_ sender: NSMenuItem) {
         guard let id = sender.representedObject as? String else { return }
@@ -448,7 +430,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         volume = min(max(level, 0), 1)
         for buddy in cast.buddies {
             buddy.brain.voice.volume = volume
-            buddy.brain.sounds?.volume = volume
         }
         defaults.set(Double(volume), forKey: "volume")
         // Deliberately not rebuilding the menu: that would tear the slider out
@@ -460,8 +441,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         for buddy in cast.buddies {
             buddy.brain.voice.isEnabled = on
             buddy.brain.voice.volume = volume
-            buddy.brain.sounds?.isEnabled = on
-            if !on { buddy.brain.voice.stop(); buddy.brain.sounds?.stop() }
+            if !on { buddy.brain.voice.stop() }
         }
         defaults.set(on, forKey: "voice")
         refreshMenu()
@@ -534,21 +514,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func showAbout() {
         let alert = NSAlert()
         alert.messageText = Product.current.name
-        if Product.current.isSilent {
-            alert.informativeText = """
-                \(Product.current.tagline)
-
-                They walk about, throw punches, and square up when two of them \
-                end up near each other. No internet, no analytics, nothing to \
-                sell you — mute or quit them from this menu any time.
-
-                \(Product.current.credit)
-                """
-            alert.addButton(withTitle: t("OK"))
-            NSApp.activate(ignoringOtherApps: true)
-            alert.runModal()
-            return
-        }
         alert.informativeText = language == .arabic ? t("About body") : """
             Peedy is a parrot. Bonzi is a gorilla. They walk around, do bits, \
             and occasionally argue. Have one, or both.

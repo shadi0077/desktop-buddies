@@ -36,7 +36,6 @@ enum UI {
         "Tell Me Something": "معلومة من فضلك",
         "Sing a Song": "غنِّ أغنية",
         "Let Them Chat": "دعهما يتحدثان",
-        "Let Them Fight": "دعهما يتقاتلان",
         "More": "المزيد",
         "Do a Trick": "استعرض شيئًا",
         "Ask Me a Riddle": "اسألني لغزًا",

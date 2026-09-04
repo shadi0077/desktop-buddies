@@ -4,23 +4,17 @@ Usage: lineup.py <product-id> [clip] [out.png]
 
 One frame per character, bottom-aligned on a shared baseline so the
 size differences between them are the real ones, with names underneath.
-Pixel-art characters are scaled nearest-neighbour; the rendered ones
-aren't, which is the same rule the app itself uses.
 """
 from PIL import Image, ImageDraw, ImageFont
 import json, sys
 from pathlib import Path
 
 pid = sys.argv[1]
-clip = sys.argv[2] if len(sys.argv) > 2 else "walk"
+clip = sys.argv[2] if len(sys.argv) > 2 else "rest"
 out = Path(sys.argv[3] if len(sys.argv) > 3 else f"docs/img/{pid}.png")
 
 manifest = json.load(open(f"products/{pid}.json"))
 cast = [c for c in manifest["cast"] if not c.startswith("_")]
-
-# Mirrors `Personality.title` for the two ids that aren't presentable on their
-# own — there are two Axels and two Blazes, seven years apart.
-TITLES = {"axel1": "Axel (1991)", "blaze1": "Blaze (1991)"}
 
 SCALE, PAD, GAP, LABEL = 2, 18, 14, 22
 FONT = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial Bold.ttf", 15)
@@ -34,7 +28,7 @@ for who in cast:
     frame = steps[len(steps) // 2]["f"]
     img = Image.open(root / "frames" / f"{frame:04d}.png").convert("RGBA")
     img = img.crop(img.getbbox())
-    img = img.resize((img.width * SCALE, img.height * SCALE), Image.NEAREST)
+    img = img.resize((img.width * SCALE, img.height * SCALE), Image.LANCZOS)
     art.append((who, img))
 
 width = PAD * 2 + sum(i.width for _, i in art) + GAP * (len(art) - 1)
@@ -45,7 +39,7 @@ draw = ImageDraw.Draw(sheet)
 x = PAD
 for who, img in art:
     sheet.alpha_composite(img, (x, PAD + tall - img.height))
-    draw.text((x + img.width / 2, PAD + tall + 6), TITLES.get(who, who.capitalize()),
+    draw.text((x + img.width / 2, PAD + tall + 6), who.capitalize(),
               font=FONT, fill=(122, 122, 128, 255), anchor="ma")
     x += img.width + GAP
 

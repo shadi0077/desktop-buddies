@@ -10,18 +10,19 @@ def rng(a, b):
 
 
 # The mouth patches per pose are visemes, not an openness ramp, so they have to
-# be ordered before loudness can index them. There is no one measurement that
-# works for both characters: Peedy's open beak shows a pink tongue and barely
-# changes in darkness, while Bonzi's open mouth is a dark cavity and barely
-# changes in warm-pixel span. So measure both and let each character's own data
-# decide which one actually discriminates.
+# be ordered before loudness can index them. No one measurement works for every
+# character: Bonzi's open mouth is a dark cavity and barely changes in warm-pixel
+# span, Peedy's open beak shows a tongue, and Max's beak is warm all over so its
+# span hardly moves at all (31 to 36 pixels across a whole set) while the tongue
+# behind it goes from 0 pixels to 17. So measure three ways and let each
+# character's own data decide which one actually discriminates.
 from PIL import Image
 
 
 def _measure(who, index):
-    """(vertical span of warm lip/beak pixels, count of dark cavity pixels)."""
+    """(warm lip/beak span, dark cavity pixels, mouth-interior pixels)."""
     im = Image.open(f"assets/{who}/rgba/{index:04d}.png").convert("RGBA")
-    rows, dark = set(), 0
+    rows, dark, inside = set(), 0, 0
     for y in range(im.height):
         for x in range(im.width):
             r, g, b, a = im.getpixel((x, y))
@@ -31,7 +32,10 @@ def _measure(who, index):
                 rows.add(y)
             if r < 90 and g < 90 and b < 90:
                 dark += 1
-    return (max(rows) - min(rows) + 1 if rows else 0), dark
+            # Pink: a tongue, or the inside of a mouth. Only visible when open.
+            if r > 130 and g < 140 and b > 60 and r > g + 40 and b > g - 20:
+                inside += 1
+    return (max(rows) - min(rows) + 1 if rows else 0), dark, inside
 
 
 def _spread(values):
@@ -41,8 +45,7 @@ def _spread(values):
 
 def measured_ramps(who, talk):
     if not talk:
-        # Game rips have no viseme patches — nothing to order.
-        print(f"  {who}: no talk poses (sound effects instead of speech)")
+        print(f"  {who}: no talk poses declared")
         return {}
 
     """Order every mouth set closed -> widest, using whichever metric separates
@@ -51,7 +54,7 @@ def measured_ramps(who, talk):
               for name, pose in talk.items()}
 
     best, chosen = None, 0
-    for metric in (0, 1):
+    for metric in (0, 1, 2):
         widest = {max(range(len(v)), key=lambda i: v[i][metric]) for v in scored.values()}
         spread = sum(_spread([x[metric] for x in v]) for v in scored.values()) / len(scored)
         # Fewest disagreements about which viseme is widest wins; ties go to
@@ -60,8 +63,8 @@ def measured_ramps(who, talk):
         if best is None or score > best:
             best, chosen = score, metric
 
-    print(f"  {who}: using the {'warm-span' if chosen == 0 else 'dark-cavity'} metric "
-          f"(agreement {-best[0]}, spread {best[1]:.2f})")
+    print(f"  {who}: using the {['warm-span', 'dark-cavity', 'mouth-interior'][chosen]} "
+          f"metric (agreement {-best[0]}, spread {best[1]:.2f})")
     return {name: [pose["mouths"][i]
                    for i in sorted(range(len(pose["mouths"])),
                                    key=lambda i: scored[name][i][chosen])]
@@ -164,6 +167,40 @@ BONZI_TALK = {
 
 # Costume bits have no "take it off" clips; the intro played backwards undoes
 # it, which is how the originals worked too.
+# --------------------------------------------------------------------------
+# Max - MaxALERT. A blue macaw with the same bones as the BonziBUDDY pair:
+# full-body frames with viseme patches registered to eight of them. Everything
+# he does is done with his wings.
+# --------------------------------------------------------------------------
+MAX = {
+    "rest":        (rng(126, 137), 8, True),
+    "blink":       ([137, (137, 138), (137, 139), (137, 138), 137], 14, False),
+    "settle":      (rng(233, 244), 8, True),
+    "lookAround":  (rng(223, 229), 10, False),
+    "greet":       (rng(147, 155), 12, False),
+    "cheer":       (rng(257, 270), 14, False),
+    "flap":        (rng(156, 165), 14, True),
+    "announce":    (rng(11, 17), 12, False),
+    "gesture":     (rng(38, 43), 12, False),
+    "explain":     (rng(64, 69), 12, False),
+    "point":       (rng(77, 82), 12, False),
+    "excited":     (rng(90, 95), 12, False),
+    "flourish":    (rng(245, 249), 10, False),
+    "wingsOut":    (rng(219, 222), 10, False),
+    "arrive":      (rng(204, 218), 14, False),
+    "depart":      (rng(109, 124), 14, False),
+}
+
+MAX_TALK = {
+    "neutral":  {"body": 30,  "mouths": rng(31, 37)},
+    "announce": {"body": 17,  "mouths": rng(18, 24)},
+    "gesture":  {"body": 43,  "mouths": rng(44, 50)},
+    "aside":    {"body": 56,  "mouths": rng(57, 63)},
+    "explain":  {"body": 69,  "mouths": rng(70, 76)},
+    "point":    {"body": 82,  "mouths": rng(83, 89)},
+    "excited":  {"body": 95,  "mouths": rng(96, 102)},
+}
+
 REVERSALS = {
     "peedy": [("headphonesOff", "headphonesOn"), ("sunglassesOff", "sunglassesOn"),
               ("readEnd", "readStart"), ("writeEnd", "writeStart"),
@@ -199,160 +236,8 @@ def build(name, clips, talk):
 
 import os.path
 
-# --------------------------------------------------------------------------
-# Axel - Streets of Rage 2. A beat-'em-up sprite rip: no mouth, no visemes,
-# and nothing to say. He punches, and the game's own sound effects do the
-# talking.
-# --------------------------------------------------------------------------
-AXEL = {
-    "rest":        (rng(0, 8), 8, True),          # standing guard
-    "walk":        (rng(92, 101), 12, True),
-    "stretch":     (rng(9, 12), 8, False),
-    "jumpKick":    (rng(13, 16), 10, False),
-    "punch":       (rng(102, 108), 14, False),
-    "jab":         (rng(17, 21), 14, False),
-    "kick":        (rng(109, 114), 12, False),
-    "highKick":    (rng(22, 27), 12, False),
-    "knee":        (rng(144, 149), 12, False),
-    "grandUpper":  (rng(51, 55), 12, False),      # the flaming uppercut
-    "flameArc":    (rng(76, 81), 12, False),
-    "uppercut":    (rng(129, 137), 12, False),
-    "celebrate":   (rng(120, 122), 6, False),
-    "guard":       (rng(115, 119), 10, False),
-    "knockdown":   (rng(88, 90), 8, False),
-    "getUp":       (rng(153, 156), 8, False),
-    "arrive":      (rng(115, 122), 10, False),
-    "depart":      (rng(92, 101), 12, False),
-}
-
-# The rest of the Streets of Rage 2 roster. Same sheet format, same bands-are-
-# animations structure, so these were read off the frame index the same way.
-BLAZE = {
-    "rest":       (rng(0, 8), 8, True),
-    "walk":       (rng(105, 111), 12, True),
-    "punch":      (rng(114, 119), 14, False),
-    "kick":       (rng(24, 28), 12, False),
-    "highKick":   (rng(128, 131), 12, False),
-    "flip":       (rng(34, 40), 14, False),
-    "projectile": (rng(50, 57), 12, False),
-    "spin":       (rng(59, 63), 12, False),
-    "knockdown":  (rng(99, 101), 8, False),
-    "arrive":     (rng(34, 40), 14, False),
-    "depart":     (rng(105, 111), 12, False),
-}
-
-MAX = {
-    "rest":       (rng(0, 9), 7, True),
-    "walk":       (rng(80, 90), 10, True),
-    "punch":      (rng(96, 102), 12, False),
-    "flex":       (rng(10, 17), 8, False),
-    "grapple":    (rng(39, 47), 12, False),
-    "slam":       (rng(48, 55), 12, False),
-    "knockdown":  (rng(35, 38), 8, False),
-    "arrive":     (rng(10, 17), 8, False),
-    "depart":     (rng(80, 90), 10, False),
-}
-
-SKATE = {
-    "rest":       (rng(0, 11), 9, True),
-    "walk":       (rng(96, 103), 13, True),
-    "punch":      (rng(104, 110), 14, False),
-    "kick":       (rng(16, 18), 12, False),
-    "flip":       (rng(35, 43), 14, False),
-    "spin":       (rng(57, 66), 14, False),
-    "dash":       (rng(67, 73), 14, False),
-    "knockdown":  (rng(84, 86), 8, False),
-    "arrive":     (rng(44, 47), 10, False),
-    "depart":     (rng(96, 103), 13, False),
-}
-
-# The Streets of Rage 1 trio, sliced out of one shared sheet, and the enemies.
-# The enemy rips are small — a handful of poses each — and several carry a
-# palette swatch and a "RIPPED BY ..." caption that read as frames. Those are
-# simply not referenced.
-# The Streets of Rage 1 rips composite a walk from separate torso and leg
-# sprites, so frames 3-10 of each are disembodied legs and there is no whole-body
-# walk cycle to use. Those three glide on their idle instead, and roam less to
-# make up for it — better than animating a pair of trousers across the desktop.
-ADAM = {
-    "rest":      (rng(0, 2), 6, True),
-    "walk":      (rng(0, 2), 6, True),
-    "punch":     (rng(11, 14), 12, False),
-    "kick":      (rng(16, 19), 12, False),
-    "flip":      (rng(28, 31), 12, False),
-    "knockdown": (rng(51, 53), 8, False),
-    "arrive":    (rng(11, 14), 10, False),
-    "depart":    (rng(0, 2), 6, False),
-}
-
-AXEL1 = {
-    "rest":      (rng(0, 2), 6, True),
-    "walk":      (rng(0, 2), 6, True),
-    "punch":     (rng(11, 14), 12, False),
-    "kick":      (rng(16, 19), 12, False),
-    "flip":      (rng(28, 31), 12, False),
-    "knockdown": (rng(50, 51), 8, False),
-    "arrive":    (rng(11, 14), 10, False),
-    "depart":    (rng(0, 2), 6, False),
-}
-
-BLAZE1 = {
-    "rest":      (rng(0, 2), 6, True),
-    "walk":      (rng(0, 2), 6, True),
-    "punch":     (rng(11, 14), 12, False),
-    "kick":      (rng(15, 19), 12, False),
-    "flip":      (rng(24, 29), 12, False),
-    "knockdown": (rng(51, 53), 8, False),
-    "arrive":    (rng(11, 14), 10, False),
-    "depart":    (rng(0, 2), 6, False),
-}
-
-GALSIA = {
-    "rest":      (rng(0, 1), 5, True),
-    "walk":      (rng(5, 7), 8, True),
-    "punch":     (rng(7, 8), 9, False),
-    "knockdown": (rng(2, 3), 6, False),
-    "arrive":    (rng(5, 8), 8, False),
-    "depart":    (rng(5, 7), 8, False),
-}
-
-DONOVAN = {
-    "rest":      (rng(0, 4), 6, True),
-    "walk":      (rng(13, 16), 9, True),
-    "punch":     (rng(10, 11), 9, False),
-    "flex":      (rng(12, 13), 6, False),
-    "knockdown": (rng(6, 8), 6, False),
-    "arrive":    (rng(12, 13), 6, False),
-    "depart":    (rng(13, 16), 9, False),
-}
-
-EAGLE = {
-    "rest":      (rng(0, 6), 7, True),
-    "walk":      (rng(0, 6), 10, True),      # his sheet has no separate walk
-    "kick":      (rng(7, 8), 9, False),
-    "highKick":  (rng(15, 16), 8, False),
-    "knockdown": (rng(12, 13), 6, False),
-    "arrive":    (rng(15, 16), 8, False),
-    "depart":    (rng(0, 6), 10, False),
-}
-
-SLUM = {
-    "rest":      (rng(12, 15), 7, True),
-    "walk":      (rng(12, 15), 10, True),
-    "punch":     (rng(16, 19), 11, False),
-    "attack":    (rng(5, 9), 10, False),
-    "knockdown": (rng(10, 11), 6, False),
-    "arrive":    (rng(16, 19), 10, False),
-    "depart":    (rng(12, 15), 10, False),
-}
-
 for name, clips, talk in [("peedy", PEEDY, PEEDY_TALK), ("bonzi", BONZI, BONZI_TALK),
-                          ("axel", AXEL, {}), ("blaze", BLAZE, {}),
-                          ("max", MAX, {}), ("skate", SKATE, {}),
-                          ("adam", ADAM, {}), ("axel1", AXEL1, {}),
-                          ("blaze1", BLAZE1, {}), ("galsia", GALSIA, {}),
-                          ("donovan", DONOVAN, {}), ("eagle", EAGLE, {}),
-                          ("slum", SLUM, {})]:
+                          ("max", MAX, MAX_TALK)]:
     # Bonzi is optional; skip anyone whose sprites haven't been imported.
     if not os.path.isdir(f"assets/{name}/rgba") and not os.path.isdir(
             f"app/Resources/characters/{name}/frames"):

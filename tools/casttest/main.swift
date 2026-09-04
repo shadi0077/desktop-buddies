@@ -159,44 +159,8 @@ for lang in Language.allCases {
 
 }
 
-print("\nsparring needs somebody to spar with:")
-// Every clip named in an exchange must exist for somebody, or the move()
-// fallback quietly turns a punch into whatever else they had.
-let brawlerIDs = Personality.all.filter { !$0.speaks }.map(\.id)
-if brawlerIDs.count > 1 {
-    check("there is more than one brawler", true)
-}
-for p in Personality.all where !p.speaks {
-    guard let store = stores[p.id] else { continue }
-    // Whatever else they lack, they must be able to stand, move and react.
-    for name in ["rest", "walk", "arrive", "depart"] {
-        check("\(p.id): has \(name)", store.animation(name) != nil)
-    }
-    check("\(p.id): has something to throw",
-          !p.flourishes.filter { store.animation($0) != nil }.isEmpty)
-}
-
-print("\ncharacters who make noise instead of talking:")
-for p in Personality.all where !p.speaks {
-    guard let store = stores[p.id] else { check("\(p.id) loads", false); continue }
-    check("\(p.id): has no speech packs", p.packs.isEmpty)
-    check("\(p.id): has no talk poses", store.talkPoses.isEmpty)
-    check("\(p.id): every language is open to it", p.languages().count == Language.allCases.count)
-    guard let set = p.soundSet,
-          let bank = SoundBank(set: set, bundle: bundle) else {
-        check("\(p.id): has a sound bank", false); continue
-    }
-    check("\(p.id): has a sound bank", true)
-    for kind in SoundBank.Kind.allCases {
-        check("\(p.id): has \(kind.rawValue) sounds", bank.has(kind))
-    }
-    // Pixel art must not be smoothed on the way up.
-    check("\(p.id): declared as pixel art", p.pixelArt)
-}
-
-if Personality.all.contains(where: { $0.speaks }) {
 print("\nbanter:")
-let cast: Set<String> = ["peedy", "bonzi"]
+let cast = Set(Personality.all.map(\.id))
 let usable = Banter.available(for: cast, in: .english)
 check("there are exchanges for a full cast", usable.count > 10, "\(usable.count)")
 check("every exchange has at least two speakers",
@@ -229,5 +193,3 @@ check("lines alternate rather than one of them monologuing",
 
 print(failures == 0 ? "\nall checks passed" : "\n\(failures) FAILED")
 exit(failures == 0 ? 0 : 1)
-
-}

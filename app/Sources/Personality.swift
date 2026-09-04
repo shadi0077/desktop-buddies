@@ -68,26 +68,6 @@ func AVSpeechVoiceExists(_ identifier: String) -> Bool {
 struct Personality {
     let id: String
 
-    /// How a character makes itself understood.
-    ///
-    /// The Agent characters have mouth patches and a synthesiser. A game sprite
-    /// rip has neither — no visemes, nothing to say — so it grunts, and the
-    /// whole speech path simply doesn't apply to it.
-    enum Expression {
-        case speech
-        case soundEffects
-    }
-
-    let expresses: Expression
-
-    /// True for sprite rips from games, which are pixel art and must be scaled
-    /// without smoothing.
-    let pixelArt: Bool
-
-    /// Folder its sound effects come from, when it has them. Shared between
-    /// characters out of the same game.
-    let soundSet: String?
-
     /// Scale relative to the sprite canvas, so the two end up sensibly sized
     /// next to each other rather than at whatever their sheets happened to be.
     let scale: CGFloat
@@ -166,7 +146,10 @@ struct Personality {
         packs[language] ?? packs[.english]
     }
 
-    var speaks: Bool { expresses == .speech }
+    /// Everyone here is a Microsoft Agent character with mouth patches, so
+    /// this is really "has anything to say" — a character with no pack at all
+    /// still animates, it just never opens its mouth.
+    var speaks: Bool { !packs.isEmpty }
 
     /// Languages this character can actually speak — a pack is only usable if
     /// the system has a voice for it. A silent character speaks all of them
@@ -181,12 +164,7 @@ struct Personality {
 
     /// Everyone this build ships. The full roster lives in `everyone`; a
     /// product manifest picks from it.
-    static let everyone: [Personality] = [
-        .peedy, .bonzi,
-        .axel, .blaze, .max, .skate,          // Streets of Rage 2
-        .adam, .axel1, .blaze1,               // Streets of Rage 1
-        .galsia, .donovan, .eagle, .slum,     // enemies
-    ]
+    static let everyone: [Personality] = [.peedy, .bonzi]
 
     static let all: [Personality] = {
         let wanted = Product.current.cast

@@ -1,11 +1,10 @@
 import Foundation
 
-/// Which app this build is.
+/// Which app this build is, and who ships with it.
 ///
-/// One codebase, two products: Desktop Buddies is the two Microsoft Agent
-/// characters, MegaDrive Buddies is the Streets of Rage cast. They share the
-/// whole engine and differ only in who ships with them and what the app is
-/// called, so the difference lives in a manifest rather than in a fork.
+/// The cast lives in a manifest rather than in the sources, so adding a
+/// character to the app is a line of JSON and a sprite folder — the build
+/// copies only the characters the manifest names.
 struct Product {
     let id: String
     let name: String
@@ -36,11 +35,4 @@ struct Product {
                        cast: cast,
                        credit: root["credit"] as? String ?? "")
     }()
-
-    /// True when this product ships nobody who can talk — which turns off the
-    /// speech half of the menu rather than offering jokes to a gorilla with no
-    /// mouth frames.
-    var isSilent: Bool {
-        !Personality.all.contains { $0.speaks }
-    }
 }
