@@ -45,15 +45,56 @@ plist.update({
 plistlib.dump(plist, open(app / "Contents/Info.plist", "wb"))
 json.dump(manifest, open(app / "Contents/Resources/product.json", "w"))
 
-# Only this product's characters, plus whatever they share.
+# Only this product's characters, plus whatever they share — and within a
+# character, only the frames it can actually put on screen. The repository
+# keeps every frame a sheet gave up, because that is what the next animation
+# gets authored from; the app has no use for the other nine tenths. Earthworm
+# Jim's sheet is 1046 frames and he performs 25.
 dest = app / "Contents/Resources/characters"
 dest.mkdir(parents=True, exist_ok=True)
+kept = dropped = 0
 for who in manifest["cast"] + manifest.get("sharedResources", []):
     src = Path("app/Resources/characters") / who
-    if src.is_dir():
-        shutil.copytree(src, dest / who)
-    else:
+    if not src.is_dir():
         print(f"  warning: {who} has no resources")
+        continue
+    target = dest / who
+    target.mkdir(parents=True)
+    for item in src.iterdir():
+        if item.name == "frames":
+            continue
+        (shutil.copytree if item.is_dir() else shutil.copy)(item, target / item.name)
+
+    catalogue_path = src / "animations.json"
+    if not (src / "frames").is_dir():
+        continue
+    used = set()
+    if catalogue_path.exists():
+        catalogue = json.load(open(catalogue_path))
+        for clip in catalogue["animations"].values():
+            for step in clip["steps"]:
+                used.add(step["f"])
+                # Mouth patches and eye blinks are overlays composited onto a
+                # body frame, and they are frames too.
+                if step.get("o") is not None:
+                    used.add(step["o"])
+        # A talk pose holds a body frame and a set of mouth patches that no
+        # animation lists, and the hero frame is a portrait nothing plays.
+        for pose in catalogue.get("talk", {}).values():
+            used.add(pose["body"])
+            used.update(pose.get("mouths", []))
+            used.update(pose.get("ramp", []))
+        used.add(catalogue.get("hero", 0))
+    (target / "frames").mkdir()
+    for frame in sorted((src / "frames").iterdir()):
+        if frame.suffix != ".png":
+            continue
+        if int(frame.stem) in used:
+            shutil.copy(frame, target / "frames" / frame.name)
+            kept += 1
+        else:
+            dropped += 1
+print(f"  frames: {kept} shipped, {dropped} left in the repository")
 
 icon = Path(f"app/Resources/{manifest['id']}.icns")
 if icon.exists():

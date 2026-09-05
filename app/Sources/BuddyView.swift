@@ -13,6 +13,9 @@ final class BuddyView: NSView {
     var mirrored = false { didSet { if mirrored != oldValue { needsDisplay = true } } }
     /// Pixel art must be scaled with nearest-neighbour or it turns to mush.
     /// The Agent characters are 3D renders and want the opposite.
+    var pixelArt = false { didSet { if pixelArt != oldValue { needsDisplay = true } } }
+    /// Pixel art must be scaled with nearest-neighbour or it turns to mush.
+    /// The Agent characters are 3D renders and want the opposite.
 
     init(store: SpriteStore) {
         self.store = store
@@ -38,7 +41,7 @@ final class BuddyView: NSView {
 
     override func draw(_ dirtyRect: NSRect) {
         guard let step, let ctx = NSGraphicsContext.current else { return }
-        ctx.imageInterpolation = .high
+        ctx.imageInterpolation = pixelArt ? .none : .high
         for index in [step.frame, step.overlay].compactMap({ $0 }) {
             guard let (img, _) = store.image(index), let dest = destination(for: index) else { continue }
             if mirrored {

@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Desktop Buddies — nine characters for your Mac</title>
-<meta name="description" content="Nine animated characters who live on your macOS desktop — a parrot, a gorilla, a paperclip, a wizard, a dog and more. They do bits, sing in tune, and argue with each other. No network, no analytics, no upsell.">
+<title>Desktop Buddies — two desktop-pet apps for your Mac</title>
+<meta name="description" content="Two macOS desktop-pet apps built on one engine: nine Microsoft Agent characters who talk and sing, and thirty-seven Mega Drive sprites who pace the screen and square up. No network, no analytics, no upsell.">
 <meta property="og:title" content="Desktop Buddies">
-<meta property="og:description" content="Nine desktop characters for your Mac, from a parrot to a paperclip. They walk around, tell jokes, sing in tune, and talk to each other.">
+<meta property="og:description" content="Two desktop-pet apps for your Mac, one engine: nine Microsoft Agent cartoons who talk and sing, and thirty-seven Mega Drive sprites who walk and fight.">
 <meta property="og:type" content="website">
 <style>
 :root {
@@ -67,146 +67,102 @@ th { font-weight: 600; }
 footer { margin: 4em 0 3em; padding-top: 1.6em; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
 a { color: var(--accent); }
 </style>
+<style>
+.apps { display: grid; gap: 22px; grid-template-columns: 1fr; margin: 1.6em 0 0; }
+@media (min-width: 720px) { .apps { grid-template-columns: 1fr 1fr; } }
+.app {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+  padding: 20px 22px; display: flex; flex-direction: column;
+}
+.app h3 { margin: 0 0 .5em; font-size: 1.35rem; }
+.app img { margin-bottom: 1em; }
+.app p { color: var(--muted); font-size: .96rem; }
+.app .go { margin-top: auto; padding-top: .6em; font-weight: 600; }
+.app.a h3 { color: var(--accent); }
+.app.b h3 { color: var(--accent2); }
+</style>
 </head>
 <body>
 <div class="wrap">
 
 <header>
-  <h1><span class="p">Peedy</span> &amp; <span class="b">Bonzi</span></h1>
-  <p class="tag">Nine characters who live on your Mac's desktop, from the era
-  when software came with a cartoon in the corner. They walk around, do bits,
-  sing in tune, and talk to each other.</p>
+  <h1><span class="p">Desktop</span> <span class="b">Buddies</span></h1>
+  <p class="tag">Two desktop-pet apps for your Mac, built on one engine.
+  Characters who walk about, react to your cursor, do the things their source
+  material had them do, and talk to each other when more than one is out.</p>
   <div class="btns">
     <a class="btn primary" href="https://github.com/shadi0077/desktop-buddies">View on GitHub</a>
-    <a class="btn" href="https://github.com/shadi0077/desktop-buddies#build-and-run">Build it</a>
+    <a class="btn" href="https://github.com/shadi0077/desktop-buddies#build-and-run">Build them</a>
   </div>
 </header>
 
-<figure>
-  <img src="img/cast-lineup.png" alt="Nine desktop characters in a row: Peedy the parrot, Bonzi the gorilla, Max the macaw, Merlin the wizard, Rover the dog, Clippit the paperclip, Earl on a surfboard, F1 the robot and Manma-chan">
-  <figcaption>All nine, to scale. Have one, or all of them.</figcaption>
-</figure>
+<div class="apps">
+  <div class="app a">
+    <h3>🦜 Desktop Buddies</h3>
+    <img src="img/cast-lineup.png" alt="Nine desktop characters in a row: Peedy the parrot, Bonzi the gorilla, Max the macaw, Merlin the wizard, Rover the dog, Clippit the paperclip, Earl on a surfboard, F1 the robot and Manma-chan">
+    <p>Nine Microsoft Agent characters, from the era when software came with a
+    cartoon in the corner. They have voices, tell jokes, know facts, ask
+    riddles, sing actual melodies in tune, and argue with each other — in
+    English and in Najdi Arabic.</p>
+    <p class="go"><a href="desktop-buddies.html">How it works →</a></p>
+  </div>
+  <div class="app b">
+    <h3>🎮 MegaDrive Buddies</h3>
+    <img src="img/megadrive-buddies.png" alt="Thirty-seven Mega Drive sprites: the Streets of Rage cast, the Hyperstone Heist turtles, the Sonic cast, Ristar, Earthworm Jim, Pulseman, ToeJam and Earl, Donald Duck, Michael Jackson, Sparkster, Ryu, Robert Garcia, Joe Musashi, Gambit and Sketch Turner">
+    <p>Thirty-seven sixteen-bit sprites who pace the length of the screen at
+    their own speeds and square up when two of them get close. They talk in
+    speech bubbles with no voice, about games up to 1997 and nothing after, and
+    grunt with the sound effects out of their own games.</p>
+    <p class="go"><a href="megadrive-buddies.html">How it works →</a></p>
+  </div>
+</div>
 
 <h2>The idea</h2>
 <p>The Bonzi idea, minus the part everyone remembers it for: <strong>no network
 access, no analytics, no bundled anything, no browser changes, no upsell.</strong>
-They are windows that draw an animal. Quit them from the menu bar and they're gone.</p>
+They are windows that draw a character. Quit them from the menu bar and they're
+gone. Both apps carry their own bundle identifier, so you can run them at once
+and each keeps its own characters, positions, volume and size.</p>
 
 <div class="cards">
-  <div class="card"><h4>Alive, not looping</h4><p>Energy that rises with attention and decays without it. They notice your cursor, blink on their own clock, get bored of being poked, and settle down when you leave the keyboard.</p></div>
-  <div class="card"><h4>They actually sing</h4><p>Real melodies, in tune, by imposing pitch on the synthesised voice rather than asking it to sing — which does not work.</p></div>
-  <div class="card"><h4>They talk to each other</h4><p>Hand-written exchanges between the parrot and the gorilla, and a set that works for any of the other pairings — nine characters make thirty-six.</p></div>
-  <div class="card"><h4>Their own volume</h4><p>A slider that's theirs alone, independent of the system volume — and it doesn't change how their mouths move.</p></div>
+  <div class="card"><h4>Alive, not looping</h4><p>Energy that rises with attention and decays without it. They notice your cursor, get bored of being poked, and settle down when you leave the keyboard.</p></div>
+  <div class="card"><h4>They talk to each other</h4><p>Aloud in one app and in speech bubbles in the other — taking turns, facing each other, nobody starting a line while somebody else is mid-sentence.</p></div>
+  <div class="card"><h4>Their own volume</h4><p>A slider that's theirs alone, independent of the system volume. Mute them in one click.</p></div>
+  <div class="card"><h4>Nothing phones home</h4><p>No network code in either app. Everything they know is bundled, and always will be.</p></div>
 </div>
 
-<h2>The double act</h2>
-<div class="dialogue">
-  <p><b class="p">Peedy:</b> You're very still.</p>
-  <p><b class="b">Bonzi:</b> Thank you.</p>
-  <p><b class="p">Peedy:</b> It wasn't a compliment.</p>
-  <p><b class="b">Bonzi:</b> I'm taking it as one.</p>
-</div>
-<table>
-<tr><th></th><th>Peedy</th><th>Bonzi</th></tr>
-<tr><td>Register</td><td>quick, fussy, theatrical</td><td>slow, heavy, unbothered</td></tr>
-<tr><td>Voice</td><td>Fred, pitched up</td><td>Ralph, pitched down</td></tr>
-<tr><td>Entrance</td><td>flies in from the distance</td><td>swings in on a vine</td></tr>
-<tr><td>Bits</td><td>newspaper, notepad, telescope, ribbon</td><td>banana, coconuts, globe, a puff of smoke</td></tr>
-</table>
+<h2>One codebase, two apps</h2>
+<p>A product is a JSON manifest naming a cast. The build copies only that cast's
+sprites — and only the frames its animations actually reference — then stamps
+the name and bundle id into the app. At runtime the app filters its roster and
+its menus to match, so an app where nobody has a voice has no Language submenu
+and offers <em>Let Them Fight</em> rather than <em>Let Them Chat</em>.</p>
+<pre><code>./build.sh                    <span style="opacity:.6"># both</span>
+./build.sh megadrive-buddies  <span style="opacity:.6"># just that one</span></code></pre>
+<p>Adding a third app is a JSON file: no target, no project file, and nothing in
+the Swift sources needs to know it exists.</p>
 
-<figure>
-  <img src="img/arrive.png" alt="Frame-by-frame: Bonzi swings in on a vine from the distance and lands">
-  <figcaption>Bonzi's entrance, frame by frame.</figcaption>
-</figure>
-
-<h2>يتكلمون سعودي</h2>
-<p>All nine speak <strong>Najdi Arabic</strong>, switchable from the menu —
-which localises with them. Speech balloons lay out right to left.</p>
-<figure>
-  <img src="img/arabic.png" alt="Speech balloons showing Arabic lines from Peedy and Bonzi, laid out right to left">
-  <figcaption>Dialect, not textbook. The jokes are local too.</figcaption>
-</figure>
-<div class="dialogue" dir="rtl">
-  <p><b class="p">بيدي:</b> قال لي بجي بعد خمس دقايق... صار لي ساعة وأنا أعدّ.</p>
-  <p><b class="b">بونزي:</b> ليش ما أستعجل؟ الشجرة ما بتروح.</p>
-</div>
-<p>macOS exposes one Arabic voice, and its phonetics are Modern Standard — it
-says <em>qahwa</em>, not <em>gahwa</em>. So the dialect is Saudi and the
-pronunciation is fus·ḥā. What is controllable gets used: vocabulary and syntax,
-which cost the synthesiser nothing; pauses, which are the one handle on cadence;
-and pitch and pace, which is all that separates nine characters sharing one
-voice.</p>
-
-<h2>The rest of the cast</h2>
-<p>Seven more, all from the same era and the same technology — Microsoft Agent,
-the thing that put a cartoon in the corner of Office.</p>
-<table>
-<tr><td><b>Max</b></td><td>Reports the news whether or not there is any.</td></tr>
-<tr><td><b>Merlin</b></td><td>Materialises out of nothing and speaks in prophecy.</td></tr>
-<tr><td><b>Rover</b></td><td>The search dog. Is helping. Not always with what you wanted.</td></tr>
-<tr><td><b>Clippit</b></td><td>Has decided what you're doing and is going to help.</td></tr>
-<tr><td><b>Earl</b></td><td>Surfs. Not worried about any of this.</td></tr>
-<tr><td><b>F1</b></td><td>Literal and precise. Says numbers where the others say "a lot".</td></tr>
-<tr><td><b>Manma</b></td><td>Quiet, attentive, wants to know whether you've eaten.</td></tr>
-</table>
-<p>Four of the nine have the full Agent structure — body frames plus small
-overlay patches, seven per pose for lip-sync. The five Office XP assistants were
-ripped as finished frames with no overlays at all, so there is no mouth to
-composite: they gesture through their lines instead, which is what those
-characters did originally.</p>
-
-<h2>Getting it running</h2>
+<h2>Getting them running</h2>
 <p>macOS 11 Big Sur or later, on Apple Silicon, plus the Xcode command line
 tools. A clone builds and runs directly — the sprites are included.</p>
 <pre><code>git clone https://github.com/shadi0077/desktop-buddies.git
 cd desktop-buddies
-./build.sh &amp;&amp; open "build/Desktop Buddies.app"</code></pre>
-<p>There's no Xcode project. <code>build.sh</code> compiles the sources with
-<code>swiftc</code> and assembles the <code>.app</code> itself.</p>
+./build.sh
+open "build/Desktop Buddies.app" "build/MegaDrive Buddies.app"</code></pre>
 
 <div class="note">
-  <strong>On the artwork.</strong> All nine are Microsoft Agent characters —
-  the BonziBUDDY pair, the Office XP assistants, and Max from MaxALERT. They
-  are included so this runs from a clone, but they are not covered by the MIT
-  licence and are not mine to license. See
+  <strong>On the artwork.</strong> None of the character art or sound is mine to
+  license, and none of it is covered by the MIT licence — the Microsoft Agent
+  characters belong to Microsoft, Bonzi Software and the Office XP set's owners;
+  the game sprites and sounds to Sega, SNK, Capcom, Konami, Interplay, Disney,
+  Marvel and others. It is included so this runs from a clone. See
   <a href="https://github.com/shadi0077/desktop-buddies/blob/main/docs/SPRITES.md">docs/SPRITES.md</a>.
 </div>
-
-<h2>A couple of things I'm pleased with</h2>
-
-<h3>The mouth follows the audio, not a timer</h3>
-<p>Each line is rendered to PCM before anything plays, which gives its exact
-duration and a loudness envelope. The envelope picks a mouth shape every frame.
-Linear loudness turned out to be bimodal for speech — the beak just slammed
-between shut and wide — so it's mapped to dB over a 30&nbsp;dB window, which
-spreads the seven shapes evenly.</p>
-<figure>
-  <img src="img/lipsync.png" alt="A spoken line rendered frame by frame, with the beak opening in step with a plot of the audio's loudness">
-  <figcaption>A spoken line, against its own loudness envelope.</figcaption>
-</figure>
-
-<h3>Singing needed the pitch taken away from the synthesiser</h3>
-<p>Letting <code>pitchMultiplier</code> carry a melody gives every note a 5–31
-semitone swoop, because the synthesiser applies sentence intonation to each
-isolated word. Interval errors reached 3.4 semitones and the tune was
-unrecognisable. Time-domain PSOLA — cutting one grain per glottal pulse and
-laying them down again at exactly the target period — brings that to
-<strong>0.05 semitones</strong>.</p>
-
-<h3>Their volume is their own</h3>
-<figure style="max-width:480px">
-  <img src="img/volume.png" alt="The volume slider at 0, 35, 80 and 100 percent">
-</figure>
-<p>Applied as gain on the player node rather than baked into the render, so it
-takes effect mid-sentence — and the lip sync is unchanged by it. The beak moves
-identically at 5% and 100%.</p>
 
 <footer>
   <p>MIT licensed — the code, at least. The characters belong to their
   respective owners; the MIT grant does not extend to them.</p>
-  <p><a href="https://github.com/shadi0077/desktop-buddies">github.com/shadi0077/desktop-buddies</a>
-  · sibling app: <a href="https://github.com/shadi0077/megadrive-buddies">MegaDrive Buddies</a>,
-  the same engine with the talking taken out</p>
+  <p><a href="https://github.com/shadi0077/desktop-buddies">github.com/shadi0077/desktop-buddies</a></p>
 </footer>
 
 </div>

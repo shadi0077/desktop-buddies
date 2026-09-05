@@ -20,6 +20,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let defaults = UserDefaults.standard
     private var size: BuddySize = .medium
     private var chattiness: Chattiness = .occasional
+    private var liveliness: Liveliness = .occasional
     /// This app's own level, nothing to do with the system volume.
     private var volume: Float = 0.8
     private var language: Language = .english
@@ -29,6 +30,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ note: Notification) {
         size = BuddySize(rawValue: CGFloat(defaults.double(forKey: "size"))) ?? .medium
+        liveliness = Liveliness(rawValue: defaults.object(forKey: "liveliness") as? Int ?? 1)
+            ?? .occasional
         chattiness = Chattiness(rawValue: defaults.object(forKey: "chattiness") as? Int ?? 1)
             ?? .occasional
         volume = Float(defaults.object(forKey: "volume") as? Double ?? 0.8)
@@ -53,6 +56,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             cast.speak(language)
         }
         cast.chattiness = chattiness
+        cast.liveliness = liveliness
 
         for buddy in cast.buddies {
             restoreVoice(for: buddy)
@@ -179,22 +183,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.autoenablesItems = false
         let present = cast.onScreen
 
-        menu.addItem(item(t("Say Hello"), #selector(sayHello)))
+        let silent = Product.current.isSilent
+        menu.addItem(item(t(silent ? "Say Something" : "Say Hello"), #selector(sayHello)))
         menu.addItem(item(t("Tell a Joke"), #selector(tellJoke)))
         menu.addItem(item(t("Tell Me Something"), #selector(tellFact)))
-        menu.addItem(item(t("Sing a Song"), #selector(singSong)))
-
-        if present.count > 1 {
-            menu.addItem(item(t("Let Them Chat"), #selector(haveThemChat)))
+        if !silent {
+            menu.addItem(item(t("Sing a Song"), #selector(singSong)))
         }
 
-        let more = NSMenuItem(title: t("More"), action: nil, keyEquivalent: "")
-        let moreMenu = NSMenu()
-        moreMenu.addItem(item(t("Do a Trick"), #selector(doTrick)))
-        moreMenu.addItem(item(t("Ask Me a Riddle"), #selector(tellRiddle)))
-        moreMenu.addItem(item(t("Tongue Twister"), #selector(tellTwister)))
-        more.submenu = moreMenu
-        menu.addItem(more)
+        if present.count > 1 {
+            menu.addItem(item(t(silent ? "Let Them Talk" : "Let Them Chat"),
+                              #selector(haveThemChat)))
+            if silent {
+                menu.addItem(item(t("Let Them Fight"), #selector(haveThemFight)))
+            }
+        }
+
+        if silent {
+            menu.addItem(item(t("Do a Trick"), #selector(doTrick)))
+        } else {
+            let more = NSMenuItem(title: t("More"), action: nil, keyEquivalent: "")
+            let moreMenu = NSMenu()
+            moreMenu.addItem(item(t("Do a Trick"), #selector(doTrick)))
+            moreMenu.addItem(item(t("Ask Me a Riddle"), #selector(tellRiddle)))
+            moreMenu.addItem(item(t("Tongue Twister"), #selector(tellTwister)))
+            more.submenu = moreMenu
+            menu.addItem(more)
+        }
         menu.addItem(.separator())
 
         // Who's out.
@@ -229,6 +244,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             langItem.submenu = langMenu
             menu.addItem(langItem)
         }
+
+        let pace = NSMenuItem(title: t("Liveliness"), action: nil, keyEquivalent: "")
+        let paceMenu = NSMenu()
+        for level in Liveliness.allCases {
+            let mi = item(t(level.title), #selector(setLiveliness(_:)))
+            mi.representedObject = level.rawValue
+            mi.state = level == liveliness ? .on : .off
+            paceMenu.addItem(mi)
+        }
+        pace.submenu = paceMenu
+        menu.addItem(pace)
 
         let chat = NSMenuItem(title: t("Chattiness"), action: nil, keyEquivalent: "")
         let chatMenu = NSMenu()
@@ -352,7 +378,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func tellTwister() { speaker()?.perform(.twister, userAsked: true) }
     @objc private func singSong() { speaker()?.perform(.song, userAsked: true) }
     @objc private func doTrick() { speaker()?.doATrick() }
-    @objc private func haveThemChat() { cast.gatherAndBanter() }
+    @objc private func haveThemChat() {
+        if Product.current.isSilent { cast.startGameBanter() } else { cast.gatherAndBanter() }
+    }
+    @objc private func haveThemFight() { cast.gatherAndSpar() }
 
     @objc private func comeHere(_ sender: NSMenuItem) {
         guard let id = sender.representedObject as? String else { return }
@@ -402,6 +431,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Say something immediately, so the change is audible rather than
         // just visible in a menu.
         cast.onScreen.randomElement()?.brain.greet()
+    }
+
+    @objc private func setLiveliness(_ sender: NSMenuItem) {
+        guard let raw = sender.representedObject as? Int,
+              let level = Liveliness(rawValue: raw) else { return }
+        liveliness = level
+        cast.liveliness = level
+        defaults.set(raw, forKey: "liveliness")
+        refreshMenu()
     }
 
     @objc private func setChattiness(_ sender: NSMenuItem) {

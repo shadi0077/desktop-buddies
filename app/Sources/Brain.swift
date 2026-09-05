@@ -26,13 +26,41 @@ enum Chattiness: Int, CaseIterable {
         case .chatty: return 0.8
         }
     }
-    /// Multiplier on the character's own beat interval, so a quick bird and a
-    /// slow gorilla both get quieter or livelier without losing their pacing.
+    /// Weight of the talking beat for the characters who have no voice: they
+    /// put the same material in a speech box instead.
+    var weight: Double {
+        switch self {
+        case .quiet: return 0
+        case .occasional: return 0.30
+        case .chatty: return 0.85
+        }
+    }
+}
+
+/// How often they do anything at all.
+///
+/// Separate from `Chattiness` on purpose: pacing about and talking are
+/// different appetites, and somebody who wants a lively desktop doesn't
+/// necessarily want it narrated.
+enum Liveliness: Int, CaseIterable {
+    case calm = 0, occasional = 1, restless = 2
+
+    var title: String {
+        switch self {
+        case .calm: return "Calm"
+        case .occasional: return "Occasional"
+        case .restless: return "Restless"
+        }
+    }
+
+    /// Multiplier on the character's own beat interval, so a quick parrot and
+    /// a lumbering wrestler both settle or liven up without losing the
+    /// difference between them.
     var pace: Double {
         switch self {
-        case .quiet: return 1.7
+        case .calm: return 1.7
         case .occasional: return 1.0
-        case .chatty: return 0.62
+        case .restless: return 0.62
         }
     }
 }
@@ -102,9 +130,14 @@ final class Brain {
     private var recentSongs = RecentPicks(limit: 2)
     private var recentMoves = RecentPicks(limit: 4)
 
-    var chattiness: Chattiness = .occasional {
+    var chattiness: Chattiness = .occasional
+
+    var liveliness: Liveliness = .occasional {
         didSet { scheduleBeat() }
     }
+
+    /// The game characters' sound effects — what they have instead of a voice.
+    let sounds: SoundBank?
 
     var isVisible: Bool { mode != .away }
 
@@ -113,6 +146,7 @@ final class Brain {
         self.personality = personality
         self.language = language
         self.pack = personality.pack(language)
+        self.sounds = personality.soundSet.flatMap { SoundBank(set: $0) }
         self.store = store
         self.animator = animator
         self.window = window
@@ -324,6 +358,7 @@ final class Brain {
         if let point { window.setFrameOrigin(point) }
         window.orderFront(nil)
         mode = .busy
+        makeNoise(.shout)
         animator.play("arrive") { [weak self] in
             guard let self else { return }
             self.goIdle()                     // must precede say(): goIdle
@@ -372,7 +407,7 @@ final class Brain {
         // Lively means shorter gaps, winding down means longer ones, and the
         // 0.55 baseline lands on the interval the user actually chose.
         nextBeat = clock + Double.random(in: personality.beatRange)
-            * chattiness.pace * (1.55 - energy)
+            * liveliness.pace * (1.55 - energy)
     }
 
     private func tick(_ dt: TimeInterval) {
@@ -388,7 +423,7 @@ final class Brain {
             // when a beat *starts*, so without this a long turn runs straight
             // into the next one and jokes arrive back to back.
             nextBeat = max(nextBeat, clock + Double.random(in: personality.beatRange)
-                * chattiness.pace * 0.6)
+                * liveliness.pace * 0.6)
         }
         // Every long sequence hands back through a deferred callback, and a
         // dropped one would leave him frozen mid-bit with no way out. Twice
@@ -432,7 +467,9 @@ final class Brain {
                                                 * personality.roaming.restlessness),
                                       (.bit, 0.20),
                                       (.flourish, 0.08 + 0.22 * energy),
-                                      (.turn, personality.speaks ? 0.12 + 0.26 * energy : 0)],
+                                      (.turn, personality.speaks
+                                              ? 0.12 + 0.26 * energy
+                                              : chattiness.weight)],
                                      roll: Double.random(in: 0..<1)) ?? .settle
 
         switch beat {
@@ -489,6 +526,7 @@ final class Brain {
     private func perform(_ name: String, then: (() -> Void)? = nil) {
         guard mode == .idle else { return }
         plog("perform \(name)")
+        makeNoise(noise(for: name))
         mode = .busy
         let token = bump()
         animator.play(name) { [weak self] in
@@ -547,13 +585,41 @@ final class Brain {
         }
     }
 
+    /// Make a noise. Silent for anyone whose game we have no sound rip from.
+    @discardableResult
+    private func makeNoise(_ kind: SoundBank.Kind) -> Bool {
+        let played = sounds?.play(kind) ?? false
+        if played { plog("  sound: \(kind)") }
+        return played
+    }
+
+    /// The noise that suits a movement. Specials and arrivals announce
+    /// themselves, landings thud, everything else is exertion.
+    private func noise(for clip: String) -> SoundBank.Kind {
+        switch clip {
+        case "grandUpper", "flameArc", "uppercut", "celebrate", "arrive",
+             "cheer", "laugh":
+            return .shout
+        case "knockdown", "getUp", "hit":
+            return .impact
+        default:
+            return .effort
+        }
+    }
+
+    /// How long a line stays up for a character with no voice: long enough to
+    /// read, and no longer. Nothing else sets the pace — there is no audio to
+    /// finish — so this is measured against reading it aloud, roughly 190
+    /// words a minute plus a moment to notice the box appeared.
+    static func readingTime(_ text: String) -> TimeInterval {
+        min(9.0, 1.5 + Double(text.count) * 0.048)
+    }
+
     // MARK: - Speech
 
     func say(_ text: String, pose: String? = "neutral", duration: TimeInterval? = nil,
              waited: TimeInterval = 0) {
-        // A character with no pack in this language simply doesn't speak.
-        guard personality.speaks else { return }
-        guard !text.isEmpty else { return }
+        guard !text.isEmpty, mode != .away else { return }
         // Wait for the floor rather than talk over the other one. Beats already
         // check this before they start, but a bit plays several seconds of
         // animation before its line, and the other character can take the floor
@@ -562,6 +628,16 @@ final class Brain {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
                 self?.say(text, pose: pose, duration: duration, waited: waited + 0.4)
             }
+            return
+        }
+
+        // A character with no speech pack has no voice to render, so the box
+        // is the whole performance: it stays up long enough to read, rather
+        // than for however long the audio turned out to be.
+        guard personality.speaks else {
+            let reading = Self.readingTime(text)
+            plog(String(format: "say (box, %.1fs): %@", reading, text))
+            showBubble(text, duration: reading)
             return
         }
 
@@ -590,6 +666,7 @@ final class Brain {
     /// Cut a line short - used whenever something else takes over the bird.
     private func stopSpeaking() {
         voice.stop()
+        sounds?.stop()
         guard bubbleUntil > 0 else { return }
         bubbleUntil = 0
         bubble.dismiss()
@@ -599,6 +676,7 @@ final class Brain {
     fileprivate func showBubble(_ text: String, duration: TimeInterval) {
         guard let screen = currentScreen() else { return }
         bubble.present(text, rightToLeft: language.isRightToLeft,
+                       pixel: personality.pixelArt,
                        pointingAt: headAnchor(), on: screen)
         bubbleUntil = clock + duration
     }
@@ -759,8 +837,17 @@ final class Brain {
     func perform(_ turn: Turn, userAsked: Bool = false) {
         guard mode != .away else { return }
         guard personality.speaks else {
-            // No repertoire without words — do something physical instead.
-            doATrick()
+            // No voice, but plenty to say: the sprite rips talk in boxes, out
+            // of GameTalk rather than out of a speech pack.
+            stopSpeaking()
+            cancelTravel()
+            mode = .idle
+            if userAsked { stir(0.3) }
+            switch turn {
+            case .joke: tellGameJoke()
+            case .fact: say(recentFacts.pick(from: GameTalk.facts))
+            default: say(recentLines.pick(from: GameTalk.smallTalk(for: personality.id)))
+            }
             return
         }
         stopSpeaking()
@@ -774,6 +861,20 @@ final class Brain {
         case .fact: tellFact()
         case .twister: tellTwister()
         case .song: sing()
+        }
+    }
+
+    /// The same shape as `tellJoke`, for a character with no voice: the beat
+    /// between setup and punchline is measured in reading time instead.
+    private func tellGameJoke() {
+        let setup = recentJokes.pick(from: GameTalk.jokes.map(\.setup))
+        guard let joke = GameTalk.jokes.first(where: { $0.setup == setup }) else { return }
+        say(joke.setup)
+        afterSpeaking(0.8) { [weak self] in
+            guard let self, self.mode == .idle else { return }
+            self.perform(self.move(self.personality.flourishes)) {
+                self.say(joke.punchline)
+            }
         }
     }
 
@@ -915,6 +1016,7 @@ final class Brain {
         let clip = move(preferred)
         let token = bump()
         mode = .busy
+        makeNoise(noise(for: clip))
         animator.play(clip) { [weak self] in
             guard let self, self.current(token) else { completion(); return }
             self.mode = .idle

@@ -68,6 +68,14 @@ func AVSpeechVoiceExists(_ identifier: String) -> Bool {
 struct Personality {
     let id: String
 
+    /// True for sprite rips from games: pixel art, scaled without smoothing,
+    /// and drawn with a hard-edged speech box rather than a soft balloon.
+    var pixelArt: Bool = false
+
+    /// Folder its sound effects come from, when it has one. Shared between
+    /// characters out of the same game, since it's one game's rip.
+    var soundSet: String? = nil
+
     /// Scale relative to the sprite canvas, so the two end up sensibly sized
     /// next to each other rather than at whatever their sheets happened to be.
     let scale: CGFloat
@@ -78,12 +86,18 @@ struct Personality {
     let flourishes: [String]
     let bits: [Bit]
 
-    /// What they say, per language. Empty for characters who don't talk.
-    let packs: [Language: SpeechPack]
+    /// What they say, per language. Empty for the characters who don't talk —
+    /// the sprite rips, who have sound effects and speech boxes instead.
+    var packs: [Language: SpeechPack] = [:]
 
     /// A clip to loop while speaking, for the characters whose sprite sets
     /// have no mouth patches to composite. Nil means lip-sync as usual.
     var talkLoop: String? = nil
+
+    /// Shown in the menu when the id isn't presentable on its own — the two
+    /// 1991 brawlers, or a character whose id carries its game because the
+    /// other product in this repository already has that name.
+    var title: String? = nil
 
     enum Travel {
         /// Takeoff, a looping cruise, then a landing.
@@ -115,7 +129,7 @@ struct Personality {
         /// walks for a living should be pacing, not standing.
         let restlessness: Double
 
-        init(distance: ClosedRange<CGFloat>, speed: CGFloat, arc: CGFloat,
+        init(distance: ClosedRange<CGFloat>, speed: CGFloat, arc: CGFloat = 0,
              restlessness: Double = 1) {
             self.distance = distance
             self.speed = speed
@@ -131,11 +145,13 @@ struct Personality {
         let loop: String?
         let outro: String?
         let hold: ClosedRange<Double>
-        let talk: String            // key into SpeechPack.byBit
+        /// Key into `SpeechPack.byBit`. Empty for characters with no speech
+        /// pack: a bit they perform without a word about it.
+        var talk: String = ""
         /// Talk pose to lip-sync in, or nil when the sprite set has no mouth
         /// patches for this costume — they speak with a still mouth rather than
         /// snapping to a bare pose.
-        let pose: String?
+        var pose: String? = nil
     }
 
     /// English is the fallback: every speaking character has it, and a
@@ -162,15 +178,29 @@ struct Personality {
     /// Every character here has a speech pack, which is where the name comes
     /// from — in whichever language they're speaking. The id is a fallback for
     /// a character whose pack hasn't been written yet.
-    var name: String { pack(.english)?.name ?? id.capitalized }
+    var name: String { title ?? pack(.english)?.name ?? id.capitalized }
 
     /// Everyone this build ships. The full roster lives in `everyone`; a
     /// product manifest picks from it.
+    /// Everyone this repository has, across both apps. A product manifest
+    /// picks from it, and nothing else decides who ships.
     static let everyone: [Personality] = [
         .peedy, .bonzi,                       // BonziBUDDY
         .max,                                 // MaxALERT
         .clippy, .rover, .merlin, .f1,        // Microsoft Office XP
         .earl, .manma,
+
+        .axel, .blaze, .maxsor, .skate,       // Streets of Rage 2
+        .adam, .axel1, .blaze1,               // Streets of Rage 1
+        .axel3,                               // Streets of Rage 3
+        .galsia, .donovan, .eagle, .slum,     // and the people they hit
+        .sonic, .tails, .knuckles, .robotnik, .mecha,   // the Sonic games
+        .sonic3d, .spinball,
+        .ristar, .terry,                      // Ristar, Fatal Fury 2
+        .jim, .pulseman, .toejam, .earltje,   // platformers
+        .donald, .moonwalker, .sparkster,
+        .robert, .ryu, .musashi, .gambit, .sketch,      // brawlers
+        .raphael, .leonardo, .michelangelo, .donatello, // Hyperstone Heist
     ]
 
     static let all: [Personality] = {

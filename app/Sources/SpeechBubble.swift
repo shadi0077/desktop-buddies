@@ -6,6 +6,12 @@ final class BubbleView: NSView {
     enum TailSide { case bottom, top }
 
     var text: String = "" { didSet { needsDisplay = true } }
+
+    /// Two looks, because there are two kinds of character here. The Agent
+    /// characters are 3D renders and get a soft balloon; a 16-bit sprite with
+    /// a soft balloon over its head looks like a modern app stuck to it, so
+    /// those get square corners, a hard border and a hard shadow.
+    var pixel = false { didSet { needsDisplay = true } }
     /// Arabic reads right to left. CoreText shapes and joins the glyphs on its
     /// own, but the paragraph's base direction has to be set explicitly or
     /// punctuation and any embedded Latin land on the wrong end of the line.
@@ -56,7 +62,7 @@ final class BubbleView: NSView {
     /// the relevant edge, so stroking never leaves a seam at the junction.
     private func balloonPath() -> NSBezierPath {
         let r = balloonRect
-        let radius: CGFloat = 11
+        let radius: CGFloat = pixel ? 0 : 11
         let tw = Self.tailWidth, th = Self.tailHeight
         let tx = min(max(tailX, r.minX + radius + tw), r.maxX - radius - tw)
 
@@ -91,18 +97,32 @@ final class BubbleView: NSView {
     override func draw(_ dirtyRect: NSRect) {
         let path = balloonPath()
 
-        NSGraphicsContext.saveGraphicsState()
-        let shadow = NSShadow()
-        shadow.shadowColor = NSColor.black.withAlphaComponent(0.28)
-        shadow.shadowBlurRadius = 8
-        shadow.shadowOffset = NSSize(width: 0, height: -2)
-        shadow.set()
-        NSColor(calibratedRed: 1, green: 0.99, blue: 0.94, alpha: 1).setFill()
-        path.fill()
-        NSGraphicsContext.restoreGraphicsState()
+        if pixel {
+            // Hard shadow, no blur — the era didn't have one.
+            NSColor(calibratedWhite: 0, alpha: 0.45).setFill()
+            let shadowPath = balloonPath()
+            var shift = AffineTransform.identity
+            shift.translate(x: 4, y: -4)
+            shadowPath.transform(using: shift)
+            shadowPath.fill()
+        } else {
+            NSGraphicsContext.saveGraphicsState()
+            let shadow = NSShadow()
+            shadow.shadowColor = NSColor.black.withAlphaComponent(0.28)
+            shadow.shadowBlurRadius = 8
+            shadow.shadowOffset = NSSize(width: 0, height: -2)
+            shadow.set()
+            NSColor(calibratedRed: 1, green: 0.99, blue: 0.94, alpha: 1).setFill()
+            path.fill()
+            NSGraphicsContext.restoreGraphicsState()
+        }
 
-        NSColor(calibratedWhite: 0.25, alpha: 0.85).setStroke()
-        path.lineWidth = 1.5
+        if pixel {
+            NSColor(calibratedRed: 0.99, green: 0.98, blue: 0.93, alpha: 1).setFill()
+            path.fill()
+        }
+        NSColor(calibratedWhite: pixel ? 0.08 : 0.25, alpha: pixel ? 1 : 0.85).setStroke()
+        path.lineWidth = pixel ? 2.5 : 1.5
         path.stroke()
 
         var textRect = balloonRect.insetBy(dx: 0, dy: 0)
@@ -138,8 +158,8 @@ final class SpeechBubbleWindow: NSPanel {
     override var canBecomeKey: Bool { false }
     override var canBecomeMain: Bool { false }
 
-    /// Show `text` pointing at `anchor` (a screen point at the bird's head).
-    func present(_ text: String, rightToLeft: Bool = false,
+    /// Show `text` pointing at `anchor` — a screen point at the character's head.
+    func present(_ text: String, rightToLeft: Bool = false, pixel: Bool = false,
                  pointingAt anchor: NSPoint, on screen: NSScreen) {
         let size = BubbleView.size(for: text, rightToLeft: rightToLeft)
         let vf = screen.visibleFrame
@@ -155,6 +175,7 @@ final class SpeechBubbleWindow: NSPanel {
 
         bubble.text = text
         bubble.rightToLeft = rightToLeft
+        bubble.pixel = pixel
         bubble.tail = side
         setFrame(NSRect(origin: origin, size: size), display: true)
         bubble.tailX = anchor.x - origin.x

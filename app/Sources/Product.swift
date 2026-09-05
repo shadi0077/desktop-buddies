@@ -35,4 +35,10 @@ struct Product {
                        cast: cast,
                        credit: root["credit"] as? String ?? "")
     }()
+
+    /// True when nobody in this product can talk out loud — which decides
+    /// whether the menu offers songs and voices, or a fight.
+    var isSilent: Bool {
+        !Personality.all.contains { $0.speaks }
+    }
 }

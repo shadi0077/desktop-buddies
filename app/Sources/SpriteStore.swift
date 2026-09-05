@@ -49,6 +49,8 @@ final class SpriteStore {
     private let cache = NSCache<NSNumber, NSImage>()
 
     private(set) var animations: [String: AnimationDef] = [:]
+    /// The frame this character wears in the menu bar, from the catalogue.
+    /// Zero when the catalogue doesn't say, which is a perfectly good frame.
     private(set) var talkPoses: [String: TalkPose] = [:]
     /// The frame this character is recognised by, shrunk into the menu bar.
     private(set) var heroFrame = 0

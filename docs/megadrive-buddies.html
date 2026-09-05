@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MegaDrive Buddies — Mega Drive sprites for your Mac</title>
+<meta name="description" content="Thirty-seven Mega Drive characters who live on your macOS desktop — Streets of Rage, Sonic, Ristar, Earthworm Jim, Street Fighter, Moonwalker and more. They walk the length of the screen and square up when two of them get close. No network, no analytics, no upsell.">
+<meta property="og:title" content="MegaDrive Buddies">
+<meta property="og:description" content="Thirty-seven Mega Drive sprites for your Mac — Streets of Rage, Sonic, Ristar, Earthworm Jim, Ryu and more. They pace the screen and square up when they meet.">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #fbfaf7; --panel: #ffffff; --ink: #1b1b1f; --muted: #5c5c68;
+  --line: #e4e2dc; --accent: #2f5f9e; --accent2: #b4442f; --code: #f4f2ee;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --panel: #1e1e24; --ink: #eceaf0; --muted: #a2a0ad;
+    --line: #2e2e38; --accent: #74a6e8; --accent2: #e8836b; --code: #24242c;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 860px; margin: 0 auto; padding: 0 22px; }
+header { padding: 72px 0 40px; text-align: center; }
+h1 { font-size: clamp(2.2rem, 6vw, 3.2rem); margin: 0 0 .3em; letter-spacing: -.02em; }
+h1 .p { color: var(--accent); } h1 .b { color: var(--accent2); }
+.tag { font-size: 1.15rem; color: var(--muted); max-width: 34em; margin: 0 auto 1.8em; }
+.btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn {
+  display: inline-block; padding: 11px 22px; border-radius: 9px;
+  text-decoration: none; font-weight: 600; border: 1px solid var(--line);
+  color: var(--ink); background: var(--panel);
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+h2 { font-size: 1.5rem; margin: 2.6em 0 .6em; letter-spacing: -.01em; }
+h3 { font-size: 1.1rem; margin: 1.8em 0 .4em; }
+p { margin: 0 0 1em; }
+img { max-width: 100%; height: auto; display: block; border-radius: 10px; border: 1px solid var(--line); }
+figure { margin: 1.4em 0; }
+figcaption { font-size: .88rem; color: var(--muted); margin-top: .6em; text-align: center; }
+.cards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); margin: 1.4em 0; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 11px; padding: 16px 18px; }
+.card h4 { margin: 0 0 .35em; font-size: 1rem; }
+.card p { margin: 0; color: var(--muted); font-size: .93rem; }
+pre {
+  background: var(--code); border: 1px solid var(--line); border-radius: 9px;
+  padding: 14px 16px; overflow-x: auto; font-size: .9rem;
+}
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+p code, li code { background: var(--code); padding: .12em .38em; border-radius: 5px; font-size: .9em; }
+table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: .94rem; display: block; overflow-x: auto; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; }
+.note {
+  background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--accent2);
+  border-radius: 8px; padding: 14px 18px; margin: 1.4em 0; font-size: .95rem;
+}
+.dialogue { background: var(--panel); border: 1px solid var(--line); border-radius: 11px; padding: 18px 22px; margin: 1.2em 0; }
+.dialogue p { margin: 0 0 .5em; }
+.dialogue p:last-child { margin: 0; }
+.dialogue b.p { color: var(--accent); } .dialogue b.b { color: var(--accent2); }
+footer { margin: 4em 0 3em; padding-top: 1.6em; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav style="text-align:center;padding:22px 0 0;font-size:.93rem">
+  <a href="index.html">Both apps</a> ·
+  <a href="desktop-buddies.html">Desktop Buddies</a> ·
+  <a href="megadrive-buddies.html">MegaDrive Buddies</a>
+</nav>
+
+<header>
+  <h1><span class="p">MegaDrive</span> <span class="b">Buddies</span></h1>
+  <p class="tag">Thirty-seven Mega Drive characters who live on your Mac's desktop
+  — Streets of Rage, Sonic, Ristar, Earthworm Jim, Ryu, Michael Jackson and more.
+  They pace the length of the screen at their own speeds and square up when two
+  of them end up near each other.</p>
+  <div class="btns">
+    <a class="btn primary" href="https://github.com/shadi0077/desktop-buddies">View on GitHub</a>
+    <a class="btn" href="https://github.com/shadi0077/desktop-buddies/blob/main/docs/megadrive-buddies.md">Read the whole thing</a>
+  </div>
+</header>
+
+<figure>
+  <img src="img/megadrive-buddies.png" alt="Thirty-seven Mega Drive sprites: the Streets of Rage cast, the Hyperstone Heist turtles, the Sonic cast, Ristar, Earthworm Jim, Pulseman, ToeJam and Earl, Donald Duck, Michael Jackson, Sparkster, Ryu, Robert Garcia, Joe Musashi, Gambit and Sketch Turner">
+  <figcaption>Mid-walk, on a shared baseline — the size differences are the real ones.</figcaption>
+</figure>
+
+<h2>The idea</h2>
+<p>A desktop pet with nothing to sell you: <strong>no network access, no
+analytics, no bundled anything, no upsell.</strong> They are windows that draw a
+sprite. Quit them from the menu bar and they're gone.</p>
+<p>They talk in speech bubbles — about video games, up to 1997, and nothing
+after. Jokes, facts and two-handers with whoever is standing nearest. No
+voices: these are 16-bit characters, and a text box is what they had. They
+grunt and thud too, with the sound effects out of their own games.</p>
+
+<div class="cards">
+  <div class="card"><h4>They actually walk</h4><p>At their own pace over their own distances, the length of the screen. A heavy Max and a Skate on rollerblades stay recognisably different.</p></div>
+  <div class="card"><h4>They square up</h4><p>Two within 420 points of each other stop wandering and trade blows — taking turns, facing each other, the one not swinging turning to watch.</p></div>
+  <div class="card"><h4>Alive, not looping</h4><p>Energy that rises with attention and decays without it. They notice your cursor, get bored of being poked, and settle down when you leave the keyboard.</p></div>
+  <div class="card"><h4>Their own volume</h4><p>A slider that's theirs alone, independent of the system volume. Mute them in one click.</p></div>
+</div>
+
+<h2>What they talk about</h2>
+<figure>
+  <img src="img/bubbles.png" alt="Five speech bubbles with square corners and hard shadows, containing lines about Sega, hedgehogs and the E.T. landfill">
+  <figcaption>Square corners and a hard shadow — a soft balloon over a 16-bit sprite looks like an app stuck to its head.</figcaption>
+</figure>
+<p>Sixty-four facts, eighty-nine jokes, seventy-two remarks, seventy-eight
+two-handers and a hundred and twenty lines belonging to particular characters,
+none of which know what happened after 1997. The cutoff is the
+point of it, and the test suite enforces it by scanning every line for a later
+year — which is how the two slips in the first draft were caught.</p>
+<div class="dialogue">
+  <p><b class="p">Sonic:</b> I do the whole level in thirty seconds.</p>
+  <p><b class="b">Knuckles:</b> Then you've seen none of it.</p>
+  <p><b class="p">Sonic:</b> I've seen it thirty times.</p>
+</div>
+
+<h2>Squaring up</h2>
+<figure style="max-width:420px">
+  <img src="img/sparring.png" alt="Axel throwing a punch that lands on Galsia, who is doubling over">
+</figure>
+<p>It has the shape of a conversation — take turns, face each other, nobody
+moves while somebody else is mid-swing — with the content physical: one swings,
+the other blocks or takes it, then counters. <strong>Let Them Fight</strong> in
+the menu walks two of them together first, rather than waiting for the wandering
+to bring them close.</p>
+<p>Every sprite set faces the viewer's left unmirrored, so turning to face
+somebody means mirroring.</p>
+
+<h2>Walking, properly</h2>
+<figure>
+  <img src="img/walk.png" alt="Axel's ten-frame walk cycle, laid out in a row">
+</figure>
+<p>A walk cycle played while the window jumps 500 points in half a second reads
+as moonwalking, which is exactly what this looked like before each character got
+its own pace. Travel time now comes from the character's own speed in points per
+second, so the animation matches the ground covered.</p>
+<table>
+<tr><th></th><th>distance</th><th>speed</th><th>beat</th></tr>
+<tr><td>Sonic</td><td>1000–3600 pt</td><td>420 pt/s</td><td>5–12 s</td></tr>
+<tr><td>Axel</td><td>600–2200 pt</td><td>165 pt/s</td><td>7–16 s</td></tr>
+<tr><td>Blaze</td><td>600–2200 pt</td><td>190 pt/s</td><td>6–14 s</td></tr>
+<tr><td>Max</td><td>500–1600 pt</td><td>120 pt/s</td><td>11–24 s</td></tr>
+<tr><td>Skate</td><td>900–3000 pt</td><td>300 pt/s</td><td>5–11 s</td></tr>
+</table>
+
+<h2>Getting it running</h2>
+<p>macOS 11 Big Sur or later, on Apple Silicon, plus the Xcode command line
+tools. A clone builds and runs directly — the sprites are included.</p>
+<pre><code>git clone https://github.com/shadi0077/desktop-buddies.git
+cd desktop-buddies
+./build.sh megadrive-buddies &amp;&amp; open "build/MegaDrive Buddies.app"</code></pre>
+<p>There's no Xcode project. <code>build.sh</code> compiles the sources with
+<code>swiftc</code> and assembles the <code>.app</code> itself — about seven
+seconds into a thirteen-megabyte app.</p>
+
+<div class="note">
+  <strong>On the artwork.</strong> The sprites and sounds belong to Sega, SNK,
+  Capcom, Konami, Interplay, Disney, Marvel and others. They're included so this
+  runs from a clone, but they are not covered by the MIT licence and are not
+  mine to license. See
+  <a href="https://github.com/shadi0077/desktop-buddies/blob/main/docs/SPRITES.md">docs/SPRITES.md</a>.
+</div>
+
+<h2>A couple of things worth knowing</h2>
+
+<h3>The sheet is not as regular as it looks</h3>
+<p>A rip is one image with frames in irregular rows. The cutter finds bands of
+content, then columns, then splits each column at its own gaps. The exceptions
+are the whole job: captions printed beside a sprite land <em>inside</em> its
+frame at a perfectly normal size, colour swatches sit among the sprites, and the
+Streets of Rage 1 rips have no whole-body walk at all — that game composited one
+from separate torso and leg sprites, so those frames are disembodied legs.</p>
+<p>The worst of them: one column of Galsia's sheet holds two stacked sprites, so
+they came out as a single frame and he rendered as a man with a second man
+growing out of his head. Nothing about the frame's size gives that away. The
+cutter splits columns now, and a test checks every shipped frame holds exactly
+one sprite.</p>
+
+<h3>A clip that doesn't exist is silent, not loud</h3>
+<p>The rips don't cover the same ground — the Streets of Rage 2 four have a
+dozen moves each, an enemy sprite has three. Naming a clip directly means a
+character without it performs nothing at all, which is how Axel came to spend an
+afternoon doing <code>cheer</code>, a clip he hasn't got. Shared routines now go
+through a picker that drops what a character lacks, and the test suite fails on
+any clip named in a personality that the sprite set doesn't have.</p>
+
+<h3>Sound nobody labelled</h3>
+<p>Five rips and not one of them says what its sounds are. The Streets of Rage
+rip names voice clips <code>V00</code>–<code>V52</code> and effects
+<code>00</code>–<code>49</code>; the Sonic and Ristar rips are numbered by
+sound-test index, and deliberately so — "I did not name any of the sound files
+by concept", says the ripper's readme.</p>
+<p>So the Sonic sets are grouped by measuring the audio instead: a short burst
+with no pitch to it is an impact, a sweep that rises is effort — a jump, a
+spring, a spin-dash winding up — and the bright tonal ones left over are
+shouts, which is where ring collection lands. Ristar's rip is his voice and
+nothing else, so his set has no impacts at all, and the player falls back to
+what the set does have rather than going quiet at the one moment a noise is
+called for.</p>
+
+<footer>
+  <p>MIT licensed — the code, at least. The characters belong to Sega, SNK,
+  Capcom, Konami, Interplay, Disney, Marvel and others; the MIT grant does not
+  extend to them.</p>
+  <p><a href="https://github.com/shadi0077/desktop-buddies">github.com/shadi0077/desktop-buddies</a>
+  · sibling app in the same repository: <a href="desktop-buddies.html">Desktop Buddies</a>,
+  the same engine with the talking left in</p>
+</footer>
+
+</div>
+</body>
+</html>

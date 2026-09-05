@@ -9,12 +9,25 @@ APPKIT="-framework AppKit -framework ServiceManagement -framework AVFoundation"
 CORE="app/Sources/SpriteStore.swift app/Sources/BuddyView.swift app/Sources/SpeechBubble.swift"
 # One file per character, picked up by name so adding a character to the cast
 # doesn't mean remembering to add it here too.
-CHARACTERS=$(ls app/Sources/*Personality.swift app/Sources/*Arabic.swift \
+CHARACTERS=$(ls app/Sources/*Personality.swift app/Sources/*Personalities.swift \
+             app/Sources/*Arabic.swift \
              | grep -v '^app/Sources/Personality.swift$' | tr '\n' ' ')
 CONTENT="app/Sources/Language.swift app/Sources/Chatter.swift app/Sources/Repertoire.swift
-         app/Sources/Personality.swift $CHARACTERS"
+         app/Sources/GameTalk.swift app/Sources/Personality.swift $CHARACTERS"
 ENGINE="app/Sources/Animator.swift app/Sources/BuddyWindow.swift app/Sources/Voice.swift
-        app/Sources/Brain.swift"
+        app/Sources/SoundBank.swift app/Sources/Brain.swift"
+
+# ./test.sh audio plays real sound through the speakers, which the rest of the
+# suite deliberately never does: a CI runner has no audio device, and playing
+# clips in bulk once wedged this machine's audio server for an hour.
+if [ "${1:-}" = "audio" ]; then
+    echo "== sound actually reaching the speakers =="
+    ./build.sh megadrive-buddies >/dev/null
+    swiftc -O -framework AppKit -framework AVFoundation \
+      app/Sources/SoundBank.swift tools/soundcheck/main.swift -o build/soundcheck
+    BUDDY_APP="build/MegaDrive Buddies.app" ./build/soundcheck
+    exit $?
+fi
 
 echo "== deployment target =="
 ./build.sh >/dev/null
@@ -47,6 +60,32 @@ echo "== the cast =="
 swiftc -O $APPKIT $CORE $CONTENT $ENGINE app/Sources/Product.swift \
   app/Sources/Banter.swift tools/casttest/main.swift -o build/casttest
 BUDDY_PRODUCT="products/desktop-buddies.json" BUDDY_APP="$APP" ./build/casttest
+
+echo
+echo "== the game cast =="
+swiftc -O $APPKIT $CORE $CONTENT $ENGINE app/Sources/Product.swift \
+  tools/gamecasttest/main.swift -o build/gamecasttest
+BUDDY_PRODUCT="products/megadrive-buddies.json" \
+  BUDDY_APP="build/MegaDrive Buddies.app" ./build/gamecasttest
+
+echo
+echo "== one sprite per frame =="
+swiftc -O $APPKIT $CORE $CONTENT $ENGINE app/Sources/Product.swift \
+  tools/framestest/main.swift -o build/framestest
+BUDDY_PRODUCT="products/megadrive-buddies.json" \
+  BUDDY_APP="build/MegaDrive Buddies.app" ./build/framestest
+
+echo
+echo "== what the game cast talks about =="
+swiftc -O $APPKIT $CORE $CONTENT $ENGINE app/Sources/Product.swift \
+  tools/gametalktest/main.swift -o build/gametalktest
+BUDDY_PRODUCT="products/megadrive-buddies.json" ./build/gametalktest
+
+echo
+echo "== speech bubbles =="
+swiftc -O $APPKIT $CORE $CONTENT $ENGINE app/Sources/Product.swift \
+  tools/bubbletest/main.swift -o build/bubbletest
+./build/bubbletest
 
 echo
 echo "== wander logic =="

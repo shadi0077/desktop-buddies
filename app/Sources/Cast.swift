@@ -13,6 +13,7 @@ final class Buddy {
         self.personality = personality
         self.store = store
         window = BuddyWindow(store: store, scale: scale * personality.scale)
+        window.buddyView.pixelArt = personality.pixelArt
         animator = Animator(store: store, view: window.buddyView)
         animator.talkLoop = personality.talkLoop
         brain = Brain(personality: personality, language: language, store: store,
@@ -39,6 +40,10 @@ final class Cast {
 
     var chattiness: Chattiness = .occasional {
         didSet { buddies.forEach { $0.brain.chattiness = chattiness } }
+    }
+
+    var liveliness: Liveliness = .occasional {
+        didSet { buddies.forEach { $0.brain.liveliness = liveliness } }
     }
 
     private(set) var language: Language
@@ -140,14 +145,161 @@ final class Cast {
     // MARK: - Them talking to each other
 
     private func tick() {
-        guard !talking, Date() >= nextBanter else { return }
+        guard !talking, !fighting else { return }
         let present = onScreen
         guard present.count > 1 else {
             nextBanter = Date().addingTimeInterval(20)
+            nextFight = Date().addingTimeInterval(20)
             return
         }
         guard present.allSatisfy({ $0.brain.isAvailable }) else { return }
-        startBanter()
+
+        // The Agent characters have written exchanges keyed to who they are.
+        // The sprite rips talk out of a shared pool and settle their
+        // differences physically, on a clock of its own so that talking and
+        // fighting don't starve each other.
+        if present.contains(where: { $0.personality.speaks }) {
+            guard Date() >= nextBanter else { return }
+            startBanter()
+            return
+        }
+        if Date() >= nextBanter, chattiness != .quiet, startGameBanter() { return }
+        guard Date() >= nextFight else { return }
+        var closest = CGFloat.infinity
+        for a in present {
+            for b in present where b.id != a.id {
+                closest = min(closest, abs(a.brain.centreX - b.brain.centreX))
+            }
+        }
+        if closest < 420, startSparring() { return }
+        gatherAndSpar()
+    }
+
+    // MARK: - The characters with no voice
+
+    /// True while an exchange of blows is running.
+    private(set) var fighting = false
+    private var nextFight = Date().addingTimeInterval(45)
+    private var recentOpeners = RecentPicks(limit: 8)
+
+    /// The closest two who are both free, which is who an exchange is between:
+    /// shouting across the desktop isn't a conversation, or a fight.
+    private func nearestPair() -> (Buddy, Buddy)? {
+        let free = onScreen.filter { $0.brain.isAvailable }
+        guard free.count > 1 else { return nil }
+        var pair: (Buddy, Buddy)?
+        var closest = CGFloat.infinity
+        for a in free {
+            for b in free where b.id != a.id {
+                let gap = abs(a.brain.centreX - b.brain.centreX)
+                if gap < closest { closest = gap; pair = (a, b) }
+            }
+        }
+        return pair
+    }
+
+    /// A conversation out of GameTalk, for characters with no speech packs.
+    @discardableResult
+    func startGameBanter() -> Bool {
+        guard !talking, !fighting, let (a, b) = nearestPair() else { return false }
+        let options = GameTalk.exchanges(for: (a.id, b.id))
+        guard !options.isEmpty else { return false }
+        let opener = recentOpeners.pick(from: options.map { $0[0].text })
+        guard let exchange = options.first(where: { $0[0].text == opener }) else { return false }
+
+        talking = true
+        plog("game banter: \(a.id) and \(b.id), \(exchange.count) lines")
+        let hold = exchange.reduce(0.0) { $0 + 1.5 + Double($1.text.count) * 0.048 + 0.8 } + 4
+        [a, b].forEach { $0.brain.holdBeats(for: hold) }
+        deliverGame(exchange, at: 0, between: a, and: b)
+        return true
+    }
+
+    /// Who says a line: whoever it names, else whoever didn't say the last one,
+    /// so an unattributed exchange still alternates.
+    private func deliverGame(_ exchange: [GameTalk.Line], at index: Int,
+                             between a: Buddy, and b: Buddy, lastSpeaker: String? = nil) {
+        guard index < exchange.count, talking else {
+            talking = false
+            nextBanter = Date().addingTimeInterval(Double.random(in: 45...100))
+            [a, b].forEach { $0.brain.face(toward: -1) }
+            return
+        }
+        let line = exchange[index]
+        let speaker = line.who.flatMap(buddy) ?? (lastSpeaker == a.id ? b : a)
+        let other = speaker.id == a.id ? b : a
+        other.brain.face(toward: speaker.brain.centreX)
+
+        // A gesture on the opening line only: one before every line reads as
+        // two characters performing rather than talking.
+        let move: String? = index == 0 ? speaker.personality.flourishes.first : nil
+        speaker.brain.deliver(line.text, move: move, facing: other.brain.centreX) {
+            [weak self] in
+            guard let self, self.talking else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) {
+                self.deliverGame(exchange, at: index + 1, between: a, and: b,
+                                 lastSpeaker: speaker.id)
+            }
+        }
+    }
+
+    /// One exchange of blows: who swings, and what the other does about it.
+    private static let sparring: [[(attacker: Int, clips: [String])]] = [
+        [(0, ["punch", "jab", "strike"]), (1, ["knockdown", "guard", "flip"]),
+         (1, ["punch", "kick", "strike"]), (0, ["guard", "knockdown", "flip"])],
+        [(0, ["kick", "highKick"]), (1, ["knockdown", "guard"]),
+         (0, ["punch", "jab", "strike"]), (1, ["flip", "knockdown", "guard"])],
+        [(1, ["grandUpper", "uppercut", "flameArc", "attack", "slam", "punch"]),
+         (0, ["knockdown", "guard"]), (0, ["getUp", "guard", "flex", "celebrate"])],
+        [(0, ["flex", "celebrate", "guard", "stretch"]),
+         (1, ["punch", "kick", "strike"]), (0, ["knockdown", "guard"])],
+    ]
+
+    /// Two of them squaring up: take turns, face each other, and nobody moves
+    /// while somebody else is mid-swing — a conversation, with the content
+    /// physical because they have no words.
+    @discardableResult
+    func startSparring() -> Bool {
+        guard !fighting, !talking, let (a, b) = nearestPair() else { return false }
+        let exchange = Self.sparring.randomElement()!
+        fighting = true
+        plog("sparring: \(a.id) and \(b.id)")
+        let hold = Double(exchange.count) * 4 + 6
+        [a, b].forEach { $0.brain.holdBeats(for: hold) }
+        trade(exchange, at: 0, between: a, and: b)
+        return true
+    }
+
+    private func trade(_ exchange: [(attacker: Int, clips: [String])], at index: Int,
+                       between a: Buddy, and b: Buddy) {
+        guard index < exchange.count, fighting else {
+            fighting = false
+            nextFight = Date().addingTimeInterval(Double.random(in: 40...90))
+            [a, b].forEach { $0.brain.face(toward: -1) }
+            return
+        }
+        let step = exchange[index]
+        let actor = step.attacker == 0 ? a : b
+        let other = step.attacker == 0 ? b : a
+        other.brain.face(toward: actor.brain.centreX)     // whoever isn't swinging watches
+
+        actor.brain.act(step.clips, facing: other.brain.centreX) { [weak self] in
+            guard let self, self.fighting else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                self.trade(exchange, at: index + 1, between: a, and: b)
+            }
+        }
+    }
+
+    /// Walk two of them together, then have them square up.
+    func gatherAndSpar() {
+        guard let (a, b) = nearestPair(), !talking, !fighting else { return }
+        guard abs(a.brain.centreX - b.brain.centreX) > b.window.frame.width * 1.3 else {
+            startSparring(); return
+        }
+        b.brain.moveNear(x: a.brain.centreX) { [weak self] in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { self?.startSparring() }
+        }
     }
 
     /// Kick off an exchange now, if the cast allows one.
