@@ -27,7 +27,14 @@ TITLES = {"axel1": "Axel (1991)", "blaze1": "Blaze (1991)",
           "sketch": "Sketch Turner", "musashi": "Joe Musashi",
           "michelangelo": "Michelangelo", "maxsor": "Max", "earltje": "Earl", "axel3": "Axel (1994)",
           "spinball": "Sonic (Spinball)",
-          "clippy": "Clippit", "manma": "Manma-chan"}
+          "clippy": "Clippit", "manma": "Manma-chan",
+          # SNES Buddies
+          "diddy": "Diddy Kong", "dixie": "Dixie Kong", "dk": "Donkey Kong",
+          "donnie": "Donatello", "ewj": "Earthworm Jim", "jimworm": "Jim (No Suit)",
+          "leo": "Leonardo", "megamanx": "Mega Man X", "metroid": "Metroid",
+          "mikey": "Michelangelo", "pacman": "Pac-Man", "raph": "Raphael",
+          "richter": "Richter Belmont", "simon": "Simon Belmont",
+          }
 
 # Mirrors `Personality.scale`, so the lineup shows them at the sizes they
 # actually stand at next to each other.
@@ -42,7 +49,9 @@ SCALES = {"peedy": 1.15, "bonzi": 1.0, "max": 0.85, "merlin": 1.0,
           "robert": 1.15, "donald": 2.9, "moonwalker": 1.85, "gambit": 1.45,
           "sketch": 1.55, "ryu": 1.4, "musashi": 1.75, "sparkster": 2.5,
           "raphael": 1.95, "leonardo": 1.7, "michelangelo": 1.85,
-          "donatello": 1.9, "axel3": 1.5, "spinball": 2.3}
+          "donatello": 1.9, "axel3": 1.5, "spinball": 2.3,
+          "diddy": 2.7, "dixie": 2.7, "dk": 3.2, "donnie": 2.0, "ewj": 2.1, "guy": 1.3, "jimworm": 2.4, "kirby": 3.4, "leo": 2.0, "luigi": 4.0, "mario": 4.2, "megamanx": 2.8, "metroid": 1.6, "mikey": 2.0, "pacman": 3.5, "raph": 2.05, "richter": 2.6, "samus": 2.5, "simon": 2.5, "squawks": 2.4
+         }
 
 PAD, GAP, LABEL = 18, 14, 22
 PER_ROW = int(sys.argv[4]) if len(sys.argv) > 4 else 10

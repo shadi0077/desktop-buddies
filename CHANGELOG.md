@@ -1,5 +1,49 @@
 # Changelog
 
+## 1.6
+
+- **A third app: SNES Buddies.** Twenty Super Nintendo characters — Mario,
+  Luigi, Kirby, Samus and the last Metroid; Donkey Kong, Diddy, Dixie and
+  Squawks; Mega Man X, Simon and Richter Belmont, Guy, Pac-Man, the four
+  Turtles in Time, and Earthworm Jim in and out of his suit. They talk in
+  speech bubbles like the Mega Drive cast and make no sound at all: no rip of
+  these games' audio is to hand, and borrowing Sega's grunts for Nintendo's
+  characters would be worse than nothing.
+- **A second sheet cutter.** `tools/blobs.py` cuts from connected components —
+  key out the background *and the panel chrome*, dilate so a sprite's detached
+  parts rejoin, then label. It is the only way to get anything off a boxed
+  sheet: Mega Man X cuts to exactly one 1420x3294 frame with `sheet.py`, and to
+  1,988 frames with this. Neither cutter wins in general.
+- **`tools/clips.py`** renders each authored clip as a strip. `index.py` shows
+  what is on a sheet; this shows whether the ranges landed where they were
+  meant to, which is a different failure and the one that reaches users. It
+  caught a caption reading "Hold" that had become Luigi's victory pose, a walk
+  cycle opening on the stance it pushes off from, two Kongs the cutter had
+  joined into one frame, a "punch" that was a flying knee, and an "attack" that
+  opened on a turtle rolled up inside his shell.
+- **`tools/snes-cuts.sh`** records the exact flags every SNES sheet needs.
+  Dilation turns out to be a property of the sheet rather than the pipeline:
+  Turtles in Time needs no dilation for Leonardo, whose neighbouring frames
+  weld together otherwise, and dilation for Michelangelo, whose nunchucks come
+  off as eleven splinters without it. Same game, same artists, same year.
+- 68 lines of personal dialogue for the new cast, and nine of them given the
+  attack clips their sheets always had, so a squared-up SNES pair has something
+  to throw.
+
+### Fixed
+
+- `casttest` required a `greet` clip from **every** character while its own
+  comment said "these four" and the array held five. All 37 game rips lack
+  `greet`; the nine that have it are exactly the nine that talk. This was 37 of
+  the 38 failures the suite was reporting on `main`.
+- The banter check validated exchange speakers against the *current product's*
+  cast, but `Banter.swift` is one global body of Peedy-and-Bonzi dialogue — so
+  it could only ever pass for Desktop Buddies, and failed for every other
+  product. Now checked against the whole roster.
+- `catalog.py` crashed on a clean clone rather than skipping: viseme ramps are
+  measured from raw dumps the repository does not ship, and the failure took
+  down every character with it, including those that need no measuring at all.
+
 ## 1.5
 
 - **Two apps again, out of one repository.** **Desktop Buddies** is the nine

@@ -1,0 +1,90 @@
+{
+ "animations": {
+  "rest": {
+   "steps": [
+    {
+     "f": 63
+    }
+   ],
+   "fps": 4,
+   "loop": true
+  },
+  "walk": {
+   "steps": [
+    {
+     "f": 114
+    },
+    {
+     "f": 115
+    },
+    {
+     "f": 116
+    },
+    {
+     "f": 117
+    }
+   ],
+   "fps": 10,
+   "loop": true
+  },
+  "aimUp": {
+   "steps": [
+    {
+     "f": 85
+    }
+   ],
+   "fps": 6,
+   "loop": false
+  },
+  "crouch": {
+   "steps": [
+    {
+     "f": 95
+    }
+   ],
+   "fps": 6,
+   "loop": false
+  },
+  "stand": {
+   "steps": [
+    {
+     "f": 58
+    }
+   ],
+   "fps": 4,
+   "loop": false
+  },
+  "arrive": {
+   "steps": [
+    {
+     "f": 58
+    },
+    {
+     "f": 63
+    }
+   ],
+   "fps": 4,
+   "loop": false
+  },
+  "depart": {
+   "steps": [
+    {
+     "f": 114
+    },
+    {
+     "f": 115
+    },
+    {
+     "f": 116
+    },
+    {
+     "f": 117
+    }
+   ],
+   "fps": 10,
+   "loop": false
+  }
+ },
+ "talk": {},
+ "hero": 0
+}

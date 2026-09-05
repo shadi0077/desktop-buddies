@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SNES Buddies — Super Nintendo sprites for your Mac</title>
+<meta name="description" content="Twenty Super Nintendo characters who live on your macOS desktop — Mario, Kirby, Samus, Donkey Kong, Mega Man X, the Turtles and more.">
+<meta property="og:title" content="SNES Buddies">
+<meta property="og:description" content="Twenty Super Nintendo sprites for your Mac — Mario, Kirby, Samus, Donkey Kong, Mega Man X, both Belmonts, the Turtles in Time four and two Earthworm Jims.">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #fbfaf7; --panel: #ffffff; --ink: #1b1b1f; --muted: #5c5c68;
+  --line: #e4e2dc; --accent: #2f5f9e; --accent2: #b4442f; --code: #f4f2ee;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --panel: #1e1e24; --ink: #eceaf0; --muted: #a2a0ad;
+    --line: #2e2e38; --accent: #74a6e8; --accent2: #e8836b; --code: #24242c;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 860px; margin: 0 auto; padding: 0 22px; }
+header { padding: 72px 0 40px; text-align: center; }
+h1 { font-size: clamp(2.2rem, 6vw, 3.2rem); margin: 0 0 .3em; letter-spacing: -.02em; }
+h1 .p { color: var(--accent); } h1 .b { color: var(--accent2); }
+.tag { font-size: 1.15rem; color: var(--muted); max-width: 34em; margin: 0 auto 1.8em; }
+.btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn {
+  display: inline-block; padding: 11px 22px; border-radius: 9px;
+  text-decoration: none; font-weight: 600; border: 1px solid var(--line);
+  color: var(--ink); background: var(--panel);
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+h2 { font-size: 1.5rem; margin: 2.6em 0 .6em; letter-spacing: -.01em; }
+h3 { font-size: 1.1rem; margin: 1.8em 0 .4em; }
+p { margin: 0 0 1em; }
+img { max-width: 100%; height: auto; display: block; border-radius: 10px; border: 1px solid var(--line); }
+figure { margin: 1.4em 0; }
+figcaption { font-size: .88rem; color: var(--muted); margin-top: .6em; text-align: center; }
+.cards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); margin: 1.4em 0; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 11px; padding: 16px 18px; }
+.card h4 { margin: 0 0 .35em; font-size: 1rem; }
+.card p { margin: 0; color: var(--muted); font-size: .93rem; }
+pre {
+  background: var(--code); border: 1px solid var(--line); border-radius: 9px;
+  padding: 14px 16px; overflow-x: auto; font-size: .9rem;
+}
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+p code, li code { background: var(--code); padding: .12em .38em; border-radius: 5px; font-size: .9em; }
+table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: .94rem; display: block; overflow-x: auto; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; }
+.note {
+  background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--accent2);
+  border-radius: 8px; padding: 14px 18px; margin: 1.4em 0; font-size: .95rem;
+}
+.dialogue { background: var(--panel); border: 1px solid var(--line); border-radius: 11px; padding: 18px 22px; margin: 1.2em 0; }
+.dialogue p { margin: 0 0 .5em; }
+.dialogue p:last-child { margin: 0; }
+.dialogue b.p { color: var(--accent); } .dialogue b.b { color: var(--accent2); }
+footer { margin: 4em 0 3em; padding-top: 1.6em; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav style="text-align:center;padding:22px 0 0;font-size:.93rem">
+  <a href="index.html">Both apps</a> ·
+  <a href="desktop-buddies.html">Desktop Buddies</a> ·
+  <a href="megadrive-buddies.html">MegaDrive Buddies</a>
+</nav>
+
+<header>
+  <h1><span class="p">SNES</span> <span class="b">Buddies</span></h1>
+  <p class="tag">Twenty Super Nintendo characters who live on your Mac's desktop.
+  They pace the screen at their own speeds, do the things their games had them do,
+  and talk about video games up to 1997 and nothing after.</p>
+  <div class="btns">
+    <a class="btn primary" href="https://github.com/shadi0077/desktop-buddies">View on GitHub</a>
+    <a class="btn" href="index.html">The other two apps</a>
+  </div>
+</header>
+
+<figure>
+  <img src="img/snes-buddies.png" alt="Twenty Super Nintendo sprites in a row: Mario, Luigi, Kirby, Samus, the last Metroid, Donkey Kong, Diddy Kong, Dixie Kong, Squawks, Mega Man X, Simon Belmont, Richter Belmont, Guy, Pac-Man, Earthworm Jim, Jim without his suit, Leonardo, Raphael, Michelangelo and Donatello">
+  <figcaption>At the sizes they stand at next to each other — a 20-pixel Mario and an 87-pixel Guy, pulled towards each other so both stay clickable.</figcaption>
+</figure>
+
+<pre><code>./build.sh snes-buddies &amp;&amp; open "build/SNES Buddies.app"</code></pre>
+
+<h2>Twenty characters, sixteen games</h2>
+<p>MegaDrive Buddies grew a franchise at a time — four Streets of Rage sheets in
+one layout, then the Sonic games, then the rest of the shelf. This cast arrived
+all at once, and the difference is how little generalises: twenty sheets, drawn
+by different studios for different genres, sharing nothing but the console.</p>
+
+<h2>Two cutters, and neither one wins</h2>
+<p><code>sheet.py</code> splits a sheet into horizontal bands and then columns,
+which is right for a rip laid out in generous rows. It fails outright on two
+layouts, and both are here. <strong>Packed</strong> sheets have no fully-background
+row between sprites, so one band swallows the image. <strong>Boxed</strong> sheets
+draw every frame inside a panel, and that chrome is continuous — Mega Man X cuts
+to <em>exactly one frame</em>, 1420×3294, because the panel borders join every
+sprite on the sheet into a single run of content.</p>
+<p><code>blobs.py</code> cuts from connected components instead: key out the
+background and the chrome, dilate so a sprite's detached parts rejoin, label what
+is left. Mega Man X goes from 1 frame to 1,988, and Samus's 6496×4384 sheet cuts
+in five seconds in pure Pillow. Neither tool wins in general — Link's sheet welds
+solid under dilation and cuts better the old way.</p>
+
+<h2>Dilation is a property of the sheet</h2>
+<p>Turtles in Time disproves the idea of a default inside a single game. Two
+neighbouring frames on Leonardo's sheet sit close enough that dilation welds
+<em>them</em>, so his eight-frame walk cut as seven with a double turtle in the
+middle; no dilation at all splits them cleanly. Run that on Michelangelo and his
+nunchucks come off as eleven little orange splinters with frame numbers of their
+own. Three Turtles are cut one way and the fourth the other, from sheets drawn by
+the same artists for the same game in the same year.</p>
+
+<h2>Captions are frames, and nothing catches them</h2>
+<p>Every sheet here labels its animations, and a label segments exactly like a
+sprite. Mario and Luigi come off the same All-Stars sheet in the same order, and
+frames 9 through 33 are identical between them — so copying the block across is
+right, until <code>victory</code>. Mario's is 45. At 45, Luigi has the word
+<strong>Hold</strong>: a real frame, a plausible size, in the row the walk came
+from, and every automated check passed it. Rendering the clips and looking at
+them is the only thing that finds it.</p>
+
+<h2>Three of them have no walk</h2>
+<p>Squawks flies, with a takeoff and a landing his sheet actually provides. The
+last Metroid floats: no legs, so its travel is the same membrane pulse that
+serves as its idle, stepped across three body sizes. And Jim, out of his suit, is
+a worm — he squirms, slowest of the twenty, because his crawl is eight frames of
+whole-body effort and moving him at any pace makes the effort look free.</p>
+
+<h2>Silent, deliberately</h2>
+<p>They talk in speech bubbles like the Mega Drive cast, but make no sound. There
+is no rip of these games' audio to hand, and putting Sega's grunts on Nintendo's
+characters would be worse than saying nothing — the same reasoning that leaves
+the Mega Drive cartoon characters quiet.</p>
+
+<p class="go"><a href="https://github.com/shadi0077/desktop-buddies/blob/main/docs/snes-buddies.md">The full write-up →</a></p>
+
+<footer>
+  <p>MIT licensed — the code, at least. The characters belong to Nintendo, HAL,
+  Rare, Capcom, Konami, Namco, Interplay, Shiny and others; the MIT grant does not
+  extend to them.</p>
+  <p><a href="https://github.com/shadi0077/desktop-buddies">github.com/shadi0077/desktop-buddies</a>
+  · sibling apps in the same repository: <a href="desktop-buddies.html">Desktop Buddies</a>
+  and <a href="megadrive-buddies.html">MegaDrive Buddies</a></p>
+</footer>
+
+</div>
+</body>
+</html>

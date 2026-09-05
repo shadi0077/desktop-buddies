@@ -1,0 +1,32 @@
+{
+  "id": "snes-buddies",
+  "name": "SNES Buddies",
+  "bundleID": "com.shadi.snesbuddies",
+  "tagline": "Twenty 16-bit heroes who pace, squirm and float across your desktop.",
+  "cast": [
+    "mario",
+    "luigi",
+    "kirby",
+    "samus",
+    "metroid",
+    "dk",
+    "diddy",
+    "dixie",
+    "squawks",
+    "megamanx",
+    "simon",
+    "richter",
+    "guy",
+    "pacman",
+    "ewj",
+    "jimworm",
+    "leo",
+    "raph",
+    "mikey",
+    "donnie"
+  ],
+  "sharedResources": [],
+  "iconCharacter": "kirby",
+  "iconFrame": 0,
+  "credit": "Sprites from Super Mario World, Kirby Super Star, Super Metroid, Donkey Kong Country 1-2, Mega Man X, Super Castlevania IV, Castlevania: Dracula X, Final Fight 3, Pac-Man 2, Teenage Mutant Ninja Turtles IV and Earthworm Jim \u2014 Nintendo, HAL, Rare, Capcom, Konami, Namco, Interplay and Shiny."
+}

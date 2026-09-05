@@ -34,7 +34,15 @@ for p in Personality.all {
     // five of the Office assistant rips are finished frames with no eye
     // patches in them at all — so those are checked where they're claimed
     // rather than demanded of everyone.
-    let required = ["rest", "arrive", "depart", p.travel.cruise, "greet"]
+    //
+    // Greeting belongs with them. It was in this list unconditionally, and the
+    // comment above has said "these four" the whole time while the array held
+    // five: every one of the 37 game rips failed on it, which is 37 of the 38
+    // failures this suite was reporting on main. The nine characters that do
+    // have a `greet` clip are exactly the nine that talk — an Agent character
+    // waves hello, a sprite ripped out of a platformer has no frame for it.
+    var required = ["rest", "arrive", "depart", p.travel.cruise]
+    if p.speaks { required.append("greet") }
     for name in required where store.animation(name) == nil { missing.append(name) }
     if case .flies(let takeoff, _, let land) = p.travel {
         for name in [takeoff, land] where store.animation(name) == nil { missing.append(name) }
@@ -175,9 +183,15 @@ let usable = Banter.available(for: cast, in: .english)
 check("there are exchanges for a full cast", usable.count > 10, "\(usable.count)")
 check("every exchange has at least two speakers",
       usable.allSatisfy { Set($0.map(\.who)).count > 1 })
+// Against the whole roster, not this product's cast. Banter.swift is one
+// global body of dialogue between the Agent characters; a product built
+// without them isn't evidence that its lines name someone who doesn't exist,
+// which is the only thing this check is for. Measured against the cast it
+// failed for every product except Desktop Buddies.
+let roster = Set(Personality.everyone.map(\.id))
 check("no exchange names an unknown character",
       Language.allCases.allSatisfy { l in
-          Banter.all(in: l).allSatisfy { Set($0.map(\.who)).isSubset(of: cast) }
+          Banter.all(in: l).allSatisfy { Set($0.map(\.who)).isSubset(of: roster) }
       })
 check("there are Arabic exchanges too",
       Banter.available(for: cast, in: .arabic).count > 10,

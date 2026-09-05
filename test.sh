@@ -60,6 +60,10 @@ echo "== the cast =="
 swiftc -O $APPKIT $CORE $CONTENT $ENGINE app/Sources/Product.swift \
   app/Sources/Banter.swift tools/casttest/main.swift -o build/casttest
 BUDDY_PRODUCT="products/desktop-buddies.json" BUDDY_APP="$APP" ./build/casttest
+BUDDY_PRODUCT="products/megadrive-buddies.json" \
+  BUDDY_APP="build/MegaDrive Buddies.app" ./build/casttest
+BUDDY_PRODUCT="products/snes-buddies.json" \
+  BUDDY_APP="build/SNES Buddies.app" ./build/casttest
 
 echo
 echo "== the game cast =="
@@ -67,6 +71,8 @@ swiftc -O $APPKIT $CORE $CONTENT $ENGINE app/Sources/Product.swift \
   tools/gamecasttest/main.swift -o build/gamecasttest
 BUDDY_PRODUCT="products/megadrive-buddies.json" \
   BUDDY_APP="build/MegaDrive Buddies.app" ./build/gamecasttest
+BUDDY_PRODUCT="products/snes-buddies.json" \
+  BUDDY_APP="build/SNES Buddies.app" ./build/gamecasttest
 
 echo
 echo "== one sprite per frame =="
@@ -74,12 +80,15 @@ swiftc -O $APPKIT $CORE $CONTENT $ENGINE app/Sources/Product.swift \
   tools/framestest/main.swift -o build/framestest
 BUDDY_PRODUCT="products/megadrive-buddies.json" \
   BUDDY_APP="build/MegaDrive Buddies.app" ./build/framestest
+BUDDY_PRODUCT="products/snes-buddies.json" \
+  BUDDY_APP="build/SNES Buddies.app" ./build/framestest
 
 echo
 echo "== what the game cast talks about =="
 swiftc -O $APPKIT $CORE $CONTENT $ENGINE app/Sources/Product.swift \
   tools/gametalktest/main.swift -o build/gametalktest
 BUDDY_PRODUCT="products/megadrive-buddies.json" ./build/gametalktest
+BUDDY_PRODUCT="products/snes-buddies.json" ./build/gametalktest
 
 echo
 echo "== speech bubbles =="

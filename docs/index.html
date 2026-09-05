@@ -115,6 +115,16 @@ a { color: var(--accent); }
     grunt with the sound effects out of their own games.</p>
     <p class="go"><a href="megadrive-buddies.html">How it works →</a></p>
   </div>
+  <div class="app c">
+    <h3>🩹 SNES Buddies</h3>
+    <img src="img/snes-buddies.png" alt="Twenty Super Nintendo sprites: Mario, Luigi, Kirby, Samus, the last Metroid, Donkey Kong, Diddy Kong, Dixie Kong, Squawks, Mega Man X, Simon and Richter Belmont, Guy, Pac-Man, Earthworm Jim and the worm inside him, and the four Turtles in Time">
+    <p>Twenty Super Nintendo characters, from sixteen games acquired all at once
+    — which is why almost nothing about cutting them generalised. They talk in
+    speech bubbles like the Mega Drive cast, and they are entirely silent: no rip
+    of these games' audio is to hand, and borrowing Sega's grunts for Nintendo's
+    characters would be worse than nothing.</p>
+    <p class="go"><a href="snes-buddies.html">How it works →</a></p>
+  </div>
 </div>
 
 <h2>The idea</h2>
@@ -131,16 +141,16 @@ and each keeps its own characters, positions, volume and size.</p>
   <div class="card"><h4>Nothing phones home</h4><p>No network code in either app. Everything they know is bundled, and always will be.</p></div>
 </div>
 
-<h2>One codebase, two apps</h2>
+<h2>One codebase, three apps</h2>
 <p>A product is a JSON manifest naming a cast. The build copies only that cast's
 sprites — and only the frames its animations actually reference — then stamps
 the name and bundle id into the app. At runtime the app filters its roster and
 its menus to match, so an app where nobody has a voice has no Language submenu
 and offers <em>Let Them Fight</em> rather than <em>Let Them Chat</em>.</p>
-<pre><code>./build.sh                    <span style="opacity:.6"># both</span>
-./build.sh megadrive-buddies  <span style="opacity:.6"># just that one</span></code></pre>
-<p>Adding a third app is a JSON file: no target, no project file, and nothing in
-the Swift sources needs to know it exists.</p>
+<pre><code>./build.sh                    <span style="opacity:.6"># all three</span>
+./build.sh snes-buddies       <span style="opacity:.6"># just that one</span></code></pre>
+<p>Adding an app is a JSON file: no target, no project file, and nothing in the
+Swift sources needs to know it exists. SNES Buddies was the third.</p>
 
 <h2>Getting them running</h2>
 <p>macOS 11 Big Sur or later, on Apple Silicon, plus the Xcode command line
@@ -148,14 +158,14 @@ tools. A clone builds and runs directly — the sprites are included.</p>
 <pre><code>git clone https://github.com/shadi0077/desktop-buddies.git
 cd desktop-buddies
 ./build.sh
-open "build/Desktop Buddies.app" "build/MegaDrive Buddies.app"</code></pre>
+open "build/Desktop Buddies.app" "build/MegaDrive Buddies.app" "build/SNES Buddies.app"</code></pre>
 
 <div class="note">
   <strong>On the artwork.</strong> None of the character art or sound is mine to
   license, and none of it is covered by the MIT licence — the Microsoft Agent
   characters belong to Microsoft, Bonzi Software and the Office XP set's owners;
-  the game sprites and sounds to Sega, SNK, Capcom, Konami, Interplay, Disney,
-  Marvel and others. It is included so this runs from a clone. See
+  the game sprites and sounds to Sega, Nintendo, HAL, Rare, SNK, Capcom, Konami,
+  Namco, Interplay, Shiny, Disney, Marvel and others. It is included so this runs from a clone. See
   <a href="https://github.com/shadi0077/desktop-buddies/blob/main/docs/SPRITES.md">docs/SPRITES.md</a>.
 </div>
 

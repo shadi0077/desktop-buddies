@@ -201,6 +201,11 @@ struct Personality {
         .donald, .moonwalker, .sparkster,
         .robert, .ryu, .musashi, .gambit, .sketch,      // brawlers
         .raphael, .leonardo, .michelangelo, .donatello, // Hyperstone Heist
+        // SNES
+        .mario, .luigi, .kirby, .samus, .metroid,
+        .dk, .diddy, .dixie, .squawks,
+        .megamanx, .simon, .richter, .guy, .pacman, .ewj, .jimworm,
+        .leo, .raph, .mikey, .donnie,
     ]
 
     static let all: [Personality] = {

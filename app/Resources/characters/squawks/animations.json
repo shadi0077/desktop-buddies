@@ -1,0 +1,102 @@
+{
+ "animations": {
+  "rest": {
+   "steps": [
+    {
+     "f": 0
+    },
+    {
+     "f": 1
+    },
+    {
+     "f": 2
+    },
+    {
+     "f": 3
+    }
+   ],
+   "fps": 8,
+   "loop": true
+  },
+  "flap": {
+   "steps": [
+    {
+     "f": 0
+    },
+    {
+     "f": 1
+    },
+    {
+     "f": 2
+    },
+    {
+     "f": 3
+    }
+   ],
+   "fps": 11,
+   "loop": true
+  },
+  "takeoff": {
+   "steps": [
+    {
+     "f": 0
+    },
+    {
+     "f": 1
+    }
+   ],
+   "fps": 10,
+   "loop": false
+  },
+  "land": {
+   "steps": [
+    {
+     "f": 2
+    },
+    {
+     "f": 3
+    }
+   ],
+   "fps": 10,
+   "loop": false
+  },
+  "arrive": {
+   "steps": [
+    {
+     "f": 0
+    },
+    {
+     "f": 1
+    },
+    {
+     "f": 2
+    },
+    {
+     "f": 3
+    }
+   ],
+   "fps": 11,
+   "loop": false
+  },
+  "depart": {
+   "steps": [
+    {
+     "f": 0
+    },
+    {
+     "f": 1
+    },
+    {
+     "f": 2
+    },
+    {
+     "f": 3
+    }
+   ],
+   "fps": 11,
+   "loop": false
+  }
+ },
+ "talk": {},
+ "hero": 0
+}

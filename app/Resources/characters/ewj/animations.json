@@ -1,0 +1,120 @@
+{
+ "animations": {
+  "rest": {
+   "steps": [
+    {
+     "f": 2
+    },
+    {
+     "f": 3
+    },
+    {
+     "f": 4
+    }
+   ],
+   "fps": 5,
+   "loop": true
+  },
+  "walk": {
+   "steps": [
+    {
+     "f": 10
+    },
+    {
+     "f": 11
+    },
+    {
+     "f": 12
+    },
+    {
+     "f": 13
+    }
+   ],
+   "fps": 11,
+   "loop": true
+  },
+  "whip": {
+   "steps": [
+    {
+     "f": 16
+    }
+   ],
+   "fps": 8,
+   "loop": false
+  },
+  "shoot": {
+   "steps": [
+    {
+     "f": 17
+    },
+    {
+     "f": 18
+    },
+    {
+     "f": 20
+    }
+   ],
+   "fps": 10,
+   "loop": false
+  },
+  "attack": {
+   "steps": [
+    {
+     "f": 17
+    },
+    {
+     "f": 18
+    },
+    {
+     "f": 20
+    }
+   ],
+   "fps": 10,
+   "loop": false
+  },
+  "jump": {
+   "steps": [
+    {
+     "f": 47
+    }
+   ],
+   "fps": 8,
+   "loop": false
+  },
+  "arrive": {
+   "steps": [
+    {
+     "f": 17
+    },
+    {
+     "f": 18
+    },
+    {
+     "f": 20
+    }
+   ],
+   "fps": 10,
+   "loop": false
+  },
+  "depart": {
+   "steps": [
+    {
+     "f": 10
+    },
+    {
+     "f": 11
+    },
+    {
+     "f": 12
+    },
+    {
+     "f": 13
+    }
+   ],
+   "fps": 11,
+   "loop": false
+  }
+ },
+ "talk": {},
+ "hero": 0
+}

@@ -807,6 +807,332 @@ def build(name, clips, talk):
 
 import os.path
 
+# --------------------------------------------------------------------------
+# SNES Buddies. Twenty rips from sixteen different games, so unlike the Streets
+# of Rage cast there is no shared layout to lean on — each sheet was cut with
+# `sheet.py` or `blobs.py`, rendered with `index.py`, and read by eye.
+#
+# Two things about these sheets that the Genesis rips did not have:
+#
+# Captions are frames. Every SNES rip here labels its animations, and those
+# labels segment exactly like sprites do. On the Super Mario World sheet they
+# land on their own rows, which is harmless. On Samus's they outnumber the
+# sprites, and on Simon's they sit mid-row between the walk and the whip. None
+# of them can be filtered by size without also throwing away a crouch, so every
+# range below was read off a rendered index.
+#
+# Nobody has both a walk and an idle worth looping. A beat-'em-up sprite stands
+# guard for eight frames because standing guard is a pose in that genre; a
+# platformer hero stands on one frame and waits. So several `rest` clips here
+# are a single frame held, which is what the source art is, rather than a loop
+# invented by repeating frames that were never drawn to cycle.
+# --------------------------------------------------------------------------
+
+# Super Mario World. `Idle | Look Up | Duck | Walk | Run` are captioned on the
+# row above their sprites, which is the only reason the two-frame walk is
+# identifiable at all — 12 and 13 differ by about a shoelace.
+MARIO = {
+    "rest":      ([9], 4, True),
+    "walk":      (rng(12, 13), 8, True),
+    "run":       (rng(14, 16), 12, True),
+    "duck":      ([11], 6, False),
+    "lookUp":    ([10], 4, False),
+    "jump":      ([33], 8, False),
+    "victory":   ([45], 5, False),
+    "arrive":    ([33, 9], 6, False),
+    "depart":    (rng(12, 13), 8, False),
+}
+
+# Luigi, from the same All-Stars sheet laid out the same way — but not at the
+# same indices, and this is the trap that caught this cast. His sheet cuts to
+# twelve fewer frames, and the drift does not start at the top: 9 through 33
+# are identical to Mario's, so copying the whole block across looks right and
+# is right, until `victory`. Mario's is 45; at 45 Luigi has the caption
+# "Hold", and his victory pose is 44.
+#
+# Nothing catches that. The frame exists, it is a plausible size, and it sits
+# in the row the walk came from — it is simply the word "Hold" in yellow. It
+# took rendering the clips with `clips.py` and looking at them.
+LUIGI = {
+    "rest":      ([9], 4, True),
+    "walk":      (rng(12, 13), 8, True),
+    "run":       (rng(14, 16), 12, True),
+    "duck":      ([11], 6, False),
+    "lookUp":    ([10], 4, False),
+    "jump":      ([33], 8, False),
+    "victory":   ([44], 5, False),
+    "arrive":    ([33, 9], 6, False),
+    "depart":    (rng(12, 13), 8, False),
+}
+
+# Kirby Super Star. The cleanest sheet of the twelve — no captions anywhere —
+# and the puffed-up float frames at 29-32 are a second travel cycle in their
+# own right, which is why he is the one character here who walks and flies.
+KIRBY = {
+    "rest":      ([0, 0, 0, 1], 3, True),
+    "walk":      (rng(7, 10), 10, True),
+    "float":     (rng(29, 32), 6, True),
+    "inhale":    (rng(14, 16), 8, False),
+    "jump":      ([13], 8, False),
+    "shout":     ([6], 6, False),
+    "squash":    ([11], 6, False),
+    "arrive":    (rng(29, 32), 6, False),
+    "depart":    (rng(7, 10), 10, False),
+}
+
+# Super Metroid. A 6496x4384 sheet that is more caption than sprite: the rip
+# labels every animation index, so 917 of its components are text and get
+# dropped by size. What survives is clean, and 114-117 is the walk.
+#
+# `rest` is 63 and not the front-facing 58 it started as. Both are Samus
+# standing still and 58 is the better drawing, but everything else she does here
+# is in profile, so a face-on idle would turn ninety degrees the moment she took
+# a step. She keeps the face-on pose as `stand`, where turning towards you is
+# deliberate and reads as a flourish rather than a snap.
+SAMUS = {
+    "rest":      ([63], 4, True),
+    "walk":      (rng(114, 117), 10, True),
+    "aimUp":     ([85], 6, False),
+    "crouch":    ([95], 6, False),
+    "stand":     ([58], 4, False),
+    "arrive":    ([58, 63], 4, False),
+    "depart":    (rng(114, 117), 10, False),
+}
+
+# The last Metroid, from the same game. It has no walk because it has no legs:
+# the sheet is one creature at three membrane sizes, cycling colour. The pulse
+# is made by stepping across those sizes rather than along a row.
+METROID = {
+    "rest":      ([0, 10, 20, 10], 5, True),
+    "float":     ([0, 10, 20, 10], 5, True),
+    "flash":     ([4, 14, 24], 8, False),
+    "arrive":    ([20, 10, 0], 6, False),
+    "depart":    ([0, 10, 20], 6, False),
+}
+
+# Mega Man X. The sheet draws every armour part in bordered panels, and those
+# borders weld the whole 1420x3294 image into one component — it cuts to
+# exactly one frame with `sheet.py`. `blobs.py` with the panel colour keyed is
+# the only reason he is in this cast.
+MEGAMANX = {
+    "rest":      ([13], 4, True),
+    "walk":      (rng(76, 83), 14, True),
+    "dash":      ([26], 8, False),
+    "shoot":     ([44, 46], 10, False),
+    "attack":    ([44, 46], 10, False),
+    "jump":      ([62], 8, False),
+    "charge":    (rng(30, 33), 10, False),
+    "arrive":    ([62, 13], 6, False),
+    "depart":    (rng(76, 83), 14, False),
+}
+
+# Donkey Kong Country. The biggest sprite here by a wide margin, and he walks
+# on his knuckles, so the walk is the four-legged gait rather than anything
+# upright.
+#
+# The gait alternates: he gathers (73, 74, 76, 78, at 38-44 wide) and then
+# lunges onto his hands (75, 77, 79, 82, at 52-66 wide). Reading the row that
+# looked like one animation, the first guess was 72-83 — but 72 is still the
+# upright stance he pushes off from, so it would drop a standing frame into the
+# gait once per cycle. The walk starts at 73. The gallop at 84-95 is the same
+# alternation stretched further, which is why it reads as a run.
+DK = {
+    "rest":      (rng(0, 10), 8, True),
+    "walk":      (rng(73, 83), 10, True),
+    "run":       (rng(84, 95), 14, True),
+    "chestBeat": (rng(26, 33), 10, False),
+    "clap":      (rng(38, 46), 10, False),
+    "arrive":    (rng(26, 33), 10, False),
+    "depart":    (rng(73, 83), 10, False),
+}
+
+# Diddy Kong, same rip. `Walking` and `Running` are captioned as separate 32x9
+# frames at 42 and 43, which is what makes 44 the first frame of the walk and
+# not the last of the idle. The idle stops at 8: from 9 he starts a second,
+# wider fidget that does not join back onto the first, so looping the two
+# together would put a jump between two stances in the middle of the cycle.
+DIDDY = {
+    "rest":      (rng(1, 8), 8, True),
+    "walk":      (rng(44, 51), 12, True),
+    "cartwheel": (rng(73, 80), 14, False),
+    "jump":      ([95], 8, False),
+    "arrive":    (rng(73, 80), 14, False),
+    "depart":    (rng(44, 51), 12, False),
+}
+
+# Dixie Kong, Diddy's Kong Quest. Twelve frames of idle — she flicks her
+# ponytail while standing, which is the longest genuine idle loop in this cast.
+DIXIE = {
+    "rest":      (rng(0, 11), 8, True),
+    "walk":      (rng(51, 62), 12, True),
+    # 65 is two sprites the cutter joined into one frame, so the run skips it
+    # rather than showing a double Dixie once a cycle.
+    "run":       (rng(66, 74), 14, True),
+    "jump":      ([79], 8, False),
+    "arrive":    (rng(66, 74), 14, False),
+    "depart":    (rng(51, 62), 12, False),
+}
+
+# Squawks the parrot. A four-frame flap and very little else — the rest of his
+# sheet is the DKC3 recolour and the purple Quawks. The flap is his idle and
+# his cruise both, because a hovering parrot never stops flapping.
+SQUAWKS = {
+    "rest":      (rng(0, 3), 8, True),
+    "flap":      (rng(0, 3), 11, True),
+    "takeoff":   (rng(0, 1), 10, False),
+    "land":      (rng(2, 3), 10, False),
+    "arrive":    (rng(0, 3), 11, False),
+    "depart":    (rng(0, 3), 11, False),
+}
+
+# Super Castlevania IV. Six captions on their own row name the six blocks in
+# the row above: idle, ducking, jumping, six frames of walk, then the stairs.
+SIMON = {
+    "rest":      ([0], 4, True),
+    "walk":      (rng(3, 8), 10, True),
+    "duck":      ([1], 6, False),
+    "jump":      ([2], 8, False),
+    "whip":      (rng(52, 57), 12, False),
+    "attack":    (rng(52, 57), 12, False),   # the whip, by its sparring name
+    "arrive":    (rng(52, 57), 12, False),
+    "depart":    (rng(3, 8), 10, False),
+}
+
+# Earthworm Jim, out of the suit (SNES). He has no legs either, but unlike the Metroid
+# he travels: `Squirming` at 15-22 is a whole-body crawl, and it is by some way
+# the best-looking walk cycle in this cast.
+JIMWORM = {
+    "rest":      (rng(0, 2), 4, True),
+    "squirm":    (rng(15, 22), 12, True),
+    "walk":      (rng(15, 22), 12, True),
+    "jump":      (rng(24, 29), 12, False),
+    "spin":      (rng(46, 49), 12, False),
+    "arrive":    (rng(24, 29), 12, False),
+    "depart":    (rng(15, 22), 12, False),
+}
+
+
+# --------------------------------------------------------------------------
+# The second wave: four Turtles, two brawlers, a Belmont and a Pac-Man.
+#
+# Every one of these came off a sheet that needed its own dilation setting,
+# which is the thing the first twelve did not teach. `--gap 3` joins a sprite's
+# detached parts, and that is usually right — but in Turtles in Time two
+# neighbouring frames sit close enough that the dilation welds *them*, so Leo's
+# eight-frame walk cut as seven with a double-turtle in the middle. Dropping to
+# `--gap 1` splits them cleanly.
+#
+# It is not a better setting, it is a different trade. At `--gap 1` Michelangelo
+# loses his nunchucks: they hang a pixel clear of his hands and become eleven
+# little orange splinters with their own frame numbers. He is cut at 3 and the
+# others at 1, from sheets drawn by the same artists for the same game.
+# --------------------------------------------------------------------------
+
+# Final Fight 3. His idle row and his run row overlap vertically on the sheet,
+# so the cutter reads them as one band and interleaves them left to right:
+# 16, 18, 20 are the standing frames and 17, 19, 21 the running ones, alternating
+# all the way along. Taking 16-23 as a range would have him flickering between
+# standing still and sprinting.
+GUY = {
+    "rest":      ([16, 18, 20], 6, True),
+    "walk":      ([22, 24, 27, 29, 31, 34], 10, True),
+    "run":       ([17, 19, 21, 23, 25, 28], 14, True),
+    # 43-45 are a jumping knee and a flying kick, not a punch — named
+    # for what they are after rendering them.
+    "jumpKick":  (rng(43, 45), 12, False),
+    "kick":      (rng(46, 47), 10, False),
+    "arrive":    ([20, 16], 6, False),
+    "depart":    ([22, 24, 27, 29, 31, 34], 10, False),
+}
+
+# Castlevania: Dracula X. The captions sit above their sprites and only two of
+# the five survived the cut, so the boundary between idle and walk is read off
+# the sprites themselves: 2-5 stand with the cape moving, 6-11 have his legs
+# apart.
+RICHTER = {
+    "rest":      (rng(2, 5), 6, True),
+    "walk":      (rng(6, 11), 10, True),
+    "whip":      (rng(26, 29), 12, False),
+    "attack":    (rng(26, 29), 12, False),
+    "arrive":    (rng(26, 29), 12, False),
+    "depart":    (rng(6, 11), 10, False),
+}
+
+# Pac-Man 2. The rip is ordered by the game's own pattern tester, which its
+# author described as utterly nonsensical, and it is: the walk is at 0-7 and the
+# idle is 74 frames later. He also has a back view — 40-47 are Pac-Man from
+# behind, faceless and easy to mistake for a pose.
+PACMAN = {
+    "rest":      ([74, 75], 4, True),
+    "walk":      (rng(0, 7), 12, True),
+    "cheer":     (rng(76, 79), 8, False),
+    "arrive":    (rng(76, 79), 8, False),
+    "depart":    (rng(0, 7), 12, False),
+}
+
+# Turtles in Time. Four sheets, four different offsets — the same lesson Luigi
+# taught, learned again four times over. Their idles all face the viewer, which
+# is the beat-'em-up convention, and their walks are all in profile.
+LEO = {
+    "rest":      (rng(2, 6), 7, True),
+    "walk":      (rng(7, 14), 12, True),
+    "jump":      ([17], 8, False),
+    "attack":    (rng(36, 38), 12, False),
+    "roll":      (rng(19, 21), 12, False),
+    "arrive":    (rng(19, 21), 12, False),
+    "depart":    (rng(7, 14), 12, False),
+}
+
+RAPH = {
+    "rest":      (rng(3, 8), 7, True),
+    "walk":      (rng(9, 16), 12, True),
+    "jump":      ([19], 8, False),
+    # 31 is him rolled into his shell; 32 is the sai actually out.
+    "attack":    ([32], 8, False),
+    "arrive":    ([19, 21], 8, False),
+    "depart":    (rng(9, 16), 12, False),
+}
+
+MIKEY = {
+    "rest":      (rng(2, 5), 7, True),
+    "walk":      (rng(8, 15), 12, True),
+    "swing":     (rng(6, 7), 10, False),
+    "attack":    (rng(6, 7), 10, False),
+    "flip":      (rng(18, 21), 12, False),
+    "arrive":    (rng(18, 21), 12, False),
+    "depart":    (rng(8, 15), 12, False),
+}
+
+# Donatello's sheet is the odd one of the four: 699x3924 and forty-six rows,
+# with his walk sitting at 33-40 rather than up with the idle. His idle is two
+# frames, which is all the rip gives him.
+DONNIE = {
+    "rest":      ([2, 3], 4, True),
+    "walk":      (rng(33, 40), 12, True),
+    "swing":     ([4], 8, False),
+    "attack":    ([4], 8, False),
+    "spin":      (rng(14, 16), 12, False),
+    "arrive":    (rng(14, 16), 12, False),
+    "depart":    (rng(33, 40), 12, False),
+}
+
+# Earthworm Jim, in the suit this time. He and the worm at `jim` are the same
+# character out of the same game, from two different rips — so the suit keeps
+# the name and the worm becomes "Jim (No Suit)", the way the two Axels are told
+# apart in the other app.
+EWJ = {
+    "rest":      (rng(2, 4), 5, True),
+    "walk":      (rng(10, 13), 11, True),
+    "whip":      ([16], 8, False),
+    # 19 is Jim lunging forward, not firing — a real frame, wrong beat.
+    "shoot":     ([17, 18, 20], 10, False),
+    "attack":    ([17, 18, 20], 10, False),
+    "jump":      ([47], 8, False),
+    "arrive":    ([17, 18, 20], 10, False),
+    "depart":    (rng(10, 13), 11, False),
+}
+
+
 GAMES = [("axel", AXEL), ("blaze", BLAZE), ("maxsor", MAXSOR), ("skate", SKATE),
          ("adam", ADAM), ("axel1", AXEL1), ("blaze1", BLAZE1), ("axel3", AXEL3),
          ("galsia", GALSIA), ("donovan", DONOVAN), ("eagle", EAGLE), ("slum", SLUM),
@@ -820,15 +1146,35 @@ GAMES = [("axel", AXEL), ("blaze", BLAZE), ("maxsor", MAXSOR), ("skate", SKATE),
          ("raphael", RAPHAEL), ("leonardo", LEONARDO),
          ("michelangelo", MICHELANGELO), ("donatello", DONATELLO)]
 
+# The SNES shelf, kept as its own list so a product manifest can
+# pick from it without wading through the Mega Drive one.
+SNES = [("mario", MARIO), ("luigi", LUIGI), ("kirby", KIRBY),
+        ("samus", SAMUS), ("metroid", METROID), ("megamanx", MEGAMANX),
+        ("dk", DK), ("diddy", DIDDY), ("dixie", DIXIE),
+        ("squawks", SQUAWKS), ("simon", SIMON), ("jimworm", JIMWORM),
+        ("guy", GUY), ("richter", RICHTER), ("pacman", PACMAN),
+        ("leo", LEO), ("raph", RAPH), ("mikey", MIKEY), ("donnie", DONNIE),
+        ("ewj", EWJ)]
+
 for name, clips, talk in [("peedy", PEEDY, PEEDY_TALK), ("bonzi", BONZI, BONZI_TALK),
                           ("max", MAX, MAX_TALK),
                           ("merlin", MERLIN, MERLIN_TALK),
                           ("rover", ROVER, {}), ("clippy", CLIPPY, {}),
                           ("earl", EARL, {}), ("f1", F1, {}),
-                          ("manma", MANMA, {})] + [(n, c, {}) for n, c in GAMES]:
+                          ("manma", MANMA, {})] + [(n, c, {}) for n, c in GAMES + SNES]:
     # Bonzi is optional; skip anyone whose sprites haven't been imported.
     if not os.path.isdir(f"assets/{name}/rgba") and not os.path.isdir(
             f"app/Resources/characters/{name}/frames"):
         print(f"{name}: no sprites imported, skipping")
+        continue
+    # Viseme ramps are *measured* off the raw frames, which `assets/` holds and
+    # the repository does not ship. A character with mouth patches therefore
+    # can't be rebuilt from a clone — only from the source dumps setup.sh
+    # unpacks. Skip rather than crash: their animations.json is committed and
+    # current, and stopping here took the whole run down with it, including
+    # every character that needs no measuring at all.
+    if talk and not os.path.isdir(f"assets/{name}/rgba"):
+        print(f"{name}: needs the raw dump to measure visemes "
+              f"(./setup.sh), keeping the committed catalogue")
         continue
     build(name, clips, talk)

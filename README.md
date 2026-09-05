@@ -10,7 +10,7 @@ cursor, and talk to each other when more than one of them is out.
 
 📖 **[shadi0077.github.io/desktop-buddies](https://shadi0077.github.io/desktop-buddies/)**
 
-## The two apps
+## The three apps
 
 ### 🦜 Desktop Buddies — [full documentation](docs/desktop-buddies.md)
 
@@ -42,7 +42,22 @@ with the sound effects out of their own games.
 ./build.sh megadrive-buddies && open "build/MegaDrive Buddies.app"
 ```
 
-Neither app has network access, analytics, bundled anything, or an upsell. They
+### 🕹️ SNES Buddies — [full documentation](docs/snes-buddies.md)
+
+![The SNES cast, at the sizes they stand at next to each other](docs/img/snes-buddies.png)
+
+Twenty Super Nintendo characters — Mario, Luigi, Kirby, Samus, the last Metroid,
+the Donkey Kong Country four, Mega Man X, both Belmonts, Guy, Pac-Man, the
+Turtles in Time four, and Earthworm Jim in and out of his suit. Seventeen walk,
+Squawks flies, the Metroid floats, and Jim, out of the suit, squirms. They talk
+in speech bubbles like the Mega Drive cast, and they are silent: no rip of these
+games' audio is to hand, and borrowing Sega's grunts would be worse.
+
+```bash
+./build.sh snes-buddies && open "build/SNES Buddies.app"
+```
+
+No app here has network access, analytics, bundled anything, or an upsell. They
 are windows that draw a character. Quit them from the menu bar and they're gone.
 They keep separate bundle identifiers, so both can run at once with their own
 characters, positions, volume and size.
@@ -72,7 +87,7 @@ assembles each `.app`, and ad-hoc signs it — 18 MB and 13 MB, a few seconds ea
 > [docs/SPRITES.md](docs/SPRITES.md). Rights holders: open an issue and it
 > comes down.
 
-## One codebase, two apps
+## One codebase, three apps
 
 A product is a JSON manifest in `products/` — a name, a bundle identifier, and
 a cast:
